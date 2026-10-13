@@ -30,6 +30,7 @@ import { useNativeChatHeldQueueComposerSend } from './use-native-chat-held-queue
 import { useImeEnterGestureOwnership } from '@/lib/ime-composition-keyboard-event'
 import { useNativeChatComposerAppMenuSelection } from './use-native-chat-composer-app-menu-selection'
 import { useNativeChatComposerSubmit } from './use-native-chat-composer-submit'
+import { useNativeChatResumeCommand } from './use-native-chat-resume-command'
 
 export type {
   NativeChatComposerHandle,
@@ -136,6 +137,16 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
       dismiss,
       handleDraftOrCaretChange
     } = picker
+    const resumeCommand = useNativeChatResumeCommand({
+      structured: Boolean(structuredTransport),
+      terminalTabId,
+      structuredWorktreeId: structuredTransport?.worktreeId,
+      isPickedSkill: picker.isPickedSkill,
+      setDraft,
+      setCaret,
+      setActiveSuggestion,
+      setNotice
+    })
     const mentionFiles = useNativeChatMentionFiles({
       query: autocomplete.mode === 'mention' ? autocomplete.query : null,
       terminalTabId,
@@ -294,6 +305,7 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
       disabled,
       sendPty,
       sendStructured,
+      consumeOrcaCommand: resumeCommand.consume,
       setDraft,
       setCaret
     })
@@ -327,7 +339,9 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
       recall: recall.recall,
       isComposing: imeEnterGesture.isComposing,
       completePickerItem: goalMode.interceptPick(completeItem),
-      dispatchPickerCommand: goalMode.interceptPick(dispatchPickerCommand),
+      dispatchPickerCommand: goalMode.interceptPick(
+        resumeCommand.interceptPick(dispatchPickerCommand, autocomplete)
+      ),
       dismissPicker: dismiss,
       interrupt,
       send,
@@ -388,7 +402,9 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
         }}
         onPaste={handlePasteEvent}
         pickerListboxId={picker.listboxId}
-        onChoosePickerItem={goalMode.interceptPick(completeItem)}
+        onChoosePickerItem={goalMode.interceptPick(
+          resumeCommand.interceptPick(completeItem, autocomplete)
+        )}
         goalMode={goalMode}
         onRetrySkills={picker.retrySkills}
         onChooseMentionFile={completeMention}
