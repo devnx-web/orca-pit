@@ -8,6 +8,8 @@ import type {
   DevnxControlStatus
 } from '../../shared/devnx-control-types'
 import { claudeHookService } from '../claude/hook-service'
+import { probeRecentClaudeCliVersion } from '../claude/claude-hook-event-versions'
+import { resolveClaudeCommand } from '../codex-cli/command'
 import { isAgentStatusHooksEnabledForAgent } from '../agent-hooks/managed-agent-hook-controls'
 import { mainProcessState as state } from '../startup/main-process-state'
 import { DevnxControlBrokerServer } from './devnx-control-broker-server'
@@ -120,16 +122,20 @@ export class DevnxControlService {
     return home
   }
 
-  // Why: Orca's agent status comes from hooks in the active Claude config dir, which is ours here.
+  // Why: Orca's agent status comes from hooks in the active Claude config dir, which is ours
+  // here. The version decides the event plan; without it Claude gets only the oldest events,
+  // so waiting-for-permission and failures never reach the sidebar.
   private installClaudeHooks(): void {
     if (!isAgentStatusHooksEnabledForAgent(state.store?.getSettings(), 'claude')) {
       return
     }
-    try {
-      claudeHookService.install({ configDir: this.client.paths.claudeHome })
-    } catch (error) {
-      console.warn('[devnx-control] Claude hook install failed:', error)
-    }
+    const configDir = this.client.paths.claudeHome
+    void probeRecentClaudeCliVersion(resolveClaudeCommand())
+      .catch(() => null)
+      .then((claudeVersion) =>
+        claudeHookService.install({ configDir, claudeVersion: claudeVersion ?? undefined })
+      )
+      .catch((error: unknown) => console.warn('[devnx-control] Claude hook install failed:', error))
   }
 }
 
