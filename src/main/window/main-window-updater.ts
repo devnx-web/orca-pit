@@ -1,4 +1,5 @@
 import { app, ipcMain } from 'electron'
+import { isForkUpdaterOff } from './orca-pit-updater-gate'
 import type { BrowserWindow, IpcMainInvokeEvent } from 'electron'
 import type { ReleaseBuildListResult, UpdateCheckOptions } from '../../shared/update-status-types'
 import { RELEASE_CHANNELS, type ReleaseChannel } from '../../shared/release-channel'
@@ -74,6 +75,9 @@ function buildUpdaterSetupOptions(store: Store, options?: UpdaterSetupHooks): Up
  */
 export function setupHeadlessServeAutoUpdater(store: Store, options: UpdaterSetupHooks): void {
   setImmediate(() => {
+    if (isForkUpdaterOff()) {
+      return
+    }
     try {
       setupAutoUpdater(null, buildUpdaterSetupOptions(store, options))
       logStartupMilestone('updater-setup-done')
@@ -109,6 +113,9 @@ export function scheduleMainWindowAutoUpdaterSetup(
     }
     updaterSetupDone = true
     try {
+      if (isForkUpdaterOff()) {
+        return
+      }
       setupAutoUpdater(mainWindow, buildUpdaterSetupOptions(store, options))
       logStartupMilestone('updater-setup-done')
     } finally {
@@ -142,6 +149,9 @@ export function registerUpdaterHandlers(_store: Store): void {
   ipcMain.handle('updater:getStatus', () => getUpdateStatus())
   ipcMain.handle('updater:getVersion', () => app.getVersion())
   ipcMain.handle('updater:check', (_event, options?: UpdateCheckOptions) => {
+    if (isForkUpdaterOff()) {
+      return
+    }
     ensureAutoUpdaterConfigured()
     return checkForUpdatesFromMenu(options)
   })

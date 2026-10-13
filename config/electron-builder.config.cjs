@@ -783,8 +783,9 @@ module.exports = {
   npmRebuild: true,
   publish: {
     provider: 'github',
-    owner: 'stablyai',
-    repo: devChannelRepo ?? 'orca',
+    // Orca-Pit: any update feed baked into the package must be the fork, never Stably's.
+    owner: 'devnx-web',
+    repo: devChannelRepo ?? 'orca-pit',
     // Why draft on the main repo: `--publish always` otherwise creates a
     // public GitHub release as soon as the first platform uploads, and
     // /releases/latest serves a missing Windows exe. release-cut undrafts
