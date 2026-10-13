@@ -79,7 +79,7 @@ export function DevnxControlSection(): React.JSX.Element | null {
       const next = unwrap(await api.connect({ baseUrl, email, password }))
       if (next) {
         setPassword('')
-        toast.success(translate('devnx.connected', 'Conectado ao DevNX Control.'))
+        toast.success(translate('devnx.connected', 'Connected to DevNX Control.'))
       }
       await apply(next)
     } finally {
@@ -126,7 +126,7 @@ export function DevnxControlSection(): React.JSX.Element | null {
         <p className="text-xs text-muted-foreground">
           {translate(
             'devnx.description',
-            'Entre com o seu usuário do painel. Ele escolhe a conta do Claude, do Codex e do Antigravity de cada terminal novo, sem login nos CLIs.'
+            'Sign in with your panel user. It picks the Claude, Codex and Antigravity account for each new terminal, with no CLI login.'
           )}
         </p>
       </div>
@@ -135,7 +135,12 @@ export function DevnxControlSection(): React.JSX.Element | null {
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/20 p-3">
             <div className="min-w-0 space-y-1 text-xs">
-              <p className="truncate font-medium">{status?.baseUrl}</p>
+              <p className="truncate font-medium">
+                {status?.baseUrl}
+                {status?.source === 'cockpit'
+                  ? ` · ${translate('devnx.fromCockpit', 'Cockpit pairing')}`
+                  : null}
+              </p>
               <p className="text-muted-foreground">
                 {DEVNX_CONTROL_PROVIDERS.map((provider) => {
                   const account = status?.selected[provider]
@@ -155,7 +160,7 @@ export function DevnxControlSection(): React.JSX.Element | null {
                 ) : (
                   <RefreshCw className="size-3" />
                 )}
-                {translate('devnx.refresh', 'Atualizar')}
+                {translate('devnx.refresh', 'Refresh')}
               </Button>
               <Button
                 variant="outline"
@@ -168,14 +173,14 @@ export function DevnxControlSection(): React.JSX.Element | null {
                 ) : (
                   <LogOut className="size-3" />
                 )}
-                {translate('devnx.logout', 'Sair')}
+                {translate('devnx.logout', 'Sign out')}
               </Button>
             </div>
           </div>
           <p className="text-xs text-muted-foreground">
             {translate(
               'devnx.newTerminalsOnly',
-              'A troca de conta do Codex e do Antigravity vale para terminais novos. O Claude troca também nos terminais abertos.'
+              'Codex and Antigravity account changes apply to new terminals. Claude also switches in open terminals.'
             )}
           </p>
           <DevnxControlAccountsTable
@@ -193,7 +198,7 @@ export function DevnxControlSection(): React.JSX.Element | null {
           }}
         >
           <div className="space-y-1 sm:col-span-2">
-            <Label htmlFor="devnx-base-url">{translate('devnx.url', 'Endereço do painel')}</Label>
+            <Label htmlFor="devnx-base-url">{translate('devnx.url', 'Panel address')}</Label>
             <Input
               id="devnx-base-url"
               value={baseUrl}
@@ -201,7 +206,7 @@ export function DevnxControlSection(): React.JSX.Element | null {
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="devnx-email">{translate('devnx.email', 'E-mail')}</Label>
+            <Label htmlFor="devnx-email">{translate('devnx.email', 'Email')}</Label>
             <Input
               id="devnx-email"
               type="email"
@@ -211,7 +216,7 @@ export function DevnxControlSection(): React.JSX.Element | null {
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="devnx-password">{translate('devnx.password', 'Senha')}</Label>
+            <Label htmlFor="devnx-password">{translate('devnx.password', 'Password')}</Label>
             <Input
               id="devnx-password"
               type="password"
@@ -223,7 +228,7 @@ export function DevnxControlSection(): React.JSX.Element | null {
           <div className="sm:col-span-2">
             <Button type="submit" size="sm" disabled={busy !== null || !email || !password}>
               {busy === 'connect' ? <Loader2 className="size-3 animate-spin" /> : null}
-              {translate('devnx.connect', 'Entrar')}
+              {translate('devnx.connect', 'Sign in')}
             </Button>
           </div>
         </form>

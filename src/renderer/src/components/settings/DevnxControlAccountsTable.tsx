@@ -32,7 +32,7 @@ export function DevnxControlAccountsTable({
   if (accounts.length === 0) {
     return (
       <p className="text-xs text-muted-foreground">
-        {translate('devnx.accounts.empty', 'Nenhuma conta cadastrada no painel para esta empresa.')}
+        {translate('devnx.accounts.empty', 'No accounts registered in the panel for this company.')}
       </p>
     )
   }
@@ -42,17 +42,17 @@ export function DevnxControlAccountsTable({
         <thead className="bg-muted/30 text-left text-muted-foreground">
           <tr>
             <th className="px-3 py-2 font-medium">
-              {translate('devnx.accounts.provider', 'Plataforma')}
+              {translate('devnx.accounts.provider', 'Platform')}
             </th>
             <th className="px-3 py-2 font-medium">
-              {translate('devnx.accounts.account', 'Conta')}
+              {translate('devnx.accounts.account', 'Account')}
             </th>
             <th className="px-3 py-2 font-medium">
-              {translate('devnx.accounts.status', 'Situação')}
+              {translate('devnx.accounts.status', 'Status')}
             </th>
             <th className="px-3 py-2 text-right font-medium">5h</th>
             <th className="px-3 py-2 text-right font-medium">
-              {translate('devnx.accounts.weekly', 'Semana')}
+              {translate('devnx.accounts.weekly', 'Week')}
             </th>
             <th className="px-3 py-2" />
           </tr>
@@ -69,7 +69,7 @@ export function DevnxControlAccountsTable({
               </td>
               <td className="px-3 py-2">
                 {account.selected ? (
-                  <Badge variant="secondary">{translate('devnx.accounts.inUse', 'Em uso')}</Badge>
+                  <Badge variant="secondary">{translate('devnx.accounts.inUse', 'In use')}</Badge>
                 ) : (
                   <span className="text-muted-foreground">{account.status}</span>
                 )}
@@ -87,7 +87,7 @@ export function DevnxControlAccountsTable({
                     {busyAccountId === account.id ? (
                       <Loader2 className="size-3 animate-spin" />
                     ) : null}
-                    {translate('devnx.accounts.use', 'Usar')}
+                    {translate('devnx.accounts.use', 'Use')}
                   </Button>
                 )}
               </td>

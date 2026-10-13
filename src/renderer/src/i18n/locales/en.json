@@ -215,7 +215,8 @@
         "korean": "한국어",
         "japanese": "日本語",
         "spanish": "Español",
-        "french": "Français"
+        "french": "Français",
+        "portuguese": "Português (Brasil)"
       },
       "statusBar": {
         "claudeToggleDescription": "Show Claude token and cost usage for the active workspace.",
@@ -19880,5 +19881,26 @@
     "browser": "Browser",
     "editor": "Editor",
     "terminal": "Terminal"
+  },
+  "devnx": {
+    "accounts": {
+      "empty": "No accounts registered in the panel for this company.",
+      "provider": "Platform",
+      "account": "Account",
+      "status": "Status",
+      "weekly": "Week",
+      "inUse": "In use",
+      "use": "Use"
+    },
+    "connected": "Connected to DevNX Control.",
+    "description": "Sign in with your panel user. It picks the Claude, Codex and Antigravity account for each new terminal, with no CLI login.",
+    "fromCockpit": "Cockpit pairing",
+    "refresh": "Refresh",
+    "logout": "Sign out",
+    "newTerminalsOnly": "Codex and Antigravity account changes apply to new terminals. Claude also switches in open terminals.",
+    "url": "Panel address",
+    "email": "Email",
+    "password": "Password",
+    "connect": "Sign in"
   }
 }
