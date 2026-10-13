@@ -715,6 +715,22 @@ describe('useAiVaultSessionRefresh in-app agent session behavior', () => {
     expect(lastCallArgs()).toMatchObject({ force: true })
   })
 
+  it("lets a second mounted panel read the first one's forced scan instead of forcing its own", async () => {
+    await renderHook(['/a'])
+    await renderHook(['/b'])
+    await flushMicrotasks()
+    await advance(THROTTLE_MS + 1)
+    listSessionsMock.mockClear()
+
+    await setAgentStatuses({ 'pane-1': makeAgentEntry('sess-1') })
+    await advance(THROTTLE_MS + 1)
+
+    expect(listSessionsMock.mock.calls).toEqual([
+      [expect.objectContaining({ force: true })],
+      [expect.objectContaining({ force: false })]
+    ])
+  })
+
   it('re-budgets a trailing agent scan after a manual refresh', async () => {
     await renderHook()
     await flushMicrotasks()

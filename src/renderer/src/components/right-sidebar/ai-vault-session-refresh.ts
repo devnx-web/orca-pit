@@ -25,31 +25,18 @@ import {
   cacheAiVaultSessionList,
   readCachedAiVaultSessionList
 } from './ai-vault-session-list-request'
-import {
-  getAgentSessionIdsKey,
-  resetAgentSessionIdsRefreshKeys
-} from './ai-vault-agent-session-refresh-key'
+import { resetAgentSessionIdsRefreshKeys } from './ai-vault-agent-session-refresh-key'
 import { createBrowserUuid } from '@/lib/browser-uuid'
+import {
+  claimAiVaultForcedRescan,
+  resetAiVaultForcedRescanBudgetForTest,
+  useAiVaultNewSessionRescan
+} from './ai-vault-new-session-rescan'
 
-// In-app session creation bypasses the cache so the new session appears promptly.
-// Keep the budget at module scope so tab remounts cannot amplify full scans.
-const FORCED_RESCAN_MIN_INTERVAL_MS = 30_000
-let lastForcedRescanAt = 0
-
-/** Takes the shared forced-rescan budget when it is free. Every caller outside the panel that forces
- *  a scan must take it too, or it would amplify full scans the same way. A user's explicit request
- *  takes it even when spent, as the panel's Refresh does, so no automatic rescan follows it. */
-export function claimAiVaultForcedRescan(userRequested = false): boolean {
-  const now = Date.now()
-  if (!userRequested && lastForcedRescanAt + FORCED_RESCAN_MIN_INTERVAL_MS > now) {
-    return false
-  }
-  lastForcedRescanAt = now
-  return true
-}
+export { claimAiVaultForcedRescan }
 
 export function resetAiVaultForcedRescanThrottleForTest(): void {
-  lastForcedRescanAt = 0
+  resetAiVaultForcedRescanBudgetForTest()
   resetAgentSessionIdsRefreshKeys()
   resetAiVaultSessionResultCacheForTest()
 }
@@ -161,7 +148,7 @@ export function useAiVaultSessionRefresh(
       // A manual force scan counts against the throttle so an auto rescan right
       // after the button press doesn't trigger a second full scan.
       if (args.force === true) {
-        lastForcedRescanAt = Date.now()
+        claimAiVaultForcedRescan(true)
       }
       // Background (refocus) refreshes usually resolve from the main-process
       // cache; suppressing the loading flag avoids a spinner flash on every
@@ -252,26 +239,6 @@ export function useAiVaultSessionRefresh(
     [applyScan, currentScanScopeKey]
   )
 
-  // Forced rescans triggered by new agent sessions run
-  // immediately when the throttle allows, otherwise once as soon as it frees
-  // up — dropping the event would leave a just-started session invisible
-  // until some unrelated later trigger.
-  const forcedRescanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const requestForcedRescan = useCallback(() => {
-    if (claimAiVaultForcedRescan()) {
-      void refresh({ background: true, force: true })
-      return
-    }
-    const waitMs = lastForcedRescanAt + FORCED_RESCAN_MIN_INTERVAL_MS - Date.now()
-    if (forcedRescanTimerRef.current !== null) {
-      return
-    }
-    forcedRescanTimerRef.current = setTimeout(() => {
-      forcedRescanTimerRef.current = null
-      requestForcedRescan()
-    }, waitMs)
-  }, [refresh])
-
   useEffect(() => {
     mountedRef.current = true
     const requestToken = requestTokenRef.current
@@ -284,10 +251,6 @@ export function useAiVaultSessionRefresh(
       void window.api.aiVault.cancelListSessions({
         requestToken
       })
-      if (forcedRescanTimerRef.current !== null) {
-        clearTimeout(forcedRescanTimerRef.current)
-        forcedRescanTimerRef.current = null
-      }
     }
   }, [])
 
@@ -339,29 +302,7 @@ export function useAiVaultSessionRefresh(
     }
   }, [refresh])
 
-  // Sessions started inside Orca never blur the window, so refocus alone
-  // can't surface them. Agent hooks already report provider sessions; re-scan
-  // only when a session id we haven't seen appears — state transitions are
-  // deliberately ignored, they fire constantly while agents work.
-  const agentSessionIdsKey = useAppStore((s) => getAgentSessionIdsKey(s.agentStatusByPaneKey))
-  const seenAgentSessionIdsRef = useRef<Set<string> | null>(null)
-  useEffect(() => {
-    const ids = agentSessionIdsKey === '' ? [] : agentSessionIdsKey.split('\n')
-    // The mount refresh already covers sessions live at mount time.
-    if (seenAgentSessionIdsRef.current === null) {
-      seenAgentSessionIdsRef.current = new Set(ids)
-      return
-    }
-    const seen = seenAgentSessionIdsRef.current
-    const freshIds = ids.filter((id) => !seen.has(id))
-    if (freshIds.length === 0) {
-      return
-    }
-    for (const id of freshIds) {
-      seen.add(id)
-    }
-    requestForcedRescan()
-  }, [agentSessionIdsKey, requestForcedRescan])
+  useAiVaultNewSessionRescan(refresh)
 
   return { error, loading, refresh, scanResult, sessions, loadedSessionLimit: scan?.limit ?? null }
 }
