@@ -1706,7 +1706,10 @@
         "0d0ace8861": "Dar estrela no GitHub",
         "ec43b38ba7": "Estrela dada no GitHub",
         "157bb5ecbb": "Abrir GitHub",
-        "preflightDismiss": "Dispensar"
+        "preflightDismiss": "Dispensar",
+        "createTarget": "Criar {{target}}",
+        "moveUpWorkspace": "Subir um workspace",
+        "moveDownWorkspace": "Descer um workspace"
       },
       "LinearIssueMarkdownDescriptionEditor": {
         "d9c47069ef": "Markdown",

@@ -162,6 +162,7 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
     [effectiveCollapsedGroups, hostScopedGroups]
   )
 
+  const hideDefaultBranchWorkspace = useAppStore((s) => s.hideDefaultBranchWorkspace)
   const rows: Row[] = useMemo(
     () =>
       buildRows(
@@ -186,7 +187,8 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
         args.visibleFolderWorkspacesForRows,
         hostLabelById,
         defaultHostId,
-        args.pinnedDisplayPolicy
+        args.pinnedDisplayPolicy,
+        hideDefaultBranchWorkspace
       ),
     [
       args.groupBy,
@@ -209,7 +211,8 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
       args.newExternalWorktreesInboxByRepo,
       pendingCreations,
       hostLabelById,
-      args.pinnedDisplayPolicy
+      args.pinnedDisplayPolicy,
+      hideDefaultBranchWorkspace
     ]
   )
   const orderedHostOptions = useMemo(

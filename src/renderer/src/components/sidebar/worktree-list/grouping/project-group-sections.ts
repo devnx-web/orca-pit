@@ -29,9 +29,26 @@ export function appendProjectGroupSections(
   const { orderedGroups, projectGroups, folderWorkspaces, projectOrderBy, repoOrder } = args
   const { result, collapsedGroups } = ctx
 
+  // Orca-Pit: with the default branch hidden, a project-group member with nothing to show is
+  // only a header row, and a group of those buries the folder workspace people work from.
+  // Without that filter Orca keeps empty headers on purpose (loading, sleeping filter).
+  const hideEmpty = ctx.hideEmptyProjectGroupRepos === true
+  const hasVisibleRows = (entry: OrderedGroupEntry): boolean => {
+    const repoId = entry[1].repo?.id
+    return (
+      entry[1].items.length > 0 ||
+      (repoId !== undefined &&
+        (ctx.pendingByRepo.has(repoId) ||
+          ctx.importedWorktreesByRepo.has(repoId) ||
+          ctx.newExternalWorktreesInboxByRepo.has(repoId)))
+    )
+  }
   const groupByProjectGroupId = new Map<string | null, OrderedGroupEntry[]>()
   for (const entry of orderedGroups) {
     const repo = entry[1].repo
+    if (hideEmpty && repo?.projectGroupId && !hasVisibleRows(entry)) {
+      continue
+    }
     const projectGroupId = repo?.projectGroupId ?? null
     const list = groupByProjectGroupId.get(projectGroupId) ?? []
     list.push(entry)
@@ -98,6 +115,9 @@ export function appendProjectGroupSections(
   }
 
   const appendProjectGroup = (projectGroup: ProjectGroup, depth: number): void => {
+    if (hideEmpty && depth > 0 && getProjectGroupSubtreeCount(projectGroup.id) === 0) {
+      return
+    }
     const repoEntries = sortRepoEntriesWithinGroup(groupByProjectGroupId.get(projectGroup.id) ?? [])
     const childGroups = childGroupsByParentId.get(projectGroup.id) ?? []
     const key = getProjectGroupHeaderKey(projectGroup.id)

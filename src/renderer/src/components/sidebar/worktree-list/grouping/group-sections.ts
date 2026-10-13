@@ -50,6 +50,8 @@ export type SectionAppendContext = {
   worktreeMap: Map<string, Worktree>
   nestLineage: boolean
   cyclicLineageIds: ReadonlySet<string>
+  /** Orca-Pit: drop project-group members with no visible rows (follows "hide default branch"). */
+  hideEmptyProjectGroupRepos?: boolean
 }
 
 export function appendOrderedGroups(
