@@ -1,4 +1,5 @@
 import { app } from 'electron'
+import { startDevnxControlService } from '../devnx-control/devnx-control-service'
 import { classifyError } from '../telemetry/classify-error'
 import { track } from '../telemetry/client'
 import { getPtyIdForPaneKey } from '../ipc/pty/pane/key-state'
@@ -185,6 +186,8 @@ export function startTerminalRuntimeStartupServices(): WindowsDesktopStartupServ
         userDataPath: app.getPath('userData'),
         endpointNamespace: state.devAgentHookEndpointNamespace
       })
+      // Orca-Pit: terminals read the DevNX broker URL at spawn, so it must listen before restore.
+      await startDevnxControlService(app.getPath('userData'), app.isPackaged)
       logStartupMilestone('startup-service-done', { service: 'agent-hook-server' })
     },
     onDaemonError: (error) => {

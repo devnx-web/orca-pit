@@ -40,6 +40,7 @@ import {
   providerAccountMatchesView
 } from './provider-account-visibility'
 import { GrokAccountsSection } from './GrokAccountsSection'
+import { withDevnx } from './DevnxControlSection'
 import { AntigravityAccountsSection } from './AntigravityAccountsSection'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import { runtimeTargetEnvironmentId } from '@/runtime/runtime-client-target'
@@ -439,7 +440,7 @@ export function AccountsPane({
   return (
     <div className="space-y-8">
       {renderAccountsRemovalDialogs(model, removeCodexTarget, removeClaudeTarget)}
-      <SettingsSectionStack sections={visibleSections} spacing="group" />
+      <SettingsSectionStack sections={withDevnx(searchQuery, visibleSections)} spacing="group" />
     </div>
   )
 }

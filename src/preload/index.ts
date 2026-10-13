@@ -75,6 +75,7 @@ import { opencodeGoCredentialsApi } from './api/opencode-go-credentials-bridge'
 import { minimaxCredentialsApi } from './api/minimax-credentials-bridge'
 import { zcodePlanCredentialsApi } from './api/zcode-plan-credentials-bridge'
 import { grokAccountsApi } from './api/grok-accounts-bridge'
+import { devnxControlApi } from './api/devnx-control-bridge'
 import { cursorAccountsApi } from './api/cursor-accounts-bridge'
 import { sshApi } from './api/ssh-bridge'
 import { legacyRelayBridgeApi } from './api/legacy-relay-bridge-api'
@@ -175,6 +176,7 @@ const api = {
   minimaxCredentials: minimaxCredentialsApi,
   zcodePlanCredentials: zcodePlanCredentialsApi,
   grokAccounts: grokAccountsApi,
+  devnxControl: devnxControlApi,
   cursorAccounts: cursorAccountsApi,
   ssh: sshApi,
   legacyRelayBridge: legacyRelayBridgeApi,

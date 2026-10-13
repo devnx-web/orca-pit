@@ -1,4 +1,5 @@
 import { app, type Event } from 'electron'
+import { stopDevnxControlService } from '../devnx-control/devnx-control-service'
 import { closeAllWatchers } from '../ipc/filesystem-watcher'
 import { disposeWorktreeBaseDirectoryWatchers } from '../ipc/worktree-base-directory-watcher'
 import { stopFolderRepoGitUpgradeWatch } from '../ipc/folder-repo-git-upgrade'
@@ -161,6 +162,7 @@ function installWillQuitHandler(): void {
     // Why keepStatus: the chat teardown above reads each chat's background work from that store
     // after this returns; cleared, a chat whose only work was a subagent or command is not offered.
     agentHookServer.stop({ keepStatus: true })
+    stopDevnxControlService()
     // Why Windows only: POSIX hooks short-circuit on ORCA_PANE_KEY, while Windows must register a
     // bare script path that cannot express the guard and would otherwise keep spawning after quit.
     // Why bounded here: every other teardown member carries its own ceiling, and this one reaches

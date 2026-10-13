@@ -8,6 +8,7 @@ import type {
   ZcodePlanCredentialsApi
 } from './api/agent-account-api'
 import type { HooksApi } from './api/agent-hook-api'
+import type { DevnxControlApi } from '../shared/devnx-control-types'
 import type { SkillsApi } from './api/agent-skill-api'
 import type { AgentAwakeApi, AgentStatusApi } from './api/agent-status-api'
 import type {
@@ -150,6 +151,7 @@ export type PreloadApi = {
   minimaxCredentials: MinimaxCredentialsApi
   zcodePlanCredentials: ZcodePlanCredentialsApi
   grokAccounts: GrokAccountsApi
+  devnxControl: DevnxControlApi
   cursorAccounts: CursorAccountsApi
   ssh: SshApi
   /** COMPAT(legacy-relay-bridge): desktop-only, revisit 2027-01-15. */

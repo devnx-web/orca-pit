@@ -5,6 +5,7 @@ import { getDefaultWslDistro } from '../wsl'
 import { isAgentStatusHooksEnabledForAgent } from '../agent-hooks/managed-agent-hook-controls'
 import { reconcileCodexHooksForLaunch } from '../codex/codex-hook-reconcile'
 import { mainProcessState as state } from './main-process-state'
+import { resolveDevnxControlCodexHome } from '../devnx-control/devnx-control-terminal-env'
 
 export async function prepareCodexRuntimeHomeForLaunch(
   target?: CodexAccountSelectionTarget,
@@ -15,12 +16,17 @@ export async function prepareCodexRuntimeHomeForLaunch(
   if (!runtimeHome) {
     throw new Error('Codex runtime home service is not initialized')
   }
+  // Orca-Pit: while DevNX Control is connected it owns the Codex account, and Orca's
+  // resolver is skipped so it never syncs auth into ~/.codex behind the panel's back.
+  const devnxHomePath = await resolveDevnxControlCodexHome(target)
   // Why: a ManagedCodexHomeTemporarilyUnavailableError must escape uncaught —
   // the fallbacks below all key off `null`, which means "system default", so
   // swallowing the refusal would launch the wrong account (#STA-4422).
-  const runtimeHomePath = await runtimeHome.prepareForCodexLaunchAsync(target, launchEnv, {
-    unavailableManagedHomePath: launchContext?.unavailableManagedHomePath
-  })
+  const runtimeHomePath =
+    devnxHomePath ??
+    (await runtimeHome.prepareForCodexLaunchAsync(target, launchEnv, {
+      unavailableManagedHomePath: launchContext?.unavailableManagedHomePath
+    }))
   const launchesCodex = launchContext?.launchesCodex === true
   if (runtimeHomePath === null && target?.runtime !== 'wsl') {
     // Why only a Codex launch waits: the pane spawn already schedules the reconcile, which

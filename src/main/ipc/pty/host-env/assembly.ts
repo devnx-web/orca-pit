@@ -33,6 +33,7 @@ import { AGENT_HOOK_RUNTIME_ENV_KEYS } from './spawn-env-keys'
 import { applyManagedDataAccountEnvironment } from '../../../managed-data-accounts/launch-environment'
 import { applyOpenCodeStatusPluginEnv, captureOpenCodeSourceConfig } from './opencode-config'
 import { applyCodexRemoteViewerClipboardEnv } from './codex-terminal-clipboard'
+import { applyDevnxControlTerminalEnv } from '../../../devnx-control/devnx-control-terminal-env'
 
 /**
  * Mutates `baseEnv` in place with all host-local PTY env vars and returns it.
@@ -308,5 +309,7 @@ export function buildPtyHostEnv(
   if (!opts.isWsl) {
     ensureOpenCodeStartupPromptForLaunch(baseEnv)
   }
+  // Orca-Pit: last, so the DevNX Control session wins over Orca's own account routing.
+  applyDevnxControlTerminalEnv(baseEnv, { isWsl: opts.isWsl })
   return baseEnv
 }
