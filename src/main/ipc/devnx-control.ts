@@ -14,6 +14,7 @@ import {
 const DISCONNECTED_STATUS: DevnxControlStatus = {
   connected: false,
   baseUrl: DEVNX_CONTROL_DEFAULT_BASE_URL,
+  source: null,
   selected: {},
   lastSyncAt: null,
   warnings: []

@@ -29,6 +29,7 @@ import { codexAccountHome, type DevnxControlPaths } from './devnx-control-paths'
 import { isSelectionOf, toSelection, type DevnxSelection } from './devnx-control-selection'
 import {
   clearConnection,
+  loadCockpitConnection,
   loadConnection,
   loadRuntimeState,
   makeOpenAiCapability,
@@ -81,6 +82,7 @@ export class DevnxControlClient {
     return {
       connected: this.isConnected(),
       baseUrl: this.connection?.baseUrl ?? DEVNX_CONTROL_DEFAULT_BASE_URL,
+      source: this.connection?.source ?? null,
       selected,
       lastSyncAt: this.lastSyncAt,
       warnings: [...this.warnings]
@@ -88,6 +90,10 @@ export class DevnxControlClient {
   }
 
   private request(apiPath: string, options: DevnxRequestOptions = {}): Promise<unknown> {
+    // Why re-read: the Cockpit may pair again and revoke the token we borrowed.
+    if (this.connection?.source === 'cockpit') {
+      this.connection = loadCockpitConnection()
+    }
     const connection = this.connection
     if (!connection) {
       throw new DevnxControlError('Orca não está conectado ao DevNX Control.', {
@@ -129,9 +135,10 @@ export class DevnxControlClient {
     ).replace(/^Bearer\s+/i, '')
 
     const previous = this.connection
-    this.connection = { baseUrl, deviceToken }
+    this.connection = { baseUrl, deviceToken, source: 'orca' }
     saveConnection(this.paths, this.connection)
-    if (previous) {
+    // Why only our own: a borrowed Cockpit token keeps serving the Cockpit.
+    if (previous?.source === 'orca') {
       // Best effort: the new token is already stored; the old one only needs revoking.
       await requestDevnxControl(previous.baseUrl, API.revokeDeviceToken, {
         method: 'DELETE',
@@ -144,7 +151,7 @@ export class DevnxControlClient {
   }
 
   async logout(): Promise<DevnxControlStatus> {
-    if (this.connection) {
+    if (this.connection?.source === 'orca') {
       await this.request(API.revokeDeviceToken, { method: 'DELETE' }).catch(() => {})
     }
     this.connection = null

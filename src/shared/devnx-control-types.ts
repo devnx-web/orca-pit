@@ -25,6 +25,8 @@ export type DevnxControlAccount = {
 export type DevnxControlStatus = {
   connected: boolean
   baseUrl: string
+  /** `cockpit` when borrowing the pairing the Cockpit already has on this machine. */
+  source: 'orca' | 'cockpit' | null
   selected: Partial<Record<DevnxControlProvider, DevnxControlAccount>>
   lastSyncAt: string | null
   warnings: string[]
