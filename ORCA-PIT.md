@@ -45,3 +45,25 @@ git merge upstream/main
 
 Os pontos de contato com o código do Orca são poucos e marcados com
 `Orca-Pit:` nos comentários.
+
+## Publicar uma versão
+
+```bash
+# 1. sincronizar com o Orca (ver acima) e commitar
+# 2. escrever a entrada "## <versão>-pitN" no ORCA-PIT-CHANGELOG.md e commitar
+config/scripts/orca-pit-release.sh
+```
+
+O script gera o `.deb`, confere a versão, o tamanho e o módulo do DevNX dentro
+do pacote, e sobe tudo para `s3://arquivos.devnx.com.br/orca-pit/v<versão>/`
+no Wasabi (profile `wasabi` do aws-cli), como o `release.sh` do Cockpit. A
+versão é a do Orca + `-pitN`, com N o próximo número livre no bucket.
+
+Instalar ou atualizar em qualquer máquina:
+
+```bash
+curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
+```
+
+`--sem-upload` só gera o pacote em `dist/`; `--sem-build` reaproveita a
+compilação que já está em `out/`.
