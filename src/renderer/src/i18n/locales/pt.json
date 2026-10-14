@@ -203,7 +203,41 @@
       "optionLayoutAlt": "ABC ou U.S. — Option envia sequências Alt/Esc",
       "optionLayoutCompose": "o layout usa Option para compor caracteres como @, €, [, ]",
       "optionLayoutUnknown": "layout desconhecido — Option compõe caracteres (padrão seguro)",
-      "optionShortcutHint": "Escolha Ambas para atalhos com Option, Desativado para acentos e símbolos, ou Esquerda/Direita para usar uma tecla Option para cada função."
+      "optionShortcutHint": "Escolha Ambas para atalhos com Option, Desativado para acentos e símbolos, ou Esquerda/Direita para usar uma tecla Option para cada função.",
+      "windows": {
+        "checkingAdministrator": "Verificando…",
+        "unknownAdministrator": "Não foi possível determinar",
+        "administratorStatus": "Administrador",
+        "standardStatus": "Usuário padrão",
+        "keywordAdmin": "admin",
+        "keywordAdministrator": "administrador",
+        "keywordElevated": "elevado",
+        "keywordPermissions": "permissões",
+        "keywordRestart": "reiniciar",
+        "keywordUac": "uac",
+        "returnStandardHelp": "Guia do modo padrão",
+        "runAdministratorHelp": "Guia do administrador",
+        "restartAdministrator": "Reiniciar como administrador",
+        "administratorLabel": "Modo administrador",
+        "administratorScope": "Permissões do app Orca. Terminais já abertos podem estar diferentes.",
+        "confirmAdministratorRestart": "Reiniciar como administrador?",
+        "administratorRestartConsequences": "Salve seu trabalho antes. Depois da aprovação, os terminais e agentes do host de terminal local atual fecham. As abas restauradas abrem novos shells de administrador.",
+        "administratorDialogScope": "Isso muda as permissões do app inteiro. SSH e WSL mantêm as próprias permissões.",
+        "administratorPromptCancellation": "Cancelar o aviso do Windows reabre o Orca com os terminais mantidos. As permissões de SSH e WSL continuam controladas nos próprios hosts.",
+        "closeLocalSessions": "Salve seu trabalho, feche todas as sessões de terminal locais e saia do Orca.",
+        "launchStandard": "Abra o Orca normalmente pelo menu Iniciar do Windows.",
+        "launchAdministrator": "No menu Iniciar do Windows, clique com o botão direito no Orca e escolha Executar como administrador. Aprove o aviso do Windows com sua conta de sempre.",
+        "retainedTerminalPermissions": "Se os terminais novos ainda usarem as permissões anteriores, abra Gerenciar sessões e escolha Reiniciar daemon. Isso fecha os terminais locais e os comandos em execução.",
+        "administratorRestartFailed": "O Orca não conseguiu reiniciar. Tente de novo ou use as instruções manuais.",
+        "manualAdministratorHelp": "Instruções manuais",
+        "administratorDocumentation": "Ler o guia",
+        "cancelAdministratorRestart": "Cancelar",
+        "closeAdministratorHelp": "Fechar",
+        "restartingAdministrator": "Reiniciando…",
+        "openManageSessions": "Abrir Gerenciar sessões",
+        "administratorSearchDescription": "Veja as permissões do Orca no Windows ou reinicie com aprovação de administrador.",
+        "administratorApproval": "O Windows vai pedir aprovação. Use sua conta de sempre."
+      }
     },
     "appearance": {
       "language": {
@@ -320,7 +354,19 @@
       "codexSharedServerWarning": {
         "title": "Avisar quando uma aba do Codex compartilhar um servidor",
         "description": "Mostra um aviso em um Codex que você iniciou quando ele compartilha um servidor com outras abas, pois o status do agente pode estar errado."
-      }
+      },
+      "environmentName": "Nome da variável de ambiente",
+      "environmentValue": "Valor de {{name}}",
+      "savedEnvironment": "Valor salvo · Enter para substituir",
+      "newEnvironment": "Valor",
+      "removeEnvironment": "Remover",
+      "loadingHost": "Carregando configurações do agente…",
+      "updateHost": "Atualize este servidor para editar as configurações de inicialização dos agentes.",
+      "readFailed": "Não foi possível ler as configurações do agente. Verifique a conexão com o host e tente novamente.",
+      "saveFailed": "Não foi possível salvar as configurações do agente. Verifique a conexão com o host e tente novamente.",
+      "hostDefaults": "Padrões para novos agentes no host selecionado.",
+      "save": "Salvar",
+      "clearDefault": "Limpar agente padrão"
     },
     "followSymlinkedDirectoriesKeywords": {
       "symlink": "symlink",
@@ -423,7 +469,12 @@
     "taskUrl": {
       "loadingHint": "Carregando {{value0}}…",
       "createHint": "Criar worktree a partir de {{value0}}"
-    }
+    },
+    "tasksHeader": "Tarefas",
+    "taskCreate": "Criar workspace",
+    "taskSearchLoading": "Buscando tarefas…",
+    "taskSearchFailed": "Algumas fontes de tarefas não puderam ser buscadas",
+    "taskSearchRetry": "Tentar de novo"
   },
   "auto": {
     "App": {
@@ -1100,6 +1151,7 @@
               "undecryptableUnknown": "{{value0}} cookies não puderam ser descriptografados e foram ignorados. Feche completamente o navegador de origem e tente importar novamente.",
               "unrecognizedWarning": "A importação de cookies terminou com um aviso que esta versão do Orca não reconhece. Atualize o Orca para ver os detalhes e confira este perfil antes de confiar nos cookies dele.",
               "undecryptableUnrecognizedReason": "{{value0}} cookies não puderam ser descriptografados e foram ignorados por um motivo que esta versão do Orca não reconhece. Atualize o Orca para ver os detalhes e tente importar novamente.",
+              "partitionSkippedBreakdown": "Cookies com partições de site ilegíveis: {{value0}}. Cookies relacionados não importados para proteger sessões existentes: {{value1}}. Os cookies já existentes desses sites não foram alterados. Confira esses sites neste perfil antes de entrar de novo.",
               "partitionSkipped": "{{value0}} cookies não foram importados porque a partição do site não pôde ser lida. Entre novamente nesses sites no Orca.",
               "locationClientHosted": "Lidos deste dispositivo e armazenados aqui para o workspace {{value0}}.",
               "locationRemoteHost": "Lidos dos navegadores em {{value0}} e armazenados lá.",
@@ -1175,6 +1227,10 @@
             }
           }
         }
+      },
+      "aiVaultResumeRefusal": {
+        "openInChat": "Esta conversa do {{value0}} está aberta em um chat. Atualize o Histórico de sessões para abri-la.",
+        "ownershipUnknown": "O Orca não conseguiu confirmar de quem é esta conversa do {{value0}}. Atualize o Histórico de sessões e tente de novo."
       }
     },
     "hooks": {
@@ -1836,7 +1892,6 @@
         "f0470c7383": "Avançado",
         "ba64270bdb": "Configurar agentes",
         "ab63f25397": "Abrir configurações de agentes",
-        "01d1e8f601": "Agente",
         "0c5d6a479c": "[Opcional]",
         "b5a0796911": "Conectar",
         "dccd26d4e4": "Escolher projeto",
@@ -1908,8 +1963,7 @@
       },
       "NewWorkspaceComposerModal": {
         "createWorktree": "Criar worktree",
-        "createWorkspace": "Criar workspace",
-        "fa90f739a5": "Escolha o projeto, o nome do workspace e o agente antes de criar o workspace."
+        "createWorkspace": "Criar workspace"
       },
       "PullRequestPage": {
         "2560588245": "Falha ao solicitar o revisor",
@@ -2487,6 +2541,12 @@
         "linearFetchMore": "Carregar mais",
         "jiraSortAscending": "crescente",
         "jiraSortDescending": "decrescente",
+        "jiraColumnsPicker": "Colunas",
+        "jiraColumnParent": "Pai",
+        "jiraColumnSprint": "Sprint",
+        "jiraColumnStoryPoints": "Pontos",
+        "jiraColumnOriginalEstimate": "Estimativa",
+        "jiraColumnRemainingEstimate": "Restante",
         "jiraSortBy": "Ordenar por",
         "jiraToggleSortDirection": "Ordenar {{value0}}",
         "75a38d7df8": "Os dados do GitHub estão temporariamente indisponíveis. A API pode estar fora do ar, com limite de uso atingido ou inacessível. Tente novamente em instantes.",
@@ -3618,7 +3678,8 @@
             "sessionQueued": "Sessão na fila",
             "openSupportedWorkspace": "Abra um workspace antes de retomar uma sessão.",
             "sessionHostMismatchUnsupported": "Esta sessão pertence a outro host. Solte-a em um workspace do mesmo host.",
-            "localSessionSshWorkspaceUnsupported": "O histórico desta sessão está armazenado nesta máquina, então ela não pode ser retomada em um workspace SSH. Solte-a em um workspace local."
+            "localSessionSshWorkspaceUnsupported": "O histórico desta sessão está armazenado nesta máquina, então ela não pode ser retomada em um workspace SSH. Solte-a em um workspace local.",
+            "oldPayload": "Esta sessão foi arrastada de uma janela mais antiga do Orca. Retome-a pelo Histórico de sessões."
           },
           "TabGroupDropOverlay": {
             "paneColumnLabel": "Nova divisão"
@@ -7046,7 +7107,6 @@
           "remoteDetectionFailed": "Não foi possível detectar os agentes instalados. Verifique a conexão com o host e tente novamente.",
           "retryDetection": "Tentar novamente",
           "02e0143be5": "Instalado",
-          "110b74b022": "Nenhum agente (terminal em branco)",
           "92033495ff": "Automático",
           "9b175d0f5e": "Agente pré-selecionado ao abrir um novo workspace.",
           "385212c7a1": "Agente padrão",
@@ -7069,7 +7129,6 @@
           "959b67385b": "Definir como padrão",
           "24e032fa34": "Padrão",
           "5f986a9b92": "Definir como padrão",
-          "d7625cf8b2": "Agente padrão",
           "cfb3f35775": "Argumentos",
           "6f99bf5dd0": "Nenhum argumento padrão",
           "8fbe1f37c1": "Ambiente",
@@ -7781,7 +7840,11 @@
           "compareAgainstUpstreamDescription": "Escolha qual base o controle de código-fonte usa por padrão nas comparações de alterações commitadas. O upstream do branch acompanha o branch atual automaticamente e volta para o branch padrão do repositório quando não há upstream. Você ainda pode mudar a base de comparação por worktree no painel Git desse worktree. Os destinos de pull request e rebase não mudam.",
           "compareBaseRepositoryDefault": "Padrão do repositório",
           "compareBaseBranchUpstream": "Upstream do branch",
-          "refreshLocalBaseDescription": "Ao criar um workspace, o Orca atualiza a base remota e faz fast-forward com segurança do seu branch local correspondente, como <mainBranch>main</mainBranch> ou <masterBranch>master</masterBranch>. Isso evita que comandos como <diffCommand>git diff main...HEAD</diffCommand> comparem com um histórico desatualizado. O Orca pula a atualização se esse branch tiver alterações não commitadas ou commits apenas locais."
+          "refreshLocalBaseDescription": "Ao criar um workspace, o Orca atualiza a base remota e faz fast-forward com segurança do seu branch local correspondente, como <mainBranch>main</mainBranch> ou <masterBranch>master</masterBranch>. Isso evita que comandos como <diffCommand>git diff main...HEAD</diffCommand> comparem com um histórico desatualizado. O Orca pula a atualização se esse branch tiver alterações não commitadas ou commits apenas locais.",
+          "jiraIssueKeyCasingTitle": "Maiúsculas na chave do Jira",
+          "jiraIssueKeyCasingDescription": "Como a chave da issue do Jira aparece nos nomes de workspace e de branch que o Orca sugere para workspaces novos ligados ao Jira, por exemplo PROJ-123-fix-login em vez de proj-123-fix-login. Workspaces existentes e nomes que você digita nunca são alterados.",
+          "jiraIssueKeyCasingLowercase": "Minúsculas",
+          "jiraIssueKeyCasingPreserve": "Chave em maiúsculas"
         },
         "HiddenExperimentalGroup": {
           "7c4e18d2f6": "Arma os gestos de captura de bold-glitch nesta máquina: {{samplingShortcut}} inicia uma rajada de amostragem; {{captureShortcut}} captura evidências do painel em disco.",
@@ -10267,7 +10330,13 @@
             "localChanges": "alterações locais",
             "originMaster": "origin/master",
             "committedChanges": "alterações com commit",
-            "diffBase": "base do diff"
+            "diffBase": "base do diff",
+            "jiraIssueKeyCasingTitle": "Maiúsculas na chave do Jira",
+            "jiraIssueKeyCasingDescription": "Como a chave da issue do Jira aparece nos nomes de workspace e de branch que o Orca sugere para workspaces novos ligados ao Jira, por exemplo PROJ-123-fix-login em vez de proj-123-fix-login. Workspaces existentes e nomes que você digita nunca são alterados.",
+            "jira": "jira",
+            "issueKey": "chave da issue",
+            "uppercase": "maiúsculas",
+            "lowercase": "minúsculas"
           }
         },
         "input": {
@@ -12761,6 +12830,7 @@
           "add": "Adicionar distro WSL",
           "connect": "Conectar",
           "remove": "Remover",
+          "forceUpdate": "Forçar atualização",
           "turnOn": "Ativar em Experimental"
         }
       },
@@ -16615,7 +16685,9 @@
                     "09a7c1df70": "Editar anotação {{value0}}",
                     "c16f932cb3": "Salvar",
                     "024467ceac": "Cancelar",
-                    "449d2c2629": "Intenção da anotação"
+                    "449d2c2629": "Intenção da anotação",
+                    "38d320108c": "Recolher anotações",
+                    "9f209891a7": "Expandir anotações"
                   }
                 }
               }
@@ -17993,6 +18065,23 @@
         "resuming": "Retomando automaticamente após a reinicialização.",
         "resumed": "Retomado automaticamente após a reinicialização.",
         "changeInSettings": "Alterar em Configurações"
+      },
+      "TaskPageJiraSavedFilters": {
+        "6c381858a1": "Filtros salvos",
+        "d14121662d": "Nenhum filtro salvo ainda.",
+        "af0dd8c528": "Editar {{value0}}",
+        "bae9bd87bf": "Você pode salvar até {{value0}} filtros.",
+        "85506127a5": "Salvar filtro atual",
+        "7aef259c28": "Editar filtro do Jira",
+        "4f0e55d2e5": "Salvar filtro do Jira",
+        "466c1b12ce": "Dê um nome a esta consulta JQL para acessá-la rápido.",
+        "e4c2f52972": "Nome",
+        "0ab71bb840": "Já existe um filtro salvo com este nome.",
+        "42ce360813": "JQL",
+        "7b21c59a26": "Excluir filtro",
+        "a62f9db53d": "Cancelar",
+        "c77189bc0c": "Atualizar filtro",
+        "19af906d12": "Salvar filtro"
       }
     },
     "i18n": {
@@ -18171,8 +18260,12 @@
         "compactionFailedQuoted": "Falha na compactação: {{detail}}.",
         "compactionUnconfirmed": "A conclusão da compactação não foi confirmada.",
         "cancelUnconfirmed": "O cancelamento não foi confirmado.",
+        "backgroundTaskNotStopped": "A tarefa em segundo plano não foi interrompida.",
+        "backgroundTasksNotStopped": "As tarefas em segundo plano não foram interrompidas.",
         "stopRefused": "{{agent}} não parou.",
         "stopRefusedQuoted": "{{agent}} não parou: {{detail}}.",
+        "couldNotStop": "Não foi possível parar o {{agent}}.",
+        "couldNotStopTheAgent": "Não foi possível parar o agente.",
         "noTurnToStop": "{{agent}} não tinha nenhum turno em execução para parar.",
         "answerUnconfirmed": "Sua resposta foi registrada, mas o agente não a confirmou.",
         "hostFault": "O Orca encontrou um problema, então isto não foi concluído.",
@@ -18215,6 +18308,7 @@
         "outcomeUnknown": "O Orca não conseguiu confirmar o que aconteceu. Confira o chat.",
         "sendOutcomeLost": "O Orca não conseguiu confirmar que sua mensagem chegou ao agente. Confira o chat e envie novamente, se necessário.",
         "questionChanged": "Esta pergunta já foi respondida ou foi alterada.",
+        "cancelNotSaved": "Não foi possível cancelar esta pergunta ou aprovação.",
         "historyUnreadable": "O Orca não conseguiu ler o histórico salvo deste chat.",
         "historyUnusable": "Não foi possível carregar este chat.",
         "historyUnavailable": "O Orca não conseguiu abrir o histórico deste chat agora.",
@@ -18368,7 +18462,6 @@
         "fastMode": "Modo rápido",
         "speed": "Velocidade",
         "thinking": "Raciocínio",
-        "options": "Opções",
         "sessionOptions": "Opções da sessão",
         "chooseInAgentPicker": "Escolher no seletor de agente…",
         "searchModels": "Buscar modelos…",
@@ -18416,7 +18509,12 @@
         "permissionFullAccessCodexDescription": "Nunca pergunta; pode editar qualquer arquivo e usar a rede",
         "permissionFullAccessSharedDescription": "Nunca pergunta antes de edições ou comandos",
         "pasteFailed": "Falha ao colar.",
-        "commandAttachmentsUnsupported": "Remova os anexos antes de usar um comando de sessão de chat."
+        "commandAttachmentsUnsupported": "Remova os anexos antes de usar um comando de sessão de chat.",
+        "optionValueShort": {
+          "minimal": "Mín",
+          "medium": "Méd",
+          "xhigh": "Máx+"
+        }
       },
       "tool": {
         "exitCode": "saída {{value0}}",
@@ -19180,6 +19278,15 @@
     "agentChildRow": {
       "ended": "Encerrado"
     },
+    "jiraIssueTitleField": {
+      "generate": "Gerar título a partir da descrição",
+      "stop": "Parar de gerar o título",
+      "canceled": "Geração cancelada.",
+      "webUnavailable": "A geração de títulos do Jira não está disponível no cliente web.",
+      "hostUpdateRequired": "Gerar títulos do Jira exige um servidor Orca mais novo. Atualize o host da conexão do Jira e tente de novo.",
+      "generating": "Gerando título. Clique para parar.",
+      "failed": "Não foi possível gerar um resumo a partir da descrição."
+    },
     "markdown-callout": {
       "note": "Nota",
       "tip": "Dica",
@@ -19189,6 +19296,16 @@
     },
     "automations": {
       "runTerminalUnavailable": "O terminal da execução não está disponível."
+    },
+    "agentCombobox": {
+      "clearSelection": "Limpar agente escolhido"
+    },
+    "newWorkspace": {
+      "agentOptional": "Agente [Opcional]",
+      "createDescription": "Escolha o projeto e o nome do workspace. Selecione um agente se quiser iniciar um."
+    },
+    "JiraIssueWorkspace": {
+      "pendingChange": "Outra alteração na issue está em andamento."
     }
   },
   "dashboardPopout": {
@@ -19523,7 +19640,8 @@
     }
   },
   "common": {
-    "retry": "Tentar novamente"
+    "retry": "Tentar novamente",
+    "cancel": "Cancelar"
   },
   "terminal": {
     "sessionSaveFailure": {
@@ -19788,7 +19906,6 @@
   "projectField": {
     "updateFailed": "Falha ao atualizar o campo do projeto"
   },
-  "settings.appearance.chat.title": "Chat",
   "mediaPreview": {
     "unavailable": "Não foi possível reproduzir este arquivo de mídia. O arquivo pode estar indisponível ou usar um codec não suportado.",
     "openFailed": "Não foi possível abrir este arquivo no app padrão.",
@@ -19869,28 +19986,19 @@
       "updateRuntimeSafely": "Atualize o runtime remoto para alterar os links do workspace com segurança"
     }
   },
-  "settings.agents.environmentName": "Nome da variável de ambiente",
-  "settings.agents.environmentValue": "Valor de {{name}}",
-  "settings.agents.savedEnvironment": "Valor salvo · Enter para substituir",
-  "settings.agents.newEnvironment": "Valor",
-  "settings.agents.removeEnvironment": "Remover",
-  "settings.agents.loadingHost": "Carregando configurações do agente…",
-  "settings.agents.updateHost": "Atualize este servidor para editar as configurações de inicialização dos agentes.",
-  "settings.agents.readFailed": "Não foi possível ler as configurações do agente. Verifique a conexão com o host e tente novamente.",
-  "settings.agents.saveFailed": "Não foi possível salvar as configurações do agente. Verifique a conexão com o host e tente novamente.",
-  "settings.agents.hostDefaults": "Padrões para novos agentes no host selecionado.",
-  "settings.agents.save": "Salvar",
   "tabHoverCard": {
     "browser": "Navegador",
     "editor": "Editor",
     "terminal": "Terminal"
   },
   "devnx": {
+    "title": "DevNX Control",
     "accounts": {
       "empty": "Nenhuma conta cadastrada no painel para esta empresa.",
       "provider": "Plataforma",
       "account": "Conta",
       "status": "Situação",
+      "fiveHour": "5h",
       "weekly": "Semana",
       "inUse": "Em uso",
       "use": "Usar"
@@ -19905,5 +20013,101 @@
     "email": "E-mail",
     "password": "Senha",
     "connect": "Entrar"
+  },
+  "updates": {
+    "installBlock": {
+      "instancesLabel": "Instâncias usando o Orca",
+      "browserLabel": "Navegador em segundo plano",
+      "serverLabel": "Servidor em segundo plano",
+      "windowLabel": "Outra janela do Orca",
+      "instanceLabel": "Outra instância do Orca",
+      "processId": "PID {{pid}}",
+      "preparingTitle": "Preparando sua atualização",
+      "preparingSummary": "Verificando as instâncias do Orca em execução antes de reiniciar.",
+      "later": "Depois",
+      "retainedDownload": "O Orca continua aberto. Não precisa baixar de novo.",
+      "retryInstallation": "Tentar instalar de novo",
+      "waitingLabel": "Atualização aguardando",
+      "busyTitle": "Outro Orca está atualizando",
+      "busySummary": "Outra instância do Orca já está instalando uma atualização.",
+      "busyGuidance": "Aguarde um pouco e tente de novo. Sua atualização baixada está pronta.",
+      "unresponsiveTitle": "Aguardando os servidores em segundo plano",
+      "unresponsiveSummary": "O Orca não conseguiu pausar os servidores em segundo plano para a atualização.",
+      "unresponsiveGuidance": "Pare-o pelo terminal ou serviço que o iniciou e tente de novo. Os dispositivos conectados vão desconectar.",
+      "readyTitle": "Sua atualização está pronta",
+      "serverSummary": "Um servidor do Orca em segundo plano ainda está usando este app.",
+      "instanceSummary": "Outra instância do Orca ainda está usando este app.",
+      "serverGuidance": "Pare o servidor pelo terminal ou serviço que o iniciou e tente de novo. Os dispositivos conectados vão desconectar.",
+      "mixedGuidance": "Feche as outras janelas do Orca e pare o servidor pelo terminal ou serviço que o iniciou. Os dispositivos conectados vão desconectar. Depois tente de novo.",
+      "instanceGuidance": "Feche as outras instâncias do Orca e tente de novo. Sua atualização baixada continua pronta.",
+      "waitingAriaLabel": "Atualização aguardando outras instâncias do Orca. Clique para expandir.",
+      "preparingLabel": "Preparando atualização",
+      "preparingAriaLabel": "Preparando atualização. Clique para expandir."
+    }
+  },
+  "jira": {
+    "connect": {
+      "scopedTokenGuide": "Tokens com escopo precisam de read:jira-work, write:jira-work e read:jira-user. Deixe o e-mail vazio para usar autenticação Bearer.",
+      "oldHostGuide": "Este runtime remoto exige e-mail e um token de API sem escopo. Atualize o runtime remoto para usar tokens com escopo.",
+      "scopedDescription": "Use a URL do site Jira Cloud e um token de API para navegar pelas issues. Tokens com escopo dispensam o e-mail.",
+      "optionalEmail": "E-mail da Atlassian (opcional para tokens com escopo)"
+    },
+    "workspace": {
+      "open": "Abrir workspace ligado a {{key}}",
+      "count": "{{count}} workspaces ligados a {{key}}",
+      "startAnother": "Iniciar novo workspace",
+      "empty": "Ligue uma issue do Jira a um workspace ou escolha outra visão.",
+      "openFailed": "Não foi possível abrir o workspace ligado a esta issue do Jira.",
+      "mode": "Com workspace",
+      "search": "Buscar issues ligadas",
+      "single": "1 workspace ligado a {{key}}"
+    },
+    "prompt": {
+      "dialogTitle": "Copiar prompt de um modelo",
+      "template": "Modelo",
+      "custom": "Modelo personalizado",
+      "templateText": "Texto do modelo",
+      "variables": "Use $jira-issue para o contexto da issue e $other-prompt para suas instruções adicionais. Salvo neste dispositivo.",
+      "other": "Instruções adicionais (opcional)",
+      "preview": "Prévia",
+      "implementation": "Iniciar implementação",
+      "bug": "Investigar bug",
+      "testPlan": "Escrever plano de testes",
+      "prSummary": "Rascunhar resumo do PR"
+    },
+    "copy": {
+      "context": "Copiar contexto de {{key}}",
+      "actions": "Copiar contexto da issue"
+    },
+    "savedFilters": {
+      "retry": "Tentar de novo",
+      "find": "Encontrar um filtro salvo",
+      "noMatch": "Nenhum filtro encontrado.",
+      "loadFailed": "Não foi possível carregar os filtros salvos do Jira.",
+      "saveFailed": "Não foi possível salvar os filtros do Jira."
+    },
+    "statusFilters": {
+      "loadFailed": "Não foi possível carregar os filtros de status do Jira.",
+      "saveFailed": "Não foi possível salvar os filtros de status do Jira.",
+      "manualQuery": "Os filtros de status valem para as visões prontas. Limpe a busca para usá-los.",
+      "label": "Filtrar issues do Jira por status",
+      "clear": "Limpar status",
+      "jql": "JQL do filtro de status",
+      "editJql": "Editar como JQL",
+      "catalogHint": "Os status vêm das issues carregadas. Limpe os status para descobrir outros nesta visão."
+    },
+    "transitions": {
+      "changeStatus": "Mudar status: {{status}}",
+      "loadError": "Não foi possível carregar as mudanças de status.",
+      "retry": "Tentar de novo",
+      "loading": "Carregando mudanças de status…",
+      "completeInJira": "Concluir “{{name}}” no Jira",
+      "unsupported": "O Jira exige campos que o Orca ainda não coleta: {{fields}}.",
+      "chooseResolution": "Escolha uma resolução",
+      "comment": "Comentário",
+      "back": "Voltar",
+      "apply": "Mudar status",
+      "empty": "Nenhuma mudança de status disponível."
+    }
   }
 }

@@ -50,7 +50,9 @@ export function DevnxControlAccountsTable({
             <th className="px-3 py-2 font-medium">
               {translate('devnx.accounts.status', 'Status')}
             </th>
-            <th className="px-3 py-2 text-right font-medium">5h</th>
+            <th className="px-3 py-2 text-right font-medium">
+              {translate('devnx.accounts.fiveHour', '5h')}
+            </th>
             <th className="px-3 py-2 text-right font-medium">
               {translate('devnx.accounts.weekly', 'Week')}
             </th>

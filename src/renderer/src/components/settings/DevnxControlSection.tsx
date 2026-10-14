@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Loader2, LogOut, RefreshCw, ShieldCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import { translate } from '@/i18n/i18n'
+import { useAppStore } from '../../store'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
@@ -27,8 +28,14 @@ function unwrap<T>(result: DevnxControlResult<T>): T | null {
   return null
 }
 
+// Why its own filter: the section sits beside Orca's AccountsPane, outside its search entries.
+function matchesDevnxSearch(searchQuery: string): boolean {
+  return !searchQuery || /devnx|control|painel|conta|account/i.test(searchQuery)
+}
+
 export function DevnxControlSection(): React.JSX.Element | null {
   const api = devnxApi()
+  const searchQuery = useAppStore((s) => s.settingsSearchQuery)
   const [status, setStatus] = useState<DevnxControlStatus | null>(null)
   const [accounts, setAccounts] = useState<DevnxControlAccount[]>([])
   const [baseUrl, setBaseUrl] = useState(DEVNX_CONTROL_DEFAULT_BASE_URL)
@@ -54,7 +61,7 @@ export function DevnxControlSection(): React.JSX.Element | null {
     })
   }, [api, loadAccounts])
 
-  if (!api) {
+  if (!api || !matchesDevnxSearch(searchQuery)) {
     return null
   }
 
@@ -121,7 +128,7 @@ export function DevnxControlSection(): React.JSX.Element | null {
       <div className="space-y-1">
         <h3 className="flex items-center gap-2 text-sm font-semibold">
           <ShieldCheck className="size-4" />
-          DevNX Control
+          {translate('devnx.title', 'DevNX Control')}
         </h3>
         <p className="text-xs text-muted-foreground">
           {translate(
@@ -238,10 +245,3 @@ export function DevnxControlSection(): React.JSX.Element | null {
 }
 
 // Orca-Pit: the DevNX Control panel owns the team accounts, so it leads the Accounts pane.
-export function withDevnx(
-  searchQuery: string,
-  sections: (React.JSX.Element | null)[]
-): (React.JSX.Element | null)[] {
-  const matches = !searchQuery || /devnx|control|painel|conta|account/i.test(searchQuery)
-  return matches ? [<DevnxControlSection key="devnx-control" />, ...sections] : sections
-}
