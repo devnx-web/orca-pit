@@ -22,6 +22,8 @@ import {
 import { buildProjectGroupingIndex } from './project-grouping'
 import type { ProjectGroupingModel } from './project-grouping'
 import { appendProjectGroupSections } from './project-group-sections'
+import { appendProjectActivitySections } from './activity-sections'
+import type { ProjectActivity } from '../../orca-pit-project-activity'
 import { getPinnedSectionWorktrees } from '../../pinned-section-worktrees'
 import { emitPinnedGroup } from './pinned-group-rows'
 import {
@@ -71,7 +73,8 @@ export function buildRows(
   hostLabelById?: ReadonlyMap<string, string>,
   defaultHostId: ExecutionHostId = LOCAL_EXECUTION_HOST_ID,
   pinnedDisplayPolicy: PinnedWorktreeDisplayPolicy = getPinnedWorktreeDisplayPolicy(settings),
-  hideEmptyProjectGroupRepos = false
+  hideEmptyProjectGroupRepos = false,
+  projectActivity?: ProjectActivity
 ): Row[] {
   const result: Row[] = []
   const projectIndex = buildProjectGroupingIndex(projectGrouping)
@@ -232,6 +235,25 @@ export function buildRows(
     nestLineage,
     cyclicLineageIds,
     hideEmptyProjectGroupRepos
+  }
+
+  // Orca-Pit: Active/Inactive sections replace the plain project list when the user keeps them on.
+  if (
+    groupBy === 'repo' &&
+    projectActivity &&
+    appendProjectActivitySections(
+      sectionContext,
+      {
+        orderedGroups,
+        projectGroups,
+        folderWorkspaces: renderableFolderWorkspaces,
+        projectOrderBy,
+        repoOrder
+      },
+      projectActivity
+    )
+  ) {
+    return result
   }
 
   if (groupBy !== 'repo' || projectGroups.length === 0) {

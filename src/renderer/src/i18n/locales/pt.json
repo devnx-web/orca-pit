@@ -20012,7 +20012,13 @@
     "url": "Endereço do painel",
     "email": "E-mail",
     "password": "Senha",
-    "connect": "Entrar"
+    "connect": "Entrar",
+    "activity": {
+      "active": "Ativos",
+      "inactive": "Inativos",
+      "split": "Separar ativos e inativos",
+      "splitDescription": "Mostra em Ativos os projetos com mensagem enviada nas últimas 12 horas e o resto em Inativos"
+    }
   },
   "updates": {
     "installBlock": {

@@ -22,6 +22,7 @@ import { addHostSectionRows } from '../../host-section-rows'
 import { orderHostSectionOptions } from '../../host-section-order'
 import { buildSidebarHostOptions } from '../../sidebar-host-options'
 import { selectPendingWorktreeCreationKeys } from './pending-worktree-creation-keys'
+import { useProjectActivity } from '../../orca-pit-project-activity'
 
 type SectionRowsArgs = {
   groupBy: WorktreeGroupBy
@@ -163,6 +164,7 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
   )
 
   const hideDefaultBranchWorkspace = useAppStore((s) => s.hideDefaultBranchWorkspace)
+  const projectActivity = useProjectActivity()
   const rows: Row[] = useMemo(
     () =>
       buildRows(
@@ -188,7 +190,8 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
         hostLabelById,
         defaultHostId,
         args.pinnedDisplayPolicy,
-        hideDefaultBranchWorkspace
+        hideDefaultBranchWorkspace,
+        projectActivity
       ),
     [
       args.groupBy,
@@ -212,7 +215,8 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
       pendingCreations,
       hostLabelById,
       args.pinnedDisplayPolicy,
-      hideDefaultBranchWorkspace
+      hideDefaultBranchWorkspace,
+      projectActivity
     ]
   )
   const orderedHostOptions = useMemo(

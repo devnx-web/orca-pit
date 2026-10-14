@@ -15,6 +15,7 @@ import { buildSidebarHostOptions } from './sidebar-host-options'
 import { getLogicalRepoOrderRankById } from './project-header-drop'
 import { getRenderedWorktreesInSidebarOrder } from './worktree-sidebar-row-preference'
 import { selectWorktreeListReviewCacheInputs } from './worktree-list/listing/review-cache-inputs'
+import { getProjectActivity } from './orca-pit-project-activity'
 import {
   filterFolderWorkspacesForVisibleHosts,
   filterProjectGroupsForVisibleHosts,
@@ -94,7 +95,8 @@ export function computeRenderedSidebarRows(
     undefined,
     defaultHostId,
     pinnedDisplayPolicy,
-    state.hideDefaultBranchWorkspace
+    state.hideDefaultBranchWorkspace,
+    getProjectActivity()
   )
 
   // Why lazy: with no host filter, addHostSectionRows is a pass-through, so skip building the whole host registry on a keystroke.

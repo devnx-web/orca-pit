@@ -20012,7 +20012,13 @@
     "url": "Panel address",
     "email": "Email",
     "password": "Password",
-    "connect": "Sign in"
+    "connect": "Sign in",
+    "activity": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "split": "Split active and inactive",
+      "splitDescription": "Show projects with a message sent in the last 12 hours under Active and the rest under Inactive"
+    }
   },
   "updates": {
     "installBlock": {

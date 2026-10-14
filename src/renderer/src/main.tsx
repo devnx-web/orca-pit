@@ -25,6 +25,7 @@ import { primeTerminalWebglAddon } from './lib/pane-manager/pane-webgl-renderer'
 import { SkillWarningPreviewLauncher } from './components/skills/SkillWarningPreviewLauncher'
 import { installBrowserClientPageRenderer } from './components/browser-pane/browser-client-page-renderer-installation'
 import { installOsFileDropCancellationGuard } from './lib/os-file-drop-cancellation-guard'
+import { installProjectActivityTracking } from './components/sidebar/orca-pit-project-activity'
 
 const disposeOsFileDropGuard = installOsFileDropCancellationGuard()
 import.meta.hot?.dispose(disposeOsFileDropGuard)
@@ -32,6 +33,9 @@ recordRendererCrashBreadcrumb('renderer_bootstrap_started', { dev: import.meta.e
 installRendererCrashDiagnostics()
 installTypingLatencyDiagnostic()
 installAutomationHostDiagnostic()
+// Orca-Pit: feeds the sidebar's Active/Inactive project sections.
+const disposeProjectActivityTracking = installProjectActivityTracking()
+import.meta.hot?.dispose(disposeProjectActivityTracking)
 
 if (
   import.meta.env.DEV &&

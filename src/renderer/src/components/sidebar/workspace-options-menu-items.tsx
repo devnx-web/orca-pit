@@ -22,6 +22,7 @@ import { WorktreeCardDisplayMenuSection } from './WorktreeCardDisplayMenuSection
 import { translate } from '@/i18n/i18n'
 import { SidebarGroupByToggle } from './SidebarGroupByToggle'
 import { formatActiveFilterLabel } from './options-filter-count-badge'
+import { OrcaPitActivitySplitToggle } from './OrcaPitActivitySplitToggle'
 
 export function useWorkspaceOptionsFilterBadge(): {
   hasAnyFilter: boolean
@@ -232,6 +233,7 @@ export function WorkspaceOptionsMenuItems({
           </DropdownMenuSubContent>
         </DropdownMenuSub>
       )}
+      {groupBy === 'repo' && <OrcaPitActivitySplitToggle />}
 
       <WorktreeCardDisplayMenuSection preserveWorkspaceBoardOpen={preserveWorkspaceBoardOpen} />
       <DropdownMenuSeparator />
