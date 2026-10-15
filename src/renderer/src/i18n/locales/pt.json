@@ -2563,7 +2563,8 @@
         "linearModeHasWorktreeTooltip": "Tickets do Linear vinculados a um workspace do Orca",
         "linearEmptyHasWorktree": "Nenhum ticket do Linear está vinculado a um workspace do Orca ainda. Comece a trabalhar a partir de uma issue do Linear para vê-la aqui.",
         "linearOpenAttachedWorkspace": "Abrir workspace vinculado a {{value0}}",
-        "linearWorktreesColumn": "Workspaces"
+        "linearWorktreesColumn": "Workspaces",
+        "jiraBoardEmptyColumn": "Nenhuma issue"
       },
       "Terminal": {
         "73768427cf": "Fechar",
@@ -5872,8 +5873,6 @@
           "680043342f": "compacto",
           "c7591b6014": "repo",
           "2d4f0eb933": "Padrão",
-          "1a0eec0d35": "Status",
-          "b5536d5a88": "Tarefas",
           "8d62c68b35": "Notas",
           "2d74665a56": "Portas",
           "65a9820bd1": "Status dos agentes",
@@ -8110,6 +8109,8 @@
           "2a2033c388": "Escolha o alerta que o Orca toca quando uma notificação de desktop é entregue.",
           "88686e6ca8": "Som de notificação",
           "b6fc369244": "Um terminal em segundo plano emite um caractere de campainha.",
+          "ba07e60f38": "Notificar sobre workspaces ocultos",
+          "e4b5e909ff": "Desligado, os workspaces escondidos por um filtro \"Ocultar\" da barra lateral não mostram ponto de não lido e não enviam notificações para este computador nem para o seu celular.",
           "591fe605b9": "Campainha do terminal",
           "55f901a59b": "Um agente de código termina e fica ocioso.",
           "ca76d06fd2": "Tarefa do agente concluída",
@@ -9108,7 +9109,6 @@
           "6e6480a7df": "Permita que programas no terminal (Zellij, tmux, Neovim, fzf, Grok, SSH) copiem para a área de transferência do sistema.",
           "3338dcf8c1": "Permitir gravações na área de transferência por TUI (OSC 52)",
           "69c64a479c": "Permita que Zellij, tmux, Neovim, fzf e Grok copiem para a área de transferência do sistema pelo PTY (inclusive via SSH).",
-          "4729c645fc": "Copia automaticamente as seleções do terminal para a área de transferência.",
           "902f5dee1f": "Copiar ao selecionar",
           "9129b7e805": "Passar o mouse sobre um painel de terminal o ativa sem precisar clicar.",
           "8eefeaa3da": "Foco segue o mouse",
@@ -10936,7 +10936,6 @@
               "664789b73a": "auto",
               "c38c18be15": "seleção",
               "797fdfe4ca": "selecionar",
-              "603818e8d8": "Copia automaticamente as seleções do terminal para a área de transferência assim que uma seleção é feita.",
               "3bdc84f059": "Copiar ao selecionar",
               "zellij": "zellij",
               "grok": "grok"
@@ -12724,7 +12723,11 @@
           "olderTerminalsUnverifiable": "O Orca não conseguiu confirmar que os terminais iniciados por uma versão mais antiga do Orca foram encerrados. Reconecte para tentar novamente.",
           "olderTerminals_one": "{{count}} terminal iniciado por uma versão mais antiga do Orca ainda está em execução neste host e não para sozinho. Feche-o naquela versão do Orca ou encerre-o no host e reconecte.",
           "olderTerminals_other": "{{count}} terminais iniciados por uma versão mais antiga do Orca ainda estão em execução neste host e não param sozinhos. Feche-os naquela versão do Orca ou encerre-os no host e reconecte.",
-          "olderTerminals": "{{count}} terminais iniciados por uma versão mais antiga do Orca ainda estão em execução neste host e não param sozinhos. Feche-os naquela versão do Orca ou encerre-os no host e reconecte."
+          "olderTerminals": "{{count}} terminais iniciados por uma versão mais antiga do Orca ainda estão em execução neste host e não param sozinhos. Feche-os naquela versão do Orca ou encerre-os no host e reconecte.",
+          "linkedProjects_one": "O servidor Orca deste host já tinha {{paths}}, então este desktop agora usa a cópia do servidor. As abas deste desktop e {{count}} automação de lá não foram movidas, e os worktrees que ele criou lá aparecem como worktrees externos.",
+          "linkedProjects_other": "O servidor Orca deste host já tinha {{paths}}, então este desktop agora usa a cópia do servidor. As abas deste desktop e {{count}} automações de lá não foram movidas, e os worktrees que ele criou lá aparecem como worktrees externos.",
+          "linkedProjects": "O servidor Orca deste host já tinha {{paths}}, então este desktop agora usa a cópia do servidor. As abas deste desktop e {{count}} automações de lá não foram movidas, e os worktrees que ele criou lá aparecem como worktrees externos.",
+          "linkedProjectsNoAutomations": "O servidor Orca deste host já tinha {{paths}}, então este desktop agora usa a cópia do servidor. As abas deste desktop de lá não foram movidas, e os worktrees que ele criou lá aparecem como worktrees externos."
         },
         "ZcodeCliSetupSection": {
           "title": "Usar o GLM com o ZCode",
@@ -16796,13 +16799,9 @@
         },
         "AutomationEditorDialogHeader": {
           "31f9253920": "Usar modelo",
-          "7e35393632": "Hermes",
-          "6f309eef8d": "Orca",
           "58f56b73d9": "Nome da automação",
           "1d9826933e": "Auditoria do repositório em dias úteis",
           "4133d33862": "Criar automação",
-          "0a75e5e2fa": "Criar automação Hermes",
-          "03142e7721": "Editar automação Hermes",
           "17086b48ee": "Editar automação",
           "4c8e1a72b9": "Uma tarefa recorrente de agente"
         },
@@ -16876,7 +16875,6 @@
           "295698292f": "Executar novamente",
           "0e110a3469": "Execuções",
           "bb1b2cd31e": "Visão geral",
-          "97ff587ee3": "Conecte esta origem para verificar automações Hermes no perfil remoto.",
           "aaa007846f": "origem indisponível",
           "25060635c6": "Adicionar",
           "d207ab4c25": "Começar por um modelo",
@@ -16918,9 +16916,6 @@
           "moved": "Automação movida para {host}.",
           "moveOriginalKept": "Criada em {host}, mas não foi possível excluir a original. Remova-a no host antigo.",
           "moveOriginalUnverified": "Criada em {host}, mas não foi possível verificar a exclusão da original. Confira o host antigo antes de tentar novamente.",
-          "77b81bc4ac": "Automação Hermes criada.",
-          "08efc3ae12": "Automação Hermes atualizada.",
-          "e431bb85d4": "Escolha um workspace no mesmo host desta automação Hermes.",
           "32534e7c9c": "Escolha um workspace disponível antes de salvar.",
           "2360ffc956": "Escolha um agente ativado antes de salvar.",
           "6e91dab317": "Informe um agendamento avançado válido antes de salvar.",
@@ -16931,7 +16926,6 @@
           "8705757e27": "job",
           "376631ef2b": "Retomar",
           "b457436d6a": "Pausar",
-          "0ae52dd760": "hermes",
           "e059042585": "Somente leitura",
           "aecdc3681f": "Gerenciável",
           "8500baacb4": "origem externa",
@@ -16989,17 +16983,11 @@
           "a42bf2b27e": "Excluir automação externa",
           "1c3bfd38fe": "Retomar automação externa",
           "0def1693bb": "Pausar automação externa",
-          "1df491fd00": "Editar automação externa",
           "cc77ba88ff": "Executar automação externa",
           "5820648765": "Última",
-          "844f1acb72": "encontradas",
           "20fd7a3a15": "próxima",
           "c6695e6fbd": "Automações externas",
           "5524365227": "OpenClaw",
-          "766abf833c": "Hermes",
-          "bf5f67b590": "hermes",
-          "e66091daf4": "execuções",
-          "8e9165af08": "execução",
           "2b0adbce21": "Pausada",
           "b3feba84c7": "Ativa",
           "92405f1431": "Indisponível",
@@ -17008,25 +16996,6 @@
           "330b3c32e8": "disponível",
           "e2532150ed": "automações",
           "701515f010": "automação"
-        },
-        "ExternalAutomationRunTable": {
-          "0ba9c0a95c": "Próxima página de execuções",
-          "52d468a0b8": "Página anterior de execuções",
-          "7475c0ce96": "de",
-          "be551397ca": "Status",
-          "a813df9808": "Prévia",
-          "d4b34feb66": "Hora da execução",
-          "2d4388a908": "Execuções",
-          "9c080765ff": "Nenhuma execução Hermes encontrada ainda.",
-          "8ea934cacf": "Carregando execuções...",
-          "d5527d8fe7": "execuções",
-          "872d032d05": "execução"
-        },
-        "HermesCronOutputView": {
-          "e27c716b43": "Prompt",
-          "4557213074": "Resposta",
-          "05affc68e3": "Erro",
-          "88d48157fc": "padrão"
         },
         "WorkspaceCombobox": {
           "ee5b280eba": "Nenhum workspace encontrado.",
@@ -17921,6 +17890,7 @@
           "fbb5018602": "Este arquivo está vazio.",
           "6112db5a1c": "Este artefato é grande demais para ser compartilhado.",
           "e2ed5acd8c": "O Orca não conseguiu ler este arquivo. Abra-o a partir de um workspace e tente novamente.",
+          "visualUnreadable": "Não foi possível ler este visual para compartilhá-lo.",
           "6d475e9b25": "Somente arquivos HTML e Markdown locais podem ser compartilhados como artefatos.",
           "29a406be09": "Os artefatos precisam conter texto."
         },
@@ -18232,6 +18202,7 @@
         "chooseClaudeAccountThenSend": "Escolha ou adicione uma nas configurações de Contas do Claude e envie sua mensagem novamente.",
         "providerExitedRow": "{{agent}} parou enquanto esta resposta estava em andamento. Você pode continuar nesta conversa.",
         "providerExitedRejection": "{{agent}} parou antes de esta mensagem ser enviada.",
+        "providerExitedAnswer": "{{agent}} parou, então sua resposta não foi enviada. Envie uma mensagem para continuar.",
         "providerRejected": "{{agent}} não aceitou esta mensagem.",
         "providerRejectedQuoted": "{{agent}} não aceitou esta mensagem: {{detail}}.",
         "attachmentEmpty": "Uma imagem desta mensagem está vazia, então a mensagem não foi enviada.",
@@ -18673,6 +18644,8 @@
         "groupTasks": "Tarefas"
       },
       "jumpToLatest": "Ir para o mais recente",
+      "newRowsAnnouncement": "Chegaram mensagens novas enquanto você estava fora",
+      "newRowsMarker": "Novas",
       "find": {
         "label": "Buscar no chat",
         "noResults": "Nenhum resultado",
@@ -19244,11 +19217,15 @@
     "settings": {
       "TerminalInteraction": {
         "copyTrimsGutter": "Remover margem ao copiar",
-        "copyTrimsGutterDescription": "Remove a margem esquerda atrás da qual a saída do agente é desenhada, para que o texto copiado não fique recuado. Só é removido o recuo comum a todas as linhas selecionadas."
+        "copyTrimsGutterDescription": "Remove a margem esquerda atrás da qual a saída do agente é desenhada, para que o texto copiado não fique recuado. Só é removido o recuo comum a todas as linhas selecionadas.",
+        "copyOnSelectDescription": "Copia automaticamente para a área de transferência o texto que você seleciona em um terminal ou chat."
       },
       "terminal": {
         "clipboard": {
           "search": {
+            "copyOnSelectDescription": "Copia automaticamente para a área de transferência o texto que você seleciona em um terminal ou chat, assim que a seleção é feita.",
+            "highlight": "destacar",
+            "chat": "chat",
             "gutter": "margem",
             "indent": "recuo",
             "margin": "margem",
@@ -19306,6 +19283,23 @@
     },
     "JiraIssueWorkspace": {
       "pendingChange": "Outra alteração na issue está em andamento."
+    },
+    "jiraProjectPicker": {
+      "search": "Buscar projetos do Jira",
+      "empty": "Nenhum projeto encontrado.",
+      "label": "Projeto do Jira",
+      "all": "Todos os projetos do Jira"
+    },
+    "RepositoryJiraProjectSection": {
+      "saveFailed": "Não foi possível salvar o projeto padrão do Jira.",
+      "runtimeUpdate": "Atualize este runtime para salvar um projeto padrão do Jira.",
+      "title": "Projeto padrão do Jira",
+      "description": "Usa este projeto como padrão no seletor de issues do Jira e na lista de Tarefas. Você pode trocar em cada worktree.",
+      "none": "Sem projeto padrão",
+      "connect": "Conecte o Jira em Integrações para escolher um projeto.",
+      "keywordJira": "jira",
+      "keywordDefaultProject": "projeto padrão",
+      "keywordIssuePicker": "seletor de issues"
     }
   },
   "dashboardPopout": {
@@ -19720,6 +19714,11 @@
       "resumed_one": "{{count}} sessão de agente retomada.",
       "resumed_other": "{{count}} sessões de agente retomadas."
     },
+    "stalledDaemonBanner": {
+      "body": "O trabalho em segundo plano neste computador está travado. Digitar e abrir terminais novos pode não funcionar. Reiniciar o serviço de terminal encerra os terminais e comandos em execução.",
+      "review": "Ver opções de reinício",
+      "title": "O serviço de terminal pode precisar ser reiniciado"
+    },
     "severedDaemonBanner": {
       "unknownCount": "seus terminais em execução",
       "count": "{{count}} terminais em execução",
@@ -20117,6 +20116,35 @@
       "back": "Voltar",
       "apply": "Mudar status",
       "empty": "Nenhuma mudança de status disponível."
+    },
+    "board": {
+      "currentSprint": "Sprint atual",
+      "viewMode": "Visão do Jira",
+      "list": "Lista",
+      "board": "Quadro",
+      "moveIssue": "Mover {{key}}",
+      "moveTitle": "Mover {{key}} para {{column}}",
+      "moveDescription": "O Jira define quais mudanças de status estão disponíveis e quais campos elas exigem.",
+      "chooseTransition": "Escolha uma mudança de status:",
+      "cancel": "Cancelar",
+      "noTransition": "Nenhuma mudança de status para {{column}} está disponível para {{key}}.",
+      "queryTooLong": "A consulta do Jira está longa demais. Encurte a consulta ou limpe os filtros."
+    },
+    "favourites": {
+      "loadFailed": "Não foi possível carregar os favoritos do Jira.",
+      "clearFailed": "Não foi possível limpar o filtro salvo. Tente de novo quando ele terminar de carregar ou salvar.",
+      "applyFailed": "Não foi possível aplicar o favorito do Jira.",
+      "siteMismatch": "Escolha um projeto do site Jira do favorito ou limpe o filtro de projeto.",
+      "label": "Favoritos do Jira",
+      "chooseSite": "Escolha um site Jira conectado para usar os favoritos dele.",
+      "unsupported": "Atualize o host do Jira para usar favoritos.",
+      "refresh": "Atualizar",
+      "loading": "Carregando favoritos…",
+      "find": "Buscar um favorito do Jira",
+      "empty": "Nenhum favorito do Jira encontrado.",
+      "truncated": "Alguns favoritos não puderam ser listados. Organize seus favoritos no Jira para reduzir a lista.",
+      "clear": "Limpar favorito do Jira",
+      "activeLabel": "Favoritos do Jira: {{name}}"
     }
   }
 }
