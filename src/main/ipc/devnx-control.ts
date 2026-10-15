@@ -6,6 +6,7 @@ import {
 } from '../../shared/devnx-control-types'
 import { publicErrorMessage, isRecord } from '../devnx-control/devnx-control-http'
 import { normalizeProvider } from '../devnx-control/devnx-control-payloads'
+import { updateGpuAccelerationAboutPanel } from '../startup/gpu-lifecycle'
 import {
   checkForUpdate,
   getInstalledRelease,
@@ -82,6 +83,8 @@ export function registerDevnxControlHandlers(): void {
     })
   )
   ipcMain.handle('devnxControl:getInstalledRelease', () => getInstalledRelease())
+  // Why: About is a native panel set once at startup; refresh it when dpkg names the release.
+  void getInstalledRelease().then(() => updateGpuAccelerationAboutPanel())
   ipcMain.handle('devnxControl:checkForUpdate', () => guard(checkForUpdate))
   ipcMain.handle('devnxControl:installUpdate', () =>
     guard(async () => {

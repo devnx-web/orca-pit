@@ -26,6 +26,7 @@ import { SkillWarningPreviewLauncher } from './components/skills/SkillWarningPre
 import { installBrowserClientPageRenderer } from './components/browser-pane/browser-client-page-renderer-installation'
 import { installOsFileDropCancellationGuard } from './lib/os-file-drop-cancellation-guard'
 import { installProjectActivityTracking } from './components/sidebar/orca-pit-project-activity'
+import { installOrcaPitOpenUpdatesBridge } from './lib/orca-pit-open-updates'
 
 const disposeOsFileDropGuard = installOsFileDropCancellationGuard()
 import.meta.hot?.dispose(disposeOsFileDropGuard)
@@ -36,6 +37,8 @@ installAutomationHostDiagnostic()
 // Orca-Pit: feeds the sidebar's Active/Inactive project sections.
 const disposeProjectActivityTracking = installProjectActivityTracking()
 import.meta.hot?.dispose(disposeProjectActivityTracking)
+const disposeOpenUpdatesBridge = installOrcaPitOpenUpdatesBridge()
+import.meta.hot?.dispose(disposeOpenUpdatesBridge)
 
 if (
   import.meta.env.DEV &&

@@ -3150,6 +3150,11 @@
       "title": "Agent dashboard"
     }
   },
+  "devnx": {
+    "updates": {
+      "upToDate": "You are on the newest version."
+    }
+  },
   "fileExplorer": {
     "root": {
       "omittedFiles": "Files omitted by sparse checkout are not searched.",

@@ -63,17 +63,25 @@ export function summarizeUpdate(
   installed: string,
   releases: readonly OrcaPitRelease[]
 ): OrcaPitUpdateCheck {
-  const active = releases
-    .filter((release) => release.active)
-    .sort((left, right) => compareReleaseVersions(right.version, left.version))
+  const sorted = [...releases].sort((left, right) =>
+    compareReleaseVersions(right.version, left.version)
+  )
+  const active = sorted.filter((release) => release.active)
   return {
     installed,
     latest: active[0]?.version ?? null,
-    newer: active.filter((release) => compareReleaseVersions(release.version, installed) > 0)
+    newer: active.filter((release) => compareReleaseVersions(release.version, installed) > 0),
+    releases: sorted
   }
 }
 
 let installedRelease: Promise<string> | null = null
+let resolvedRelease: string | null = null
+
+/** The installed release once dpkg answered, for sync callers such as the About panel. */
+export function getResolvedInstalledRelease(): string | null {
+  return resolvedRelease
+}
 
 /** The .deb's own version (`1.4.214-pit4`); the app itself only knows Orca's `1.4.214`. */
 export function getInstalledRelease(): Promise<string> {
@@ -84,7 +92,8 @@ export function getInstalledRelease(): Promise<string> {
     }
     execFile('dpkg-query', ['-W', '-f=${Version}', 'orca-ide'], (error, stdout) => {
       const version = stdout?.trim()
-      resolve(!error && version ? version : app.getVersion())
+      resolvedRelease = !error && version ? version : app.getVersion()
+      resolve(resolvedRelease)
     })
   })
   return installedRelease

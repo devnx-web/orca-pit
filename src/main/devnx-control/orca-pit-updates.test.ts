@@ -25,6 +25,13 @@ describe('Orca-Pit updater', () => {
     ])
     expect(check.latest).toBe('1.4.214-pit4')
     expect(check.newer.map((entry) => entry.version)).toEqual(['1.4.214-pit4', '1.4.214-pit3'])
+    // The About history keeps every release, withdrawn included, newest first.
+    expect(check.releases.map((entry) => entry.version)).toEqual([
+      '1.4.214-pit5',
+      '1.4.214-pit4',
+      '1.4.214-pit3',
+      '1.4.214-pit1'
+    ])
   })
 
   it('drops manifest entries whose version could not be used in the install URL', () => {

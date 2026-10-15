@@ -55,6 +55,8 @@ export type DevnxControlApi = {
   checkForUpdate: () => Promise<DevnxControlResult<OrcaPitUpdateCheck>>
   /** Installs the newest active release and restarts the app; resolves only on failure. */
   installUpdate: () => Promise<DevnxControlResult<null>>
+  /** The menu's "Check for Updates…" asks the window to show the updater. */
+  onOpenUpdates: (callback: () => void) => () => void
 }
 
 // Orca-Pit's own updater: Stably's is off in this fork, so new versions are announced by a
@@ -77,4 +79,6 @@ export type OrcaPitUpdateCheck = {
   latest: string | null
   /** Active releases newer than the installed one, newest first. */
   newer: OrcaPitRelease[]
+  /** Every published release, withdrawn included, newest first: the About history. */
+  releases: OrcaPitRelease[]
 }

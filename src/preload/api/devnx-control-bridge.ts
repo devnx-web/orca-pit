@@ -11,5 +11,12 @@ export const devnxControlApi = {
     ipcRenderer.invoke('devnxControl:selectAccount', provider, accountId),
   getInstalledRelease: () => ipcRenderer.invoke('devnxControl:getInstalledRelease'),
   checkForUpdate: () => ipcRenderer.invoke('devnxControl:checkForUpdate'),
-  installUpdate: () => ipcRenderer.invoke('devnxControl:installUpdate')
+  installUpdate: () => ipcRenderer.invoke('devnxControl:installUpdate'),
+  onOpenUpdates: (callback) => {
+    const listener = (): void => callback()
+    ipcRenderer.on('devnxControl:openUpdates', listener)
+    return () => {
+      ipcRenderer.removeListener('devnxControl:openUpdates', listener)
+    }
+  }
 } satisfies PreloadApi['devnxControl']

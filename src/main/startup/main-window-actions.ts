@@ -98,6 +98,9 @@ export function quitFromSystemTray(): void {
 
 export function runUserInitiatedUpdateCheck(options?: UpdateCheckOptions): void {
   if (isForkUpdaterOff()) {
+    // Orca-Pit: "Check for Updates…" opens our updater (Settings → General → Updates).
+    showMainWindowFromTray()
+    state.mainWindow?.webContents.send('devnxControl:openUpdates')
     return
   }
   ensureAutoUpdaterConfigured()

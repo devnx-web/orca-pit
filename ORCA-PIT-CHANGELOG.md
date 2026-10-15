@@ -6,6 +6,15 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit6 — 15/10/2026
+
+- Ajuda → **Sobre o Orca-Pit** abre uma tela do app no lugar da janelinha do
+  sistema: versão instalada, versão do Orca em que ela se baseia, última
+  publicada, situação (atualizado ou quantas versões novas) e o histórico de
+  releases, com as etiquetas Instalada, Nova e Retirada.
+- Ajuda → Verificar atualizações leva para a mesma tela (na pit5 não fazia nada).
+- A janela nativa de Sobre, quando aparece, mostra a versão com o "-pitN".
+
 ## 1.4.214-pit5 — 15/10/2026
 
 - Atualização pelo próprio app: em Configurações → Geral → Atualizações aparece

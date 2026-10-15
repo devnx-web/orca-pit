@@ -20025,8 +20025,23 @@
       "description": "Check for a newer Orca-Pit version and install it.",
       "install": "Update to {{version}} and restart",
       "upToDate": "You are on the newest version.",
-      "installing": "Installing. Enter the administrator password when asked; Orca-Pit restarts when it finishes."
-    }
+      "installing": "Installing. Enter the administrator password when asked; Orca-Pit restarts when it finishes.",
+      "title": "About Orca-Pit",
+      "subtitle": "Orca with the DevNX Control accounts, in Portuguese. New versions are published by DevNX and installed from here.",
+      "factInstalled": "Installed version",
+      "factOrca": "Based on Orca",
+      "factLatest": "Latest published",
+      "factStatus": "Status",
+      "statusChecking": "Checking…",
+      "statusUnknown": "Could not check",
+      "statusBehind": "{{count}} new version(s)",
+      "statusCurrent": "Up to date",
+      "history": "Releases",
+      "badgeInstalled": "Installed",
+      "badgeNew": "New",
+      "badgeWithdrawn": "Withdrawn"
+    },
+    "aboutMenu": "About Orca-Pit"
   },
   "updates": {
     "installBlock": {

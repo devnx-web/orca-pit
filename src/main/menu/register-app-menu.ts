@@ -6,6 +6,7 @@ import {
   type KeybindingOverrides
 } from '../../shared/keybindings'
 import type { UpdateCheckOptions } from '../../shared/update-status-types'
+import { aboutMenuItems } from './orca-pit-about-menu-item'
 import { translateMain } from '../i18n/main-i18n'
 import { isNativeBrowserPopupWindow } from '../browser/native-browser-popup-windows'
 import { createAppMenuSelectionItem } from './app-menu-selection-item'
@@ -330,13 +331,7 @@ function buildAndApplyMenu(options: RegisterAppMenuOptions): void {
       { type: 'separator' },
       featureTourItem,
       setupGuideItem,
-      ...(isMac
-        ? []
-        : ([
-            { type: 'separator' },
-            { role: 'about' },
-            checkForUpdatesItem
-          ] satisfies Electron.MenuItemConstructorOptions[]))
+      ...(isMac ? [] : aboutMenuItems(checkForUpdatesItem, () => onCheckForUpdates({})))
     ]
   }
 
