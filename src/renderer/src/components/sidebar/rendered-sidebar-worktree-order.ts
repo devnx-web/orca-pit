@@ -17,6 +17,11 @@ import { getRenderedWorktreesInSidebarOrder } from './worktree-sidebar-row-prefe
 import { selectWorktreeListReviewCacheInputs } from './worktree-list/listing/review-cache-inputs'
 import { getProjectActivity } from './orca-pit-project-activity'
 import {
+  getWorkspaceIdsWithAgents,
+  isAgentsOnlyView,
+  scopeRowInputsToAgents
+} from './orca-pit-agents-view'
+import {
   filterFolderWorkspacesForVisibleHosts,
   filterProjectGroupsForVisibleHosts,
   getVisibleSidebarHostIdSet
@@ -65,10 +70,35 @@ export function computeRenderedSidebarRows(
     state.worktreeCardProperties
   )
 
+  const repoMap = getRepoMapFromState(state)
+  const agentsOnly = isAgentsOnlyView(state)
+  const unscopedInputs = {
+    worktrees: [...visibleWorktrees],
+    folderWorkspaces: filterFolderWorkspacesForVisibleHosts(
+      state.folderWorkspaces,
+      projectGroups,
+      visibleHostIdSet,
+      defaultHostId
+    ),
+    projectGroups: filterProjectGroupsForVisibleHosts(
+      projectGroups,
+      visibleHostIdSet,
+      defaultHostId
+    ),
+    // Why empty: placeholder/imported/inbox/pending inputs never emit item or folder-workspace rows, the only two the order reads.
+    placeholderRepoIds: EMPTY_REPO_ID_SET,
+    importedWorktreesByRepo: EMPTY_IMPORTED_BY_REPO,
+    newExternalWorktreesInboxByRepo: EMPTY_INBOX_BY_REPO
+  }
+  // Orca-Pit: the "Agents" view drops workspaces without agents; the shortcuts must skip them too.
+  const inputs = agentsOnly
+    ? scopeRowInputsToAgents(unscopedInputs, getWorkspaceIdsWithAgents(state), repoMap)
+    : unscopedInputs
+
   const rows = buildRows(
     state.groupBy,
-    [...visibleWorktrees],
-    getRepoMapFromState(state),
+    inputs.worktrees,
+    repoMap,
     prCache,
     state.collapsedGroups,
     getLogicalRepoOrderRankById(state.repos.map((repo) => repo.id)),
@@ -76,26 +106,20 @@ export function computeRenderedSidebarRows(
     state.projectOrderBy,
     state.worktreeLineageById,
     getWorktreeMapFromState(state),
-    true,
+    !agentsOnly,
     state.settings,
-    filterProjectGroupsForVisibleHosts(projectGroups, visibleHostIdSet, defaultHostId),
-    // Why empty: placeholder/imported/inbox/pending inputs never emit item or folder-workspace rows, the only two the order reads.
-    EMPTY_REPO_ID_SET,
-    EMPTY_IMPORTED_BY_REPO,
-    EMPTY_INBOX_BY_REPO,
+    inputs.projectGroups,
+    inputs.placeholderRepoIds,
+    inputs.importedWorktreesByRepo,
+    inputs.newExternalWorktreesInboxByRepo,
     EMPTY_PENDING_CREATIONS,
     { projects: projection.projects, projectHostSetups: projection.setups },
-    filterFolderWorkspacesForVisibleHosts(
-      state.folderWorkspaces,
-      projectGroups,
-      visibleHostIdSet,
-      defaultHostId
-    ),
+    inputs.folderWorkspaces,
     // Why no hostLabelById: it only feeds display-only host context labels, never row order.
     undefined,
     defaultHostId,
     pinnedDisplayPolicy,
-    state.hideDefaultBranchWorkspace,
+    state.hideDefaultBranchWorkspace || agentsOnly,
     getProjectActivity()
   )
 

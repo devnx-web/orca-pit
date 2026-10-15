@@ -6,6 +6,15 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit3 — 15/10/2026
+
+- Novo agrupamento **Agentes** em Opções da lista (ícone de ajustes ao lado de
+  "Projetos") → Agrupar por. A lista mostra só o nome do projeto e, embaixo,
+  os agentes dele: workspace sem agente, pasta e projeto parado saem da tela.
+  Clicar no agente abre o terminal dele, como antes.
+- Os atalhos Ctrl+1–9 e Ctrl+Shift+↑/↓ seguem a mesma lista enxuta.
+- Para voltar ao normal, escolha "Projeto" no mesmo lugar.
+
 ## 1.4.214-pit2 — 14/10/2026
 
 - Projetos se dividem em **Ativos** e **Inativos** na barra lateral. Um

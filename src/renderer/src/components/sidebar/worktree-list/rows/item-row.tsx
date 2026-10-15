@@ -8,6 +8,7 @@ import {
   getWorktreeHostIdentity
 } from '../../../../../../shared/worktree/host-qualified-identity'
 import WorktreeCard, { type ActiveSurfaceVariant } from '../../WorktreeCard'
+import { OrcaPitWorkspaceCardSlot } from '../../OrcaPitWorkspaceCardSlot'
 import { PINNED_GROUP_KEY } from '../grouping/group-keys'
 import type { WorktreeGroupBy } from '../grouping/row-types'
 import {
@@ -185,46 +186,52 @@ export function renderWorktreeItemRow(
         paddingLeft: surfaceInset > 0 ? `${surfaceInset}px` : undefined
       }}
     >
-      <WorktreeCard
-        worktree={itemRow.worktree}
-        repo={itemRow.repo}
-        isActive={isActiveWorktree}
-        isCurrentWorktree={ctx.currentWorktreeId === itemRow.worktree.id}
-        // Why: a child-active parent should look active without the active-card side effects (e.g. SSH reconnect UI).
-        isActiveSurface={forceActiveSurface || isActiveWorktree}
-        activeSurfaceVariant={
-          isActiveWorktree && !forceActiveSurface ? ctx.getActiveSurfaceVariant(itemRow) : 'primary'
-        }
-        isMultiSelected={ctx.selectedWorktreeIds.has(worktreeIdentity)}
-        revealHighlight={ctx.highlightedRevealRowKey === itemRow.rowKey}
-        revealHighlightTone={
-          ctx.agentSendTargetWorktreeId === itemRow.worktree.id ? 'ai' : 'default'
-        }
-        selectedWorktrees={ctx.selectedWorktrees}
-        nativeDragEnabled={false}
-        isLineageDropTarget={Boolean(isLineageDropTarget)}
-        contentIndent={cardContentIndent}
-        flushSurface
-        activationRowKey={itemRow.rowKey}
-        onImmediateActivate={ctx.onImmediateActivate}
-        onSelectionGesture={ctx.onSelectionGesture}
-        onWorktreeCardClick={ctx.onWorktreeCardClick}
-        onContextMenuSelect={ctx.onContextMenuSelect}
-        onCardDragStart={ctx.onCardDragStart}
-        onCardDragEnd={ctx.onCardDragEnd}
-        hideRepoBadge={ctx.groupBy === 'repo'}
-        // Why: pinned worktrees mix repos in one section, so only it needs the leading repo identity chip.
-        hostContextLabel={itemRow.hostContextLabel}
-        inPinnedSection={itemRow.sectionKey === PINNED_GROUP_KEY}
-        renameRowKey={itemRow.rowKey}
-        lineageChildCount={itemRow.lineageChildCount}
-        lineageCollapsed={itemRow.lineageCollapsed}
-        lineageChildren={lineageChildren}
-        lineageChildrenStyle={lineageChildrenStyle}
-        onLineageToggle={
-          itemRow.lineageGroupKey ? ctx.getLineageToggleHandler(itemRow.lineageGroupKey) : undefined
-        }
-      />
+      <OrcaPitWorkspaceCardSlot worktreeId={itemRow.worktree.id} contentIndent={cardContentIndent}>
+        <WorktreeCard
+          worktree={itemRow.worktree}
+          repo={itemRow.repo}
+          isActive={isActiveWorktree}
+          isCurrentWorktree={ctx.currentWorktreeId === itemRow.worktree.id}
+          // Why: a child-active parent should look active without the active-card side effects (e.g. SSH reconnect UI).
+          isActiveSurface={forceActiveSurface || isActiveWorktree}
+          activeSurfaceVariant={
+            isActiveWorktree && !forceActiveSurface
+              ? ctx.getActiveSurfaceVariant(itemRow)
+              : 'primary'
+          }
+          isMultiSelected={ctx.selectedWorktreeIds.has(worktreeIdentity)}
+          revealHighlight={ctx.highlightedRevealRowKey === itemRow.rowKey}
+          revealHighlightTone={
+            ctx.agentSendTargetWorktreeId === itemRow.worktree.id ? 'ai' : 'default'
+          }
+          selectedWorktrees={ctx.selectedWorktrees}
+          nativeDragEnabled={false}
+          isLineageDropTarget={Boolean(isLineageDropTarget)}
+          contentIndent={cardContentIndent}
+          flushSurface
+          activationRowKey={itemRow.rowKey}
+          onImmediateActivate={ctx.onImmediateActivate}
+          onSelectionGesture={ctx.onSelectionGesture}
+          onWorktreeCardClick={ctx.onWorktreeCardClick}
+          onContextMenuSelect={ctx.onContextMenuSelect}
+          onCardDragStart={ctx.onCardDragStart}
+          onCardDragEnd={ctx.onCardDragEnd}
+          hideRepoBadge={ctx.groupBy === 'repo'}
+          // Why: pinned worktrees mix repos in one section, so only it needs the leading repo identity chip.
+          hostContextLabel={itemRow.hostContextLabel}
+          inPinnedSection={itemRow.sectionKey === PINNED_GROUP_KEY}
+          renameRowKey={itemRow.rowKey}
+          lineageChildCount={itemRow.lineageChildCount}
+          lineageCollapsed={itemRow.lineageCollapsed}
+          lineageChildren={lineageChildren}
+          lineageChildrenStyle={lineageChildrenStyle}
+          onLineageToggle={
+            itemRow.lineageGroupKey
+              ? ctx.getLineageToggleHandler(itemRow.lineageGroupKey)
+              : undefined
+          }
+        />
+      </OrcaPitWorkspaceCardSlot>
     </div>
   )
 }

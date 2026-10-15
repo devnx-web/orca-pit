@@ -15,6 +15,7 @@ import type { FolderWorkspacePathStatus } from '../../../../../../shared/folder-
 import { isConfirmedStaleFolderPathStatus } from '../../../../../../shared/folder-workspace-path-status'
 import { folderWorkspaceToWorktree } from '../../../../../../shared/folder-workspace-worktree'
 import WorktreeCard from '../../WorktreeCard'
+import { OrcaPitWorkspaceCardSlot } from '../../OrcaPitWorkspaceCardSlot'
 import type { WorktreeGroupBy } from '../grouping/row-types'
 import { getVirtualRowTransform } from '../viewport/virtual-rows'
 import { getFolderWorkspaceRowGeometry } from './indentation'
@@ -118,20 +119,22 @@ export function renderFolderWorkspaceVirtualRow(args: {
         className="relative"
         style={surfaceInset > 0 ? { paddingLeft: surfaceInset } : undefined}
       >
-        <WorktreeCard
-          worktree={folderWorktree}
-          repo={undefined}
-          isActive={isActiveWorktree}
-          isCurrentWorktree={ctx.currentWorktreeId === folderWorktree.id}
-          contentIndent={cardContentIndent}
-          flushSurface
-          nativeDragEnabled={false}
-          onImmediateActivate={activationDisabled ? undefined : ctx.onImmediateActivate}
-          activationRowKey={folderWorktreeIdentity}
-          onSelectionGesture={(event) => ctx.onSelectionGesture(event, folderWorktree)}
-          onContextMenuSelect={ctx.onContextMenuSelect}
-          statusPrDisplay={folderPrDisplay}
-        />
+        <OrcaPitWorkspaceCardSlot worktreeId={folderWorktree.id} contentIndent={cardContentIndent}>
+          <WorktreeCard
+            worktree={folderWorktree}
+            repo={undefined}
+            isActive={isActiveWorktree}
+            isCurrentWorktree={ctx.currentWorktreeId === folderWorktree.id}
+            contentIndent={cardContentIndent}
+            flushSurface
+            nativeDragEnabled={false}
+            onImmediateActivate={activationDisabled ? undefined : ctx.onImmediateActivate}
+            activationRowKey={folderWorktreeIdentity}
+            onSelectionGesture={(event) => ctx.onSelectionGesture(event, folderWorktree)}
+            onContextMenuSelect={ctx.onContextMenuSelect}
+            statusPrDisplay={folderPrDisplay}
+          />
+        </OrcaPitWorkspaceCardSlot>
         <div className="pointer-events-auto absolute right-3 top-1.5">
           <FolderPathStatusIndicator status={pathStatus} />
         </div>

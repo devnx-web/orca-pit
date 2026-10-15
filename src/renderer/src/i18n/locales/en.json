@@ -20018,6 +20018,9 @@
       "inactive": "Inactive",
       "split": "Split active and inactive",
       "splitDescription": "Show projects with a message sent in the last 12 hours under Active and the rest under Inactive"
+    },
+    "groupBy": {
+      "agents": "Agents"
     }
   },
   "updates": {
