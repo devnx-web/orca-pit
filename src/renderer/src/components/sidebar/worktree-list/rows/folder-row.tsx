@@ -119,7 +119,11 @@ export function renderFolderWorkspaceVirtualRow(args: {
         className="relative"
         style={surfaceInset > 0 ? { paddingLeft: surfaceInset } : undefined}
       >
-        <OrcaPitWorkspaceCardSlot worktreeId={folderWorktree.id} contentIndent={cardContentIndent}>
+        <OrcaPitWorkspaceCardSlot
+          worktree={folderWorktree}
+          repo={undefined}
+          contentIndent={cardContentIndent}
+        >
           <WorktreeCard
             worktree={folderWorktree}
             repo={undefined}

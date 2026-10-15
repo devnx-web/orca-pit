@@ -6,6 +6,12 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit4 — 15/10/2026
+
+- No agrupamento **Agentes**, o agente que roda em outra máquina (um servidor
+  Orca pareado ou um host SSH) mostra ao lado o nome dela, como "Nitro5". O que
+  roda neste computador fica sem selo.
+
 ## 1.4.214-pit3 — 15/10/2026
 
 - Novo agrupamento **Agentes** em Opções da lista (ícone de ajustes ao lado de
