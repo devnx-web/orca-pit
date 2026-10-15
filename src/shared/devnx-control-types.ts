@@ -50,4 +50,31 @@ export type DevnxControlApi = {
     provider: DevnxControlProvider,
     accountId: string
   ) => Promise<DevnxControlResult<DevnxControlStatus>>
+  /** The installed package version, `1.4.214-pit4`, or Orca's own outside the .deb. */
+  getInstalledRelease: () => Promise<string>
+  checkForUpdate: () => Promise<DevnxControlResult<OrcaPitUpdateCheck>>
+  /** Installs the newest active release and restarts the app; resolves only on failure. */
+  installUpdate: () => Promise<DevnxControlResult<null>>
+}
+
+// Orca-Pit's own updater: Stably's is off in this fork, so new versions are announced by a
+// manifest the release script publishes next to the packages.
+export const ORCA_PIT_RELEASES_BASE_URL = 'https://arquivos.devnx.com.br/orca-pit'
+
+export type OrcaPitRelease = {
+  /** `1.4.214-pit4`: Orca's version plus the fork's build number. */
+  version: string
+  /** As written in ORCA-PIT-CHANGELOG.md, e.g. `15/10/2026`. */
+  date: string
+  notes: string[]
+  /** False once withdrawn: no machine is offered it anymore. */
+  active: boolean
+}
+
+export type OrcaPitUpdateCheck = {
+  installed: string
+  /** The newest active release, or null when the manifest lists none. */
+  latest: string | null
+  /** Active releases newer than the installed one, newest first. */
+  newer: OrcaPitRelease[]
 }

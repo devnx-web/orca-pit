@@ -8,5 +8,8 @@ export const devnxControlApi = {
   refresh: (options) => ipcRenderer.invoke('devnxControl:refresh', options),
   listAccounts: () => ipcRenderer.invoke('devnxControl:listAccounts'),
   selectAccount: (provider, accountId) =>
-    ipcRenderer.invoke('devnxControl:selectAccount', provider, accountId)
+    ipcRenderer.invoke('devnxControl:selectAccount', provider, accountId),
+  getInstalledRelease: () => ipcRenderer.invoke('devnxControl:getInstalledRelease'),
+  checkForUpdate: () => ipcRenderer.invoke('devnxControl:checkForUpdate'),
+  installUpdate: () => ipcRenderer.invoke('devnxControl:installUpdate')
 } satisfies PreloadApi['devnxControl']

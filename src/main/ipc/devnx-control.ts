@@ -7,6 +7,11 @@ import {
 import { publicErrorMessage, isRecord } from '../devnx-control/devnx-control-http'
 import { normalizeProvider } from '../devnx-control/devnx-control-payloads'
 import {
+  checkForUpdate,
+  getInstalledRelease,
+  installUpdate
+} from '../devnx-control/orca-pit-updates'
+import {
   getDevnxControlService,
   type DevnxControlService
 } from '../devnx-control/devnx-control-service'
@@ -29,6 +34,15 @@ async function run<T>(
   }
   try {
     return { ok: true, value: await action(service) }
+  } catch (error) {
+    return { ok: false, error: publicErrorMessage(error) }
+  }
+}
+
+// The updater needs no panel session, so it skips run()'s service check.
+async function guard<T>(action: () => Promise<T>): Promise<DevnxControlResult<T>> {
+  try {
+    return { ok: true, value: await action() }
   } catch (error) {
     return { ok: false, error: publicErrorMessage(error) }
   }
@@ -65,6 +79,14 @@ export function registerDevnxControlHandlers(): void {
         throw new Error('Plataforma ou conta inválida.')
       }
       return service.selectAccount(normalized, accountId.trim())
+    })
+  )
+  ipcMain.handle('devnxControl:getInstalledRelease', () => getInstalledRelease())
+  ipcMain.handle('devnxControl:checkForUpdate', () => guard(checkForUpdate))
+  ipcMain.handle('devnxControl:installUpdate', () =>
+    guard(async () => {
+      await installUpdate()
+      return null
     })
   )
 }

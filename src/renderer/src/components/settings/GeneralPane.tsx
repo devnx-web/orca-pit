@@ -5,6 +5,7 @@ import { CliSection } from './CliSection'
 import { GeneralEditorSettingsSection } from './GeneralEditorSettingsSection'
 import { GeneralSupportSection } from './GeneralSupportSection'
 import { GeneralUpdateSettingsSection } from './GeneralUpdateSettingsSection'
+import { OrcaPitUpdateSection } from './OrcaPitUpdateSection'
 import { GeneralWorkspaceSettingsSection } from './GeneralWorkspaceSettingsSection'
 import {
   getGeneralCliSearchEntries,
@@ -274,7 +275,13 @@ export function GeneralPane({
       />
     ) : null,
     matchesSettingsSearch(searchQuery, getGeneralUpdateSearchEntries()) ? (
-      <GeneralUpdateSettingsSection key="updates" />
+      // Orca-Pit: the installed app uses our updater, since Orca's points at Stably's releases
+      // and is off there; dev runs and tests keep Orca's, as orca-pit-updater-gate does.
+      import.meta.env.DEV ? (
+        <GeneralUpdateSettingsSection key="updates" />
+      ) : (
+        <OrcaPitUpdateSection key="updates" />
+      )
     ) : null
     // Note: the Support section is rendered outside this array so it can own
     // its own loading placeholder and its own collapsing Separator. Without

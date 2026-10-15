@@ -9,11 +9,15 @@
 #   3. monta install.sh e SHA256SUMS
 #   4. sobe para s3://arquivos.devnx.com.br/orca-pit/v<versão>/ e atualiza
 #      o orca-pit/install.sh da raiz, que sempre instala a última
+#   5. publica orca-pit/releases.json (gerado do changelog), que o app lê em
+#      Configurações → Atualizações para oferecer a versão nova
 #
 # Uso:
 #   config/scripts/orca-pit-release.sh               # build → upload
 #   config/scripts/orca-pit-release.sh --sem-upload  # só gera em dist/
 #   config/scripts/orca-pit-release.sh --sem-build   # reaproveita o build em out/
+#   config/scripts/orca-pit-release.sh --so-manifesto # só republica o releases.json
+#                                                     # (ex.: depois de marcar uma versão "(retirada)")
 #
 # Pré-requisitos: aws-cli v2 com o profile "wasabi", Node 24 via nvm e a
 # entrada "## <versão>" no ORCA-PIT-CHANGELOG.md.
@@ -23,10 +27,12 @@ set -euo pipefail
 
 SKIP_BUILD=""
 SKIP_UPLOAD=""
+ONLY_MANIFEST=""
 for arg in "$@"; do
   case "$arg" in
     --sem-build) SKIP_BUILD=1 ;;
     --sem-upload) SKIP_UPLOAD=1 ;;
+    --so-manifesto) ONLY_MANIFEST=1 ;;
     *) echo "argumento desconhecido: $arg"; exit 1 ;;
   esac
 done
@@ -44,6 +50,20 @@ AWS_OPTS=(--profile wasabi --region us-central-1 --endpoint-url https://s3.us-ce
 MAX_DEB_BYTES=$((300 * 1024 * 1024))
 
 ORCA_VERSION="$(node -p "require('./package.json').version")"
+
+publish_manifest() {
+  node config/scripts/orca-pit-releases-manifest.mjs ORCA-PIT-CHANGELOG.md > dist/releases.json
+  echo "  · releases.json → s3://${BUCKET}/${PREFIX}/releases.json (última ativa: $(node -p "require('./dist/releases.json').latest"))"
+  # Why no-cache: o app consulta este arquivo para saber se há versão nova.
+  aws "${AWS_OPTS[@]}" s3 cp dist/releases.json "s3://${BUCKET}/${PREFIX}/releases.json" \
+    --no-progress --content-type "application/json; charset=utf-8" --cache-control "no-cache"
+}
+
+if [[ -n "$ONLY_MANIFEST" ]]; then
+  mkdir -p dist
+  publish_manifest
+  exit 0
+fi
 
 # ---------- 1. versão ----------
 if [[ -n "$(git status --porcelain)" ]]; then
@@ -141,6 +161,8 @@ upload dist/SHA256SUMS "$DEST" "text/plain; charset=utf-8"
 # O ponto de entrada só fica disponível depois dos arquivos que ele precisa.
 upload dist/install.sh "$DEST" "text/x-shellscript"
 upload dist/install.sh "s3://${BUCKET}/${PREFIX}/install.sh" "text/x-shellscript"
+# O manifesto vai por último: o app só oferece a versão quando o install.sh dela já existe.
+publish_manifest
 
 git tag "orca-pit-v${RELEASE}"
 

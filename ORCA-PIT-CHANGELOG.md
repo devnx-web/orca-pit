@@ -6,6 +6,15 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit5 — 15/10/2026
+
+- Atualização pelo próprio app: em Configurações → Geral → Atualizações aparece
+  a versão instalada com o "-pitN", e o botão "Verificar atualizações" mostra o
+  que mudou em cada versão nova e instala a mais nova (pede a senha de
+  administrador e reinicia o app sozinho).
+- Sincronizado com o Orca de 15/10/2026 (quadro do Jira, favoritos do Jira,
+  aviso quando o serviço de terminal trava, copiar ao selecionar também no chat).
+
 ## 1.4.214-pit4 — 15/10/2026
 
 - No agrupamento **Agentes**, o agente que roda em outra máquina (um servidor

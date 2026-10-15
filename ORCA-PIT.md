@@ -67,3 +67,12 @@ curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 
 `--sem-upload` só gera o pacote em `dist/`; `--sem-build` reaproveita a
 compilação que já está em `out/`.
+
+Por último o script publica `orca-pit/releases.json`, gerado do changelog. É ele
+que o app lê em Configurações → Geral → Atualizações para mostrar o que mudou e
+instalar a versão nova (via `pkexec`, com a senha de administrador). Para
+retirar uma versão com problema, acrescente `(retirada)` no fim do título dela
+no changelog e rode `config/scripts/orca-pit-release.sh --so-manifesto`: nenhuma
+máquina é levada a ela, e "a mais nova" passa a ser a anterior ativa. O
+`install.sh` da raiz continua apontando para onde estava; publique uma versão
+nova para trocá-lo.

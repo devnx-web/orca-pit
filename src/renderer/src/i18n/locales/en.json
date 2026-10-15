@@ -20020,6 +20020,12 @@
     },
     "groupBy": {
       "agents": "Agents"
+    },
+    "updates": {
+      "description": "Check for a newer Orca-Pit version and install it.",
+      "install": "Update to {{version}} and restart",
+      "upToDate": "You are on the newest version.",
+      "installing": "Installing. Enter the administrator password when asked; Orca-Pit restarts when it finishes."
     }
   },
   "updates": {
