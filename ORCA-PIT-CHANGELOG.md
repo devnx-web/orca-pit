@@ -6,6 +6,15 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit7 — 17/10/2026
+
+- Relay próprio para o celular: com um token no arquivo
+  `~/.config/orca-pit/relay-token` (um por computador), o Orca-Pit usa o relay
+  da DevNX no lugar do Orca Relay, sem conta do Orca. Em Configurações → Mobile,
+  a opção Orca Relay já aparece liberada e o QR leva o celular ao nosso relay;
+  ele funciona de qualquer rede, sem túnel nem porta aberta.
+- Sem o arquivo, nada muda.
+
 ## 1.4.214-pit6 — 15/10/2026
 
 - Ajuda → **Sobre o Orca-Pit** abre uma tela do app no lugar da janelinha do

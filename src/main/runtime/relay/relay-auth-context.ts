@@ -2,11 +2,17 @@ import type { OrcaCloudAuthConfig } from '../../orca-profiles/profile-cloud-auth
 import { ensureActiveOrcaProfile } from '../../orca-profiles/profile-index-store'
 import { readFreshOrcaCloudSession } from '../../orca-profiles/profile-cloud-session-refresh'
 import type { RelayAuthContext } from './relay-auth-identity'
+import { readOrcaPitRelayAuthContext } from '../../devnx-control/orca-pit-relay'
 
 export async function readRelayAuthContext(
   authConfig: OrcaCloudAuthConfig,
   userDataPath: string
 ): Promise<RelayAuthContext | null> {
+  // Orca-Pit: a device token stands in for the Orca account; see orca-pit-relay.
+  const orcaPit = readOrcaPitRelayAuthContext()
+  if (orcaPit) {
+    return orcaPit
+  }
   const active = ensureActiveOrcaProfile(userDataPath)
   if (!active.profile.cloud) {
     return null

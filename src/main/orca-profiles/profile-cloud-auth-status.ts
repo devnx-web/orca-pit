@@ -2,6 +2,7 @@ import type { OrcaProfileAuthStatus } from '../../shared/orca-profiles'
 import type { ActiveOrcaProfileState } from './profile-index-store'
 import { getOrcaCloudAuthConfig, isOrcaCloudDevAuthEnabled } from './profile-cloud-auth-config'
 import { readCloudSession } from './profile-cloud-session-owner'
+import { readOrcaPitRelayToken } from '../devnx-control/orca-pit-relay'
 
 export function getOrcaProfileAuthStatusFromProfile(
   active: ActiveOrcaProfileState,
@@ -15,7 +16,8 @@ export function getOrcaProfileAuthStatusFromProfile(
     return {
       activeProfileId: active.profile.id,
       configured,
-      state: configured ? 'local' : 'unconfigured',
+      // Orca-Pit: a device token makes Relay usable without an Orca account; see orca-pit-relay.
+      state: configured ? (readOrcaPitRelayToken() ? 'connected' : 'local') : 'unconfigured',
       persistence: 'none',
       setupMessage: configured ? undefined : configState.setupMessage
     }

@@ -4,6 +4,7 @@ import {
   cleanCloudServiceOrigin as cleanOrigin
 } from '../../shared/cloud-service-url'
 import { resolvePushGatewayOrigin } from '../runtime/push/push-gateway-origin'
+import { withOrcaPitRelay } from '../devnx-control/orca-pit-relay'
 
 export type OrcaCloudAuthConfig = {
   apiBaseUrl: string
@@ -67,7 +68,8 @@ export function getOrcaCloudAuthConfig(
   const authBaseUrl = cleanEndpointUrl(env.ORCA_CLOUD_AUTH_URL) ?? apiBaseUrl
   return {
     configured: true,
-    config: {
+    // Orca-Pit: with a device token, the relay endpoints are ours; see orca-pit-relay.
+    config: withOrcaPitRelay({
       apiBaseUrl,
       authorizeEndpoint:
         cleanEndpointUrl(env.ORCA_CLOUD_AUTHORIZE_URL) ??
@@ -96,7 +98,7 @@ export function getOrcaCloudAuthConfig(
         cleanOrigin(env.ORCA_RELAY_URL, allowLoopbackHttp) ?? PRODUCTION_RELAY_DIRECTOR_URL,
       clientId,
       scope: env.ORCA_CLOUD_AUTH_SCOPE?.trim() || DEFAULT_SCOPE
-    }
+    })
   }
 }
 
