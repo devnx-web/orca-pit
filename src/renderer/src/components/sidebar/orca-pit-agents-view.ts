@@ -1,6 +1,7 @@
 // Orca-Pit: "Agents" in the sidebar's Group by. It is the project grouping cut down to what
-// the user works from: a workspace with no agent row leaves the list, and a workspace that
-// stays shows only its agent rows, so each project reads as a header over its agents.
+// the user works from: every project keeps its header, a workspace with no agent row leaves the
+// list, a workspace that stays shows only its agent rows, and projects nested in a group fold
+// into it, so each project reads as one header over its agents.
 import { useMemo } from 'react'
 import { useStore } from 'zustand'
 import { createStore } from 'zustand/vanilla'
@@ -20,7 +21,16 @@ import {
 } from '../dashboard/worktree-agent-rows-cache'
 import { EMPTY_WORKTREE_AGENT_ORCHESTRATION } from './worktree-agent-orchestration-batch'
 
-export { scopeRowInputsToAgents } from './worktree-list/grouping/agents-only-inputs'
+import {
+  scopeRowInputsToAgents,
+  type AgentsOnlyRowInputs
+} from './worktree-list/grouping/agents-only-inputs'
+import type { Repo } from '../../../../shared/repo-types'
+
+export {
+  flattenAgentsOnlyRows,
+  scopeRowInputsToAgents
+} from './worktree-list/grouping/agents-only-inputs'
 
 const STORAGE_KEY = 'orca-pit.agents-view.v1'
 
@@ -112,4 +122,48 @@ export function useWorkspaceIdsWithAgents(enabled: boolean): ReadonlySet<string>
 
 export function getWorkspaceIdsWithAgents(state: AppState): ReadonlySet<string> {
   return selectWorkspaceIdsWithAgents(selectAgentBucketCountState(state))
+}
+
+/** The row inputs for the sidebar, narrowed to agents while the "Agents" view is on. */
+export function useAgentsViewRowInputs<Imported, Inbox>(
+  inputs: AgentsOnlyRowInputs<Imported, Inbox>,
+  visibleRepos: readonly Repo[]
+): { agentsOnly: boolean; rowInputs: AgentsOnlyRowInputs<Imported, Inbox> } {
+  const agentsOnly = useAgentsOnlyView()
+  const workspaceIdsWithAgents = useWorkspaceIdsWithAgents(agentsOnly)
+  const {
+    worktrees,
+    folderWorkspaces,
+    projectGroups,
+    placeholderRepoIds,
+    importedWorktreesByRepo,
+    newExternalWorktreesInboxByRepo
+  } = inputs
+  const rowInputs = useMemo(() => {
+    const unscoped = {
+      worktrees,
+      folderWorkspaces,
+      projectGroups,
+      placeholderRepoIds,
+      importedWorktreesByRepo,
+      newExternalWorktreesInboxByRepo
+    }
+    return workspaceIdsWithAgents
+      ? scopeRowInputsToAgents(
+          unscoped,
+          workspaceIdsWithAgents,
+          visibleRepos.map((repo) => repo.id)
+        )
+      : unscoped
+  }, [
+    worktrees,
+    folderWorkspaces,
+    projectGroups,
+    placeholderRepoIds,
+    importedWorktreesByRepo,
+    newExternalWorktreesInboxByRepo,
+    workspaceIdsWithAgents,
+    visibleRepos
+  ])
+  return { agentsOnly, rowInputs }
 }

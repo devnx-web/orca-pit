@@ -23,11 +23,10 @@ import { orderHostSectionOptions } from '../../host-section-order'
 import { buildSidebarHostOptions } from '../../sidebar-host-options'
 import { selectPendingWorktreeCreationKeys } from './pending-worktree-creation-keys'
 import { useProjectActivity } from '../../orca-pit-project-activity'
-import {
-  scopeRowInputsToAgents,
-  useAgentsOnlyView,
-  useWorkspaceIdsWithAgents
-} from '../../orca-pit-agents-view'
+import { flattenAgentsOnlyRows, useAgentsViewRowInputs } from '../../orca-pit-agents-view'
+
+// Why a Set nobody writes to: buildRows takes a mutable Set.
+const NOTHING_COLLAPSED = new Set<string>()
 
 type SectionRowsArgs = {
   groupBy: WorktreeGroupBy
@@ -170,81 +169,68 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
 
   const hideDefaultBranchWorkspace = useAppStore((s) => s.hideDefaultBranchWorkspace)
   const projectActivity = useProjectActivity()
-  const agentsOnly = useAgentsOnlyView()
-  const workspaceIdsWithAgents = useWorkspaceIdsWithAgents(agentsOnly)
-  const rowInputs = useMemo(() => {
-    const inputs = {
+  const { agentsOnly, rowInputs } = useAgentsViewRowInputs(
+    {
       worktrees,
       folderWorkspaces: args.visibleFolderWorkspacesForRows,
       projectGroups: args.visibleProjectGroupsForRows,
       placeholderRepoIds,
       importedWorktreesByRepo: args.importedWorktreesByRepo,
       newExternalWorktreesInboxByRepo: args.newExternalWorktreesInboxByRepo
-    }
-    return workspaceIdsWithAgents
-      ? scopeRowInputsToAgents(inputs, workspaceIdsWithAgents, repoMap)
-      : inputs
-  }, [
-    worktrees,
-    args.visibleFolderWorkspacesForRows,
-    args.visibleProjectGroupsForRows,
-    placeholderRepoIds,
-    args.importedWorktreesByRepo,
-    args.newExternalWorktreesInboxByRepo,
-    workspaceIdsWithAgents,
-    repoMap
-  ])
-  const rows: Row[] = useMemo(
-    () =>
-      buildRows(
-        args.groupBy,
-        rowInputs.worktrees,
-        repoMap,
-        args.prCache,
-        rowCollapsedGroups,
-        repoOrder,
-        args.workspaceStatuses,
-        args.projectOrderBy,
-        args.worktreeLineageById,
-        args.worktreeMap,
-        // Orca-Pit: agent rows replace the card, so a child workspace cannot nest inside one.
-        !agentsOnly,
-        args.settings,
-        rowInputs.projectGroups,
-        rowInputs.placeholderRepoIds,
-        rowInputs.importedWorktreesByRepo,
-        rowInputs.newExternalWorktreesInboxByRepo,
-        pendingCreations,
-        args.projectGrouping,
-        rowInputs.folderWorkspaces,
-        hostLabelById,
-        defaultHostId,
-        args.pinnedDisplayPolicy,
-        hideDefaultBranchWorkspace || agentsOnly,
-        projectActivity
-      ),
-    [
+    },
+    args.visibleReposForRows
+  )
+  const rows: Row[] = useMemo(() => {
+    const built = buildRows(
       args.groupBy,
-      rowInputs,
-      agentsOnly,
+      rowInputs.worktrees,
       repoMap,
       args.prCache,
-      rowCollapsedGroups,
-      defaultHostId,
+      // Orca-Pit: the "Agents" view applies collapse itself, after flattening.
+      agentsOnly ? NOTHING_COLLAPSED : rowCollapsedGroups,
       repoOrder,
       args.workspaceStatuses,
       args.projectOrderBy,
       args.worktreeLineageById,
       args.worktreeMap,
+      // Orca-Pit: agent rows replace the card, so a child workspace cannot nest inside one.
+      !agentsOnly,
       args.settings,
-      args.projectGrouping,
+      rowInputs.projectGroups,
+      rowInputs.placeholderRepoIds,
+      rowInputs.importedWorktreesByRepo,
+      rowInputs.newExternalWorktreesInboxByRepo,
       pendingCreations,
+      args.projectGrouping,
+      rowInputs.folderWorkspaces,
       hostLabelById,
+      defaultHostId,
       args.pinnedDisplayPolicy,
-      hideDefaultBranchWorkspace,
+      hideDefaultBranchWorkspace && !agentsOnly,
       projectActivity
-    ]
-  )
+    )
+    return agentsOnly ? flattenAgentsOnlyRows(built, rowCollapsedGroups) : built
+  }, [
+    args.groupBy,
+    rowInputs,
+    agentsOnly,
+    repoMap,
+    args.prCache,
+    rowCollapsedGroups,
+    defaultHostId,
+    repoOrder,
+    args.workspaceStatuses,
+    args.projectOrderBy,
+    args.worktreeLineageById,
+    args.worktreeMap,
+    args.settings,
+    args.projectGrouping,
+    pendingCreations,
+    hostLabelById,
+    args.pinnedDisplayPolicy,
+    hideDefaultBranchWorkspace,
+    projectActivity
+  ])
   const orderedHostOptions = useMemo(
     () => orderHostSectionOptions(hostOptions, workspaceHostOrder),
     [hostOptions, workspaceHostOrder]

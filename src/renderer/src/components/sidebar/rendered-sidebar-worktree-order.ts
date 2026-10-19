@@ -17,6 +17,7 @@ import { getRenderedWorktreesInSidebarOrder } from './worktree-sidebar-row-prefe
 import { selectWorktreeListReviewCacheInputs } from './worktree-list/listing/review-cache-inputs'
 import { getProjectActivity } from './orca-pit-project-activity'
 import {
+  flattenAgentsOnlyRows,
   getWorkspaceIdsWithAgents,
   isAgentsOnlyView,
   scopeRowInputsToAgents
@@ -92,15 +93,15 @@ export function computeRenderedSidebarRows(
   }
   // Orca-Pit: the "Agents" view drops workspaces without agents; the shortcuts must skip them too.
   const inputs = agentsOnly
-    ? scopeRowInputsToAgents(unscopedInputs, getWorkspaceIdsWithAgents(state), repoMap)
+    ? scopeRowInputsToAgents(unscopedInputs, getWorkspaceIdsWithAgents(state))
     : unscopedInputs
 
-  const rows = buildRows(
+  const built = buildRows(
     state.groupBy,
     inputs.worktrees,
     repoMap,
     prCache,
-    state.collapsedGroups,
+    agentsOnly ? new Set<string>() : state.collapsedGroups,
     getLogicalRepoOrderRankById(state.repos.map((repo) => repo.id)),
     state.workspaceStatuses,
     state.projectOrderBy,
@@ -119,9 +120,11 @@ export function computeRenderedSidebarRows(
     undefined,
     defaultHostId,
     pinnedDisplayPolicy,
-    state.hideDefaultBranchWorkspace || agentsOnly,
+    state.hideDefaultBranchWorkspace && !agentsOnly,
     getProjectActivity()
   )
+  // Orca-Pit: same flattening as the rendered "Agents" view, collapse included.
+  const rows = agentsOnly ? flattenAgentsOnlyRows(built, state.collapsedGroups) : built
 
   // Why lazy: with no host filter, addHostSectionRows is a pass-through, so skip building the whole host registry on a keystroke.
   // Deliberately a superset of its internal guards — on <=1 host it still no-ops, wasting only the registry build.

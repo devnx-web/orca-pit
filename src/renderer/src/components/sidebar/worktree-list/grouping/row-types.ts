@@ -29,6 +29,8 @@ export type GroupHeaderRow = {
   hostWorktreeCounts?: ReadonlyMap<ExecutionHostId, number>
   hostWorktreeIds?: ReadonlyMap<ExecutionHostId, readonly string[]>
   worktreeIds?: readonly string[]
+  /** Orca-Pit: the project this group header's "+" creates in, in the "Agents" view. */
+  orcaPitCreateRepo?: Repo
 }
 
 export type WorktreeRow = {

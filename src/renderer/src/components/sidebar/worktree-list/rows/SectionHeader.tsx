@@ -149,11 +149,13 @@ export function renderWorktreeSectionHeaderRow(args: {
     headerKey: row.key,
     badgeColor: row.repo?.badgeColor
   })
-  const createState = row.repo
+  // Orca-Pit: in the "Agents" view a group header carries its nested project's "+".
+  const createRepo = row.repo ?? row.orcaPitCreateRepo
+  const createState = createRepo
     ? getRepoHeaderCreateState({
-        repo: row.repo,
+        repo: createRepo,
         label: row.label,
-        sshGate: ctx.getRepoSshGate(row.repo)
+        sshGate: ctx.getRepoSshGate(createRepo)
       })
     : null
   const folderBackedProjectGroup =
@@ -373,7 +375,8 @@ export function renderWorktreeSectionHeaderRow(args: {
             />
           ) : null}
 
-          {folderBackedProjectGroup ? (
+          {/* Orca-Pit: one "+" per header; the nested project's wins in the "Agents" view. */}
+          {folderBackedProjectGroup && !row.orcaPitCreateRepo ? (
             <ProjectGroupCreateWorkspaceButton
               projectGroup={folderBackedProjectGroup}
               label={row.label}
@@ -392,9 +395,9 @@ export function renderWorktreeSectionHeaderRow(args: {
             />
           ) : null}
 
-          {row.repo && ctx.groupBy === 'repo' ? (
+          {createRepo && ctx.groupBy === 'repo' ? (
             <RepoHeaderCreateWorkspaceButton
-              repo={row.repo}
+              repo={createRepo}
               label={row.label}
               createState={createState}
               onCreateForRepo={ctx.projectActions.onCreateForRepo}

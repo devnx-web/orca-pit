@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { buildRows } from './worktree-list/grouping/build-rows'
-import { scopeRowInputsToAgents } from './worktree-list/grouping/agents-only-inputs'
+import {
+  flattenAgentsOnlyRows,
+  scopeRowInputsToAgents
+} from './worktree-list/grouping/agents-only-inputs'
 import { repo, worktree } from './worktree-list-groups-test-fixtures'
 import type { FolderWorkspace } from '../../../../shared/folder-workspace-types'
 import type { ProjectGroup } from '../../../../shared/project-group-types'
@@ -43,20 +46,20 @@ const wbFolder = {
   projectGroupId: wb.id
 } as unknown as FolderWorkspace
 
-function rowsFor(workspaceIdsWithAgents: string[]) {
+function rowsFor(workspaceIdsWithAgents: string[], collapsed: string[] = []) {
   const inputs = scopeRowInputsToAgents(
     {
       worktrees,
       folderWorkspaces: [wbFolder],
       projectGroups: [ailiv, legacy, wb],
-      placeholderRepoIds: new Set(repos.map((owner) => owner.id)),
+      placeholderRepoIds: new Set(),
       importedWorktreesByRepo: new Map(),
       newExternalWorktreesInboxByRepo: new Map()
     },
     new Set(workspaceIdsWithAgents),
-    repoMap
+    repos.map((owner) => owner.id)
   )
-  const rows = buildRows(
+  const built = buildRows(
     'repo',
     inputs.worktrees,
     repoMap,
@@ -79,10 +82,14 @@ function rowsFor(workspaceIdsWithAgents: string[]) {
     undefined,
     undefined,
     undefined,
-    true
+    false
   )
+  const rows = flattenAgentsOnlyRows(built, new Set(collapsed))
   return {
     headers: rows.filter((row) => row.type === 'header').map((row) => row.label),
+    createRepos: rows.flatMap((row) =>
+      row.type === 'header' ? [(row.repo ?? row.orcaPitCreateRepo)?.id ?? null] : []
+    ),
     items: rows.flatMap((row) =>
       row.type === 'item'
         ? [row.worktree.id]
@@ -94,21 +101,33 @@ function rowsFor(workspaceIdsWithAgents: string[]) {
 }
 
 describe('Orca-Pit: agents view', () => {
-  it('keeps only the workspaces with agents, under their project and its parent groups', () => {
-    expect(rowsFor(['wt-repo-app'])).toEqual({
-      headers: ['ailiv', 'legado', 'app'],
+  const everyProject = ['ailiv', 'wb', 'loose']
+
+  it('lists every top-level project, with only the workspaces that have agents', () => {
+    expect(rowsFor(['wt-repo-app'])).toMatchObject({
+      headers: everyProject,
       items: ['wt-repo-app']
     })
   })
 
-  it('keeps a folder workspace with agents under its group', () => {
-    expect(rowsFor(['folder:wb-folder', 'wt-repo-loose'])).toEqual({
-      headers: ['wb', 'loose'],
+  it('folds a folder workspace with agents into its group', () => {
+    expect(rowsFor(['folder:wb-folder', 'wt-repo-loose'])).toMatchObject({
+      headers: everyProject,
       items: ['wb-folder', 'wt-repo-loose']
     })
   })
 
-  it('shows nothing when no agent is running anywhere', () => {
-    expect(rowsFor([])).toEqual({ headers: [], items: [] })
+  it('keeps every project header when no agent is running anywhere', () => {
+    expect(rowsFor([])).toMatchObject({ headers: everyProject, items: [] })
+  })
+
+  it("gives a group header its first nested project's +", () => {
+    expect(rowsFor([]).createRepos).toEqual(['repo-app', 'repo-wb', 'repo-loose'])
+  })
+
+  it('collapses on the remaining headers only', () => {
+    expect(rowsFor(['wt-repo-app', 'wt-repo-loose'], ['repo:repo-app'])).toMatchObject({
+      items: ['wt-repo-app', 'wt-repo-loose']
+    })
   })
 })

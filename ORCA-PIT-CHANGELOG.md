@@ -6,6 +6,17 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit8 — 19/10/2026
+
+- Agrupar por **Agentes** virou a lista de trabalho: aparecem todos os
+  projetos, mesmo sem agente rodando, e embaixo de cada um só os agentes dele,
+  um por linha.
+- Projeto dentro de grupo (como wbimoveis → wbimoveis-full-painel) não ganha
+  mais um cabeçalho próprio: os agentes aparecem direto sob o grupo, e o **+**
+  do cabeçalho do grupo cria o workspace no projeto de dentro.
+- Vários agentes no mesmo workspace não se resumem mais a um "+1": cada um tem
+  a sua linha.
+
 ## 1.4.214-pit7 — 17/10/2026
 
 - Relay próprio para o celular: com um token no arquivo

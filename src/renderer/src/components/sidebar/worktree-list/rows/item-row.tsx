@@ -168,11 +168,7 @@ export function renderWorktreeItemRow(
         paddingLeft: surfaceInset > 0 ? `${surfaceInset}px` : undefined
       }}
     >
-      <OrcaPitWorkspaceCardSlot
-        worktree={itemRow.worktree}
-        repo={itemRow.repo}
-        contentIndent={cardContentIndent}
-      >
+      <OrcaPitWorkspaceCardSlot worktree={itemRow.worktree} repo={itemRow.repo}>
         <WorktreeCard
           worktree={itemRow.worktree}
           repo={itemRow.repo}
