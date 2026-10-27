@@ -42,6 +42,28 @@ export async function resolveDevnxControlCodexHome(
   return service.codexHome()
 }
 
+/**
+ * A native chat's Claude on the DevNX Control session, by the same proxy a terminal's takes.
+ * Empty when DevNX Control is not in charge. Without it the chat fell to the system login
+ * (`~/.claude`), which this setup never signs in, and every chat failed as "not signed in".
+ */
+export function devnxControlClaudeChatEnv(): Record<string, string> {
+  const service = getDevnxControlService()
+  const brokerUrl = service?.broker.baseUrl()
+  if (!service?.client.isConnected() || !brokerUrl) {
+    return {}
+  }
+  const { client } = service
+  prepareClaudeHome(client.paths.claudeHome)
+  return {
+    CLAUDE_CONFIG_DIR: client.paths.claudeHome,
+    CLAUDE_CODE_OAUTH_TOKEN: client.runtime.claudeCapability,
+    ANTHROPIC_BASE_URL: `${brokerUrl}${CLAUDE_PROXY_PATH}`,
+    NO_PROXY: withLoopbackNoProxy(process.env.NO_PROXY),
+    no_proxy: withLoopbackNoProxy(process.env.no_proxy)
+  }
+}
+
 export function applyDevnxControlTerminalEnv(
   baseEnv: Record<string, string>,
   opts: { isWsl?: boolean }

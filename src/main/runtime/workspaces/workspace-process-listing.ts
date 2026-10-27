@@ -36,6 +36,7 @@ import { createStructuredChatNamingHandler } from '../../native-chat/structured-
 import { structuredChatNamingDeps } from '../structured-chat-naming-runtime'
 import { getProfileUserDataPath } from '../../orca-profiles/profile-storage-paths'
 import { LOCAL_EXECUTION_HOST_ID } from '../../../shared/execution-host'
+import { devnxControlClaudeChatEnv } from '../../devnx-control/devnx-control-terminal-env'
 import { buildWorktreeListingPage } from '../worktree-listing-host-scope'
 import {
   structuredWorkerOpenTaskTitle,
@@ -161,7 +162,9 @@ export abstract class OrcaRuntimeWithGetWorktreePs extends OrcaRuntimeWithWorktr
   ) {
     return {
       ...resolveTuiAgentLaunchEnv(agent, settings.agentDefaultEnv),
-      ...this.accounts.hostLaunchEnvFor(agent)
+      ...this.accounts.hostLaunchEnvFor(agent),
+      // Orca-Pit: a chat's Claude runs on the DevNX Control session, as a terminal's does.
+      ...(agent === 'claude' ? devnxControlClaudeChatEnv() : {})
     }
   }
 

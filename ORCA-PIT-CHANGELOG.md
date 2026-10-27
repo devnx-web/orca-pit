@@ -6,6 +6,13 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit9 — 27/10/2026
+
+- O **Claude Chat** passa a usar a conta do DevNX Control, como os terminais já
+  usavam. Antes ele procurava o login do sistema (`~/.claude`), que nessas
+  máquinas fica vazio, e toda conversa falhava com "O Claude não está
+  conectado", mesmo com a licença em dia.
+
 ## 1.4.214-pit8 — 19/10/2026
 
 - Agrupar por **Agentes** virou a lista de trabalho: aparecem todos os
