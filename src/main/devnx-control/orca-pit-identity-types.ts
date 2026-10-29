@@ -5,6 +5,10 @@ export type OrcaPitUser = {
   id: number
   name: string
   email: string
+  /** The first company shared with the central's owner, preferring the owner's default. */
   tenantId: number
+  /** Every company shared with the central's owner ("Todas as empresas" in the Control). */
+  tenantIds: number[]
+  /** Admin when the person administers any of the shared companies. */
   orcaRole: 'admin' | 'member'
 }

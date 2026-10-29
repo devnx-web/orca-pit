@@ -4,6 +4,7 @@ import type { MobilePushRegistration } from '../../shared/mobile-push-contract'
 import type { RuntimePairingReach } from '../../shared/runtime-pairing-reach'
 import type { RelayDeviceBinding } from './mobile-cloud-relay/relay-revoke-outbox'
 import type { RuntimeDeviceGrant } from './rpc/rpc-method-permission'
+import type { OrcaPitUser } from '../devnx-control/orca-pit-identity-types'
 
 export type DeviceEntry = {
   deviceId: string
@@ -35,6 +36,10 @@ export type DeviceEntry = {
   forkedFrom?: string
   // Session-only browser key (memory only); the row is dropped on host restart and after idling.
   ephemeral?: true
+  // Orca-Pit: the DevNX Control user who signed in through the browser login, and that user's
+  // Control JWT for revalidation. Both stay in this file; clients only see publicOrcaPitUser.
+  orcaPitUser?: OrcaPitUser
+  orcaPitControlToken?: string
 }
 
 export type TokenDeviceEntry = DeviceEntry & { token: string }

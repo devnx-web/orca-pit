@@ -89,21 +89,24 @@ export class DevnxControlClient {
     }
   }
 
-  private request(apiPath: string, options: DevnxRequestOptions = {}): Promise<unknown> {
+  /** The panel and token this machine speaks with; the multi-user login calls /api/orca with it. */
+  session(): { baseUrl: string; token: string } | null {
     // Why re-read: the Cockpit may pair again and revoke the token we borrowed.
     if (this.connection?.source === 'cockpit') {
       this.connection = loadCockpitConnection()
     }
     const connection = this.connection
-    if (!connection) {
+    return connection ? { baseUrl: connection.baseUrl, token: connection.deviceToken } : null
+  }
+
+  private request(apiPath: string, options: DevnxRequestOptions = {}): Promise<unknown> {
+    const session = this.session()
+    if (!session) {
       throw new DevnxControlError('Orca não está conectado ao DevNX Control.', {
         code: 'NOT_CONNECTED'
       })
     }
-    return requestDevnxControl(connection.baseUrl, apiPath, {
-      ...options,
-      token: connection.deviceToken
-    })
+    return requestDevnxControl(session.baseUrl, apiPath, { ...options, token: session.token })
   }
 
   async connect(input: DevnxControlConnectInput): Promise<DevnxControlStatus> {

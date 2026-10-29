@@ -52,6 +52,7 @@ import { resolveUpdateInstallMode } from '../updater'
 import { scheduleAgentLaunchRecordWarmup } from './agent-launch-record-warmup'
 import { emitServeBrowserIdentityActionLine } from '../server/serve-stdout-boundary'
 import { getBrowserIdentityModeStatus } from '../browser/browser-identity-mode-store'
+import { installOrcaPitMultiUser } from '../devnx-control/orca-pit-multi-user'
 
 type RuntimeService = NonNullable<typeof state.runtime>
 
@@ -114,6 +115,8 @@ function installRuntimeRpc(
     webClientRoot: getBundledWebClientRoot()
   })
   state.runtimeRpc = runtimeRpc
+  // Orca-Pit: browser login, the person behind each device and its revalidation.
+  installOrcaPitMultiUser(runtimeRpc)
   runtimeRpc.setMobileDesktopRelayHosts(createRuntimeEnvironmentMobileRelayHosts())
   registerMobileHandlers(runtimeRpc, {
     getRelayStatus: getDesktopRelayStatus,

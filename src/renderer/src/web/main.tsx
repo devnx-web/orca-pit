@@ -9,7 +9,8 @@ import { RecoverableRenderErrorBoundary } from '../components/error-boundaries/R
 import {
   clearPairingInputFromAddressBar,
   decideWebPairingStartup,
-  readPairingInputFromLocation
+  readPairingInputFromLocation,
+  type WebPairingOffer
 } from './web-pairing'
 import {
   createStoredWebRuntimeEnvironment,
@@ -19,6 +20,7 @@ import {
 import { installWebPreloadApi } from './web-preload-api'
 import { initWebDeviceKeySupport } from './web-device-key-support'
 import { WebPairingSecurityNotice } from './WebPairingSecurityNotice'
+import { OrcaPitWebLogin } from './OrcaPitWebLogin'
 import { I18nProvider } from '../i18n/I18nProvider'
 import { translate } from '../i18n/i18n'
 import { installOsFileDropCancellationGuard } from '../lib/os-file-drop-cancellation-guard'
@@ -31,6 +33,17 @@ const disposeBodyOverlayAttributes = installBodyOverlayAttributes()
 import.meta.hot?.dispose(disposeBodyOverlayAttributes)
 installAppKeyboardRouter()
 const App = lazy(() => import('../App'))
+
+// Orca-Pit: shared by `#pairing=` links and the DevNX Control login (OrcaPitWebLogin).
+function saveRuntimeOffer(offer: WebPairingOffer): void {
+  saveStoredWebRuntimeEnvironment(
+    createStoredWebRuntimeEnvironment({
+      name: 'Orca Server',
+      offer,
+      previousEnvironment: readStoredWebRuntimeEnvironment()
+    })
+  )
+}
 
 function WebRoot(): React.JSX.Element {
   const initialPairingInput = useMemo(() => readPairingInputFromLocation(window.location), [])
@@ -51,26 +64,30 @@ function WebRoot(): React.JSX.Element {
   }, [initialPairingInput])
   const [hasEnvironment, setHasEnvironment] = useState(() => {
     if (startupDecision.kind === 'auto-save-runtime-offer') {
-      saveStoredWebRuntimeEnvironment(
-        createStoredWebRuntimeEnvironment({
-          name: 'Orca Server',
-          offer: startupDecision.offer,
-          previousEnvironment: readStoredWebRuntimeEnvironment()
-        })
-      )
+      saveRuntimeOffer(startupDecision.offer)
       return true
     }
     return startupDecision.kind === 'use-stored-environment'
   })
 
   if (!hasEnvironment) {
-    return (
-      <WebConnect
-        initialPairingInput={
-          startupDecision.kind === 'show-connect' ? startupDecision.initialPairingInput : null
-        }
-        onConnected={() => setHasEnvironment(true)}
+    const initialInput =
+      startupDecision.kind === 'show-connect' ? startupDecision.initialPairingInput : null
+    const connect = (
+      <WebConnect initialPairingInput={initialInput} onConnected={() => setHasEnvironment(true)} />
+    )
+    // Orca-Pit: a server with the DevNX Control login asks for e-mail and password; the offer it
+    // returns takes the same path as a `#pairing=` link.
+    return initialInput === null ? (
+      <OrcaPitWebLogin
+        fallback={connect}
+        onOffer={(offer) => {
+          saveRuntimeOffer(offer)
+          setHasEnvironment(true)
+        }}
       />
+    ) : (
+      connect
     )
   }
 

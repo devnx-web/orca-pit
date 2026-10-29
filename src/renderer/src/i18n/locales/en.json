@@ -23091,6 +23091,22 @@
       "badgeNew": "New",
       "badgeWithdrawn": "Withdrawn"
     },
-    "aboutMenu": "About Orca-Pit"
+    "aboutMenu": "About Orca-Pit",
+    "webLogin": {
+      "title": "Sign in to Orca",
+      "description": "Use your DevNX Control e-mail and password.",
+      "email": "E-mail",
+      "password": "Password",
+      "submit": "Sign in",
+      "usePairingLink": "Use a pairing link",
+      "badCredentials": "Wrong e-mail or password.",
+      "wrongTenant": "This user does not belong to this Orca's company.",
+      "tooMany": "Too many attempts. Wait a few minutes and try again.",
+      "unavailable": "Couldn't reach DevNX Control. Try again."
+    },
+    "access": {
+      "roleAdmin": "Administrator",
+      "roleMember": "Member"
+    }
   }
 }

@@ -9,7 +9,9 @@ export const DEVNX_CONTROL_API_PATHS = {
   select: '/api/cockpit-ai/select',
   syncUsage: '/api/cockpit-ai/sync-usage',
   refresh: (accountId: string): string =>
-    `/api/cockpit-ai/accounts/${encodeURIComponent(accountId)}/refresh`
+    `/api/cockpit-ai/accounts/${encodeURIComponent(accountId)}/refresh`,
+  // Multi-user Orca-Pit: who a JWT belongs to, and the company it is acting in.
+  orcaMe: '/api/orca/me'
 } as const
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1'])

@@ -1,6 +1,7 @@
 import type { DeviceEntry } from './device-registry'
 import type { RpcCallerScope } from './rpc/rpc-caller-scope'
 import { createHash } from 'node:crypto'
+import { orcaPitRoleOf } from '../devnx-control/orca-pit-identity'
 
 /** Socket revoke/close uses deviceId; per-client drivers, dictation and file grants use clientId. */
 export type DevicePrincipal = {
@@ -25,9 +26,15 @@ export function devicePrincipalOf(device: DeviceEntry): DevicePrincipal {
 }
 
 export function callerScopeOf(device: DeviceEntry): RpcCallerScope {
+  // Orca-Pit: a Control member reaches workspaces only, from any client; see orca-pit-roles.
+  const orcaPitMember = orcaPitRoleOf(device) === 'member' ? { orcaPitMember: true } : {}
   return device.scope === 'mobile'
-    ? { kind: 'mobile', delegated: device.parentDeviceId !== undefined }
-    : { kind: 'runtime-paired', grants: device.grants ?? [] }
+    ? { kind: 'mobile', delegated: device.parentDeviceId !== undefined, ...orcaPitMember }
+    : {
+        kind: 'runtime-paired',
+        grants: device.grants ?? [],
+        ...orcaPitMember
+      }
 }
 
 export function fingerprintAuthenticatedPairingCredential(token: string): string {
