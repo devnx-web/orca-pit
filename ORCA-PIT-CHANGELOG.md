@@ -6,6 +6,15 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit10 — 29/10/2026
+
+- Sincronizado com o Orca de 29/10/2026 (duas semanas de novidades do Orca).
+- O Orca agora tem tradução oficial em português do Brasil, e o Orca-Pit
+  passa a usar essa tradução. As frases próprias do Orca-Pit (DevNX Control,
+  Sobre o Orca-Pit, Ativos/Inativos, Agentes) continuam em português.
+- Com "Ocultar branch padrão" ligado, um subgrupo de projetos vazio também
+  some da barra lateral, como já acontecia com os projetos vazios.
+
 ## 1.4.214-pit9 — 27/10/2026
 
 - O **Claude Chat** passa a usar a conta do DevNX Control, como os terminais já
