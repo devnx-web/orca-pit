@@ -1,5 +1,11 @@
 // DevNX Control: the team account broker (bcontrol) that picks the Claude,
 // Codex and Antigravity session each terminal runs with.
+import type {
+  DevnxControlProjectList,
+  DevnxControlTask,
+  DevnxControlTaskDetail,
+  DevnxControlTaskQuery
+} from './orca-pit-devnx-tasks'
 
 export const DEVNX_CONTROL_PROVIDERS = ['claude', 'openai', 'gemini'] as const
 export type DevnxControlProvider = (typeof DEVNX_CONTROL_PROVIDERS)[number]
@@ -57,6 +63,13 @@ export type DevnxControlApi = {
   installUpdate: () => Promise<DevnxControlResult<null>>
   /** The menu's "Check for Updates…" asks the window to show the updater. */
   onOpenUpdates: (callback: () => void) => () => void
+  /** Control projects, with the one matching `repoId`'s git remotes (or name) suggested. */
+  listProjects: (input?: {
+    repoId?: string
+    search?: string
+  }) => Promise<DevnxControlResult<DevnxControlProjectList>>
+  listTasks: (query: DevnxControlTaskQuery) => Promise<DevnxControlResult<DevnxControlTask[]>>
+  getTask: (taskId: number) => Promise<DevnxControlResult<DevnxControlTaskDetail>>
 }
 
 // Orca-Pit's own updater: Stably's is off in this fork, so new versions are announced by a

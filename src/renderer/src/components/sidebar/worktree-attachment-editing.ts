@@ -62,7 +62,9 @@ export function workspaceAttachmentProviderLabel(item: WorkspaceAttachment): str
     jira: 'Jira',
     bitbucket: 'Bitbucket',
     'azure-devops': 'Azure DevOps',
-    gitea: 'Gitea'
+    gitea: 'Gitea',
+    // Orca-Pit: DevNX Control task.
+    devnx: 'DevNX Control'
   }
   return labels[item.provider]
 }

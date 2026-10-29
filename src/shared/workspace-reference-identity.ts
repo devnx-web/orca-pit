@@ -190,6 +190,9 @@ function externalUrl(item: WorkspaceAttachment): string | undefined {
         : undefined
     case 'linear':
       return undefined
+    // Orca-Pit: a DevNX Control task is proven only by its own url.
+    case 'devnx':
+      return undefined
   }
 }
 

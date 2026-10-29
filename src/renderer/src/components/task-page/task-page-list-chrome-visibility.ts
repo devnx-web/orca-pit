@@ -29,5 +29,8 @@ export function shouldHideTaskPageListChrome({
       return hasJiraDetail
     case 'linear':
       return hasLinearIssueDetail || hasLinearProjectContext || hasLinearViewContext
+    // Orca-Pit: the DevNX Control view draws its own chrome and detail.
+    case 'devnx':
+      return false
   }
 }

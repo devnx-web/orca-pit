@@ -75,6 +75,14 @@ export function getTaskSourceContextSummary(args: {
         hostLabelById: args.hostLabelById,
         hostAvailability: args.hostAvailability
       })
+    // Orca-Pit: the DevNX Control session belongs to this machine, like an account source.
+    case 'devnx':
+      return getAccountBackedTaskSourceSummary(args.providerLabel, {
+        accountLabel: null,
+        accountHostId: args.accountHostId,
+        hostLabelById: args.hostLabelById,
+        hostAvailability: args.hostAvailability
+      })
   }
 }
 
@@ -219,6 +227,9 @@ function getProviderIdentityLabel(
       return identity.workspaceName ?? identity.workspaceId ?? null
     case 'jira':
       return identity.siteUrl ?? identity.siteId ?? null
+    // Orca-Pit: DevNX Control project.
+    case 'devnx':
+      return identity.controlProjectId ?? null
   }
 }
 

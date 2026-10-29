@@ -19,6 +19,9 @@ import {
 } from '../../../../shared/task-source-context'
 import type { CmdJTaskSearchResult } from './task-search-results'
 import { getJiraIssueWorkspaceSeed } from '../task-page/task-page-source-context'
+// Orca-Pit: DevNX Control tasks.
+import { openDevnxCmdJTask } from './orca-pit-devnx-task-search'
+import { findDevnxTaskWorkspace } from '@/lib/orca-pit-devnx-task-actions'
 
 function sourceMatches(source: TaskSourceContext, target: TaskSourceContext): boolean {
   if (source.provider !== target.provider || source.hostId !== target.hostId) {
@@ -42,6 +45,10 @@ export function findCmdJTaskWorkspace(
   result: CmdJTaskSearchResult,
   workspaces: readonly Worktree[]
 ): Worktree | undefined {
+  // Orca-Pit: a Control task is matched by its id, since its URL names no provider route.
+  if (result.task.provider === 'devnx') {
+    return findDevnxTaskWorkspace(result.task.issue.id, workspaces)
+  }
   let identity: string | undefined
   try {
     identity = getProvenWorkspaceReferenceIdentity(
@@ -76,6 +83,11 @@ export function openCmdJTask(result: CmdJTaskSearchResult, createWorkspace = fal
   const state = useAppStore.getState()
   state.closeModal()
   const task = result.task
+  // Orca-Pit: DevNX Control tasks open their own detail or start a linked workspace.
+  if (task.provider === 'devnx') {
+    openDevnxCmdJTask(result, task, createWorkspace)
+    return
+  }
   if (createWorkspace) {
     const linkedWorkItem: LinkedWorkItemSummary =
       task.provider === 'linear'

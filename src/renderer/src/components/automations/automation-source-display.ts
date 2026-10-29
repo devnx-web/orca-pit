@@ -58,6 +58,9 @@ function getProviderLabel(provider: TaskSourceContext['provider']): string {
       return 'Linear'
     case 'jira':
       return 'Jira'
+    // Orca-Pit: DevNX Control tasks.
+    case 'devnx':
+      return 'DevNX Control'
   }
 }
 
@@ -75,6 +78,9 @@ function getSourceIdentityLabel(sourceContext: TaskSourceContext): string | null
         return identity.workspaceName ?? identity.workspaceId ?? null
       case 'jira':
         return identity.siteUrl ?? identity.siteId ?? null
+      // Orca-Pit: DevNX Control project.
+      case 'devnx':
+        return identity.controlProjectId ?? null
     }
   }
   return sourceContext.accountLabel ?? sourceContext.repoId ?? null

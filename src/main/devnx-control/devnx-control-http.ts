@@ -9,7 +9,12 @@ export const DEVNX_CONTROL_API_PATHS = {
   select: '/api/cockpit-ai/select',
   syncUsage: '/api/cockpit-ai/sync-usage',
   refresh: (accountId: string): string =>
-    `/api/cockpit-ai/accounts/${encodeURIComponent(accountId)}/refresh`
+    `/api/cockpit-ai/accounts/${encodeURIComponent(accountId)}/refresh`,
+  // Orca-Pit projects and tasks (contract routes 2-4): read-only in v1.
+  orcaProjects: '/api/orca/projects',
+  orcaProjectTasks: (projectId: number): string =>
+    `/api/orca/projects/${encodeURIComponent(String(projectId))}/tasks`,
+  orcaTask: (taskId: number): string => `/api/orca/tasks/${encodeURIComponent(String(taskId))}`
 } as const
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1'])

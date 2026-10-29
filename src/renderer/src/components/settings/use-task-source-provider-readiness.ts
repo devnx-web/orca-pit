@@ -11,6 +11,8 @@ import { getLocalPreflightContext, localPreflightContextKey } from '@/lib/local-
 import { getProviderRuntimeContextKey } from '@/lib/provider-runtime-context'
 import { useAppStore } from '@/store'
 import type { TaskProviderReadiness } from './task-source-setup-state'
+// Orca-Pit: DevNX Control session.
+import { useOrcaPitDevnxConnection } from '@/lib/orca-pit-devnx-status'
 
 export function useTaskSourceProviderReadiness(
   visibleProviders: readonly TaskProvider[]
@@ -32,6 +34,7 @@ export function useTaskSourceProviderReadiness(
   const linearStatusContextKey = useAppStore((s) => s.linearStatusContextKey)
   const providerRuntimeContextKey = getProviderRuntimeContextKey(settings)
   const activeSkillRuntime = useActiveProjectSkillRuntime()
+  const devnx = useOrcaPitDevnxConnection()
 
   const {
     installed: linearSkillInstalled,
@@ -90,9 +93,16 @@ export function useTaskSourceProviderReadiness(
         connected: jiraConnected,
         checking: jiraChecking,
         visible: visible.has('jira')
+      },
+      devnx: {
+        connected: devnx.connected,
+        checking: devnx.checking,
+        visible: visible.has('devnx')
       }
     }
   }, [
+    devnx.checking,
+    devnx.connected,
     githubConnected,
     gitlabConnected,
     jiraChecking,

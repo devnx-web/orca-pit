@@ -53,6 +53,10 @@ export function workspaceAttachmentReferenceLabel(
   if (item.provider === 'linear' || item.provider === 'jira') {
     return item.identifier ?? item.linearIdentifier ?? item.jiraIdentifier ?? `#${item.number}`
   }
+  // Orca-Pit: a Control task is a card, not an issue; its id reads as #311.
+  if (item.provider === 'devnx') {
+    return `#${item.number}`
+  }
   return formats[item.type](item.number)
 }
 

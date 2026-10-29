@@ -31,7 +31,9 @@ export function normalizeWorkspaceLinkedItem(value: unknown): WorkspaceLinkedIte
     raw.provider !== 'github' &&
     raw.provider !== 'gitlab' &&
     raw.provider !== 'linear' &&
-    raw.provider !== 'jira'
+    raw.provider !== 'jira' &&
+    // Orca-Pit: DevNX Control task.
+    raw.provider !== 'devnx'
   ) {
     return null
   }

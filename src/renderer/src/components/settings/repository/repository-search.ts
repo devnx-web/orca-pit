@@ -26,6 +26,15 @@ export function getRepositoryPaneSearchEntries(
     (Boolean(options.windowsRuntimeSupported) &&
       getRepoExecutionHostId(repo) === LOCAL_EXECUTION_HOST_ID)
   return [
+    // Orca-Pit: DevNX Control project link.
+    {
+      title: translate('devnx.projectLink.title', 'DevNX Control project'),
+      description: translate(
+        'devnx.projectLink.description',
+        'Tasks of this Control project appear under Tasks, and workspaces created from them are linked to the task.'
+      ),
+      keywords: [repo.displayName, 'devnx', 'control', 'project', 'task']
+    },
     {
       title: translate('components.RepositoryJiraProjectSection.title', 'Default Jira project'),
       description: translate(

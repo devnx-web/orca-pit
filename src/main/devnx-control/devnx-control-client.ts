@@ -106,6 +106,11 @@ export class DevnxControlClient {
     })
   }
 
+  /** A read with this machine's Control session, for the /api/orca routes. */
+  getJson(apiPath: string): Promise<unknown> {
+    return this.request(apiPath)
+  }
+
   async connect(input: DevnxControlConnectInput): Promise<DevnxControlStatus> {
     const baseUrl = normalizeDevnxBaseUrl(
       input.baseUrl || DEVNX_CONTROL_DEFAULT_BASE_URL,

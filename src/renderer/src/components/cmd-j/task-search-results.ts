@@ -8,12 +8,17 @@ import {
 } from '../../../../shared/task-source-context'
 import { parseCmdJTaskSourceUrl } from '@/lib/worktree-palette-task-url-match'
 import { isWorktreePaletteQueryTooLarge } from '../../../../shared/palette-match/worktree-palette-query-bounds'
+// Orca-Pit: DevNX Control task.
+import type { CmdJDevnxTask } from './orca-pit-devnx-task-search'
+import { devnxTaskStatusLabel } from '@/lib/orca-pit-devnx-task-labels'
 
 export type CmdJTask =
   | { provider: 'linear'; issue: LinearIssue }
   | { provider: 'jira'; issue: JiraIssue }
   | { provider: 'github'; issue: GitHubWorkItem }
   | { provider: 'gitlab'; issue: GitLabWorkItem }
+  // Orca-Pit: DevNX Control task.
+  | CmdJDevnxTask
 
 export type CmdJTaskSearchResult = {
   id: string
@@ -47,13 +52,17 @@ export function makeCmdJTaskSearchResult(
       ? task.issue.identifier
       : task.provider === 'jira'
         ? task.issue.key
-        : `#${task.issue.number}`
+        : task.provider === 'devnx'
+          ? `#${task.issue.id}`
+          : `#${task.issue.number}`
   const status =
     task.provider === 'linear'
       ? task.issue.state.name
       : task.provider === 'jira'
         ? task.issue.status.name
-        : task.issue.state
+        : task.provider === 'devnx'
+          ? devnxTaskStatusLabel(task.issue.status)
+          : task.issue.state
   return {
     id: `task:${getTaskSourceCacheScope(sourceContext)}:${task.issue.url}`,
     task,

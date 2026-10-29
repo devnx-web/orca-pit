@@ -25,7 +25,9 @@ export function normalizeWorkspaceAttachment(value: unknown): WorkspaceAttachmen
     provider !== 'jira' &&
     provider !== 'bitbucket' &&
     provider !== 'azure-devops' &&
-    provider !== 'gitea'
+    provider !== 'gitea' &&
+    // Orca-Pit: a DevNX Control task, numbered by its Control id.
+    provider !== 'devnx'
   ) {
     return null
   }
@@ -33,7 +35,7 @@ export function normalizeWorkspaceAttachment(value: unknown): WorkspaceAttachmen
   if (type !== 'issue' && type !== 'pr' && type !== 'mr') {
     return null
   }
-  if ((provider === 'linear' || provider === 'jira') && type !== 'issue') {
+  if ((provider === 'linear' || provider === 'jira' || provider === 'devnx') && type !== 'issue') {
     return null
   }
   if (type === 'mr' && provider !== 'gitlab') {

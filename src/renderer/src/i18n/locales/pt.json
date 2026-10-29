@@ -23093,6 +23093,63 @@
       "badgeNew": "Nova",
       "badgeWithdrawn": "Retirada"
     },
-    "aboutMenu": "Sobre o Orca-Pit"
+    "aboutMenu": "Sobre o Orca-Pit",
+    "projectLink": {
+      "description": "As tarefas deste projeto do Control aparecem em Tarefas, e os workspaces criados a partir delas ficam ligados à tarefa.",
+      "empty": "Nenhum projeto encontrado.",
+      "none": "Sem vínculo",
+      "saveFailed": "Não foi possível salvar o projeto do DevNX Control.",
+      "search": "Buscar projetos do Control",
+      "suggestedName": "Sugestão: nome parecido",
+      "suggestedRemote": "Sugestão: mesmo repositório git",
+      "title": "Projeto do DevNX Control",
+      "useSuggestion": "Usar sugestão"
+    },
+    "tasks": {
+      "back": "Tarefas do DevNX Control",
+      "checking": "Verificando o DevNX Control…",
+      "column": {
+        "assignee": "Responsável",
+        "dueDate": "Prazo",
+        "priority": "Prioridade",
+        "status": "Situação",
+        "title": "Tarefa"
+      },
+      "empty": "Nenhuma tarefa com esses filtros.",
+      "filter": {
+        "all": "Todas",
+        "open": "Abertas"
+      },
+      "loadingTask": "Carregando a tarefa…",
+      "mine": "Minhas",
+      "noDescription": "Esta tarefa não tem descrição.",
+      "noLink": "Nenhum projeto do Orca está ligado a um projeto do DevNX Control ainda. Escolha nas configurações do projeto, em “Projeto do DevNX Control”.",
+      "noUrl": "O DevNX Control não enviou o link desta tarefa, então ela não pode ser ligada.",
+      "openAccounts": "Abrir Contas",
+      "openInControl": "Abrir no DevNX Control",
+      "openProjectSettings": "Abrir configurações do projeto",
+      "openWorkspace": "Abrir workspace",
+      "priority": {
+        "high": "Alta",
+        "low": "Baixa",
+        "medium": "Média",
+        "urgent": "Urgente"
+      },
+      "providerDescription": "Veja as tarefas do projeto do DevNX Control vinculado e crie workspaces a partir delas.",
+      "providerLabel": "DevNX Control",
+      "refresh": "Atualizar",
+      "search": "Buscar tarefas",
+      "signIn": "Entre no DevNX Control em Configurações → Contas para ver as tarefas aqui.",
+      "startWorkspace": "Criar workspace",
+      "status": {
+        "blocked": "Bloqueada",
+        "cancelled": "Cancelada",
+        "completed": "Concluída",
+        "inProgress": "Em andamento",
+        "pending": "Pendente",
+        "review": "Em revisão"
+      },
+      "unassigned": "Sem responsável"
+    }
   }
 }

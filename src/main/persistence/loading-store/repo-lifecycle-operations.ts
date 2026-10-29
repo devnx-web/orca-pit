@@ -163,6 +163,8 @@ export class RepoLifecycleOperations {
         | 'upstream'
         | 'gitRemoteIdentity'
         | 'defaultJiraProject'
+        // Orca-Pit: DevNX Control project link.
+        | 'devnxControlProject'
         | 'hookSettings'
         | 'worktreeBaseRef'
         | 'worktreeBasePath'

@@ -91,7 +91,8 @@ describe('Store', () => {
     expect(settings.rightSidebarOpenByDefault).toBe(true)
     expect(settings.showTasksButton).toBe(true)
     expect(settings.showAutomationsButton).toBe(true)
-    expect(settings.visibleTaskProviders).toEqual(['github', 'gitlab', 'linear', 'jira'])
+    // Orca-Pit: the DevNX Control source is visible by default.
+    expect(settings.visibleTaskProviders).toEqual(['github', 'gitlab', 'linear', 'jira', 'devnx'])
     expect(settings.openInApplications).toEqual([
       { id: 'vscode', label: 'VS Code', command: 'code' }
     ])

@@ -4,6 +4,8 @@ import { normalizeRepoBadgeColor } from '../repo-badge-color'
 import { sanitizeRepoIcon } from '../repo-icon'
 import { normalizeGhAccountBinding } from '../github/account-binding'
 import { normalizeJiraProjectReference } from '../jira/jira-project-reference'
+// Orca-Pit: DevNX Control project link.
+import { normalizeDevnxControlProjectReference } from '../orca-pit-devnx-tasks'
 import {
   normalizeCustomWorktreeVisibilitySources,
   normalizeWorktreeVisibilitySourcePreferences
@@ -57,6 +59,8 @@ export function createRepoUpdateSchema<T extends Readonly<Record<string, z.ZodTy
       symlinkPaths: z.array(z.string()).optional(),
       issueSourcePreference: z.enum(['auto', 'upstream', 'origin']).optional(),
       defaultJiraProject: z.unknown().optional().transform(normalizeJiraProjectReference),
+      // Orca-Pit: DevNX Control project link.
+      devnxControlProject: z.unknown().optional().transform(normalizeDevnxControlProjectReference),
       ghAccount: z
         .unknown()
         .optional()

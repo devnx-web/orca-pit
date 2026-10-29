@@ -136,7 +136,9 @@ describe('TasksPane', () => {
         skillChecking: false,
         visible: true
       },
-      jira: { connected: false, checking: false, visible: false }
+      jira: { connected: false, checking: false, visible: false },
+      // Orca-Pit: DevNX Control tasks.
+      devnx: { connected: false, checking: false, visible: false }
     }
   })
 

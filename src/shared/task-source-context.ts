@@ -237,6 +237,7 @@ function normalizeTaskProvider(value: unknown): TaskProvider | null {
     case 'gitlab':
     case 'linear':
     case 'jira':
+    case 'devnx': // Orca-Pit: DevNX Control tasks.
       return value
     default:
       return null

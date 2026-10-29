@@ -259,6 +259,9 @@ function getAutomationSourceProviderLabel(provider: TaskSourceContext['provider'
       return 'Linear'
     case 'jira':
       return 'Jira'
+    // Orca-Pit: DevNX Control tasks.
+    case 'devnx':
+      return 'DevNX Control'
   }
 }
 
