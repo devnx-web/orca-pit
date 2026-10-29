@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import type { DeviceEntry } from './device-registry'
 import { devicePrincipalOf } from './device-principal'
+import { inheritedOrcaPitIdentity } from '../devnx-control/orca-pit-identity'
 
 const MAX_FORKS_PER_TOKEN_ROW = 32
 
@@ -69,6 +70,8 @@ export function planDeviceKeyFork(
     devicePublicKeyB64,
     forkedFrom: legacy.deviceId,
     ...(options.ephemeral ? { ephemeral: true as const } : {}),
+    // Orca-Pit: the keyed installation is the same person, even after the token row is revoked.
+    ...inheritedOrcaPitIdentity(legacy),
     // Preserve orchestration ownership through migration.
     callerFingerprint: devicePrincipalOf(legacy).callerFingerprint,
     pairedAt: now,

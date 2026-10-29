@@ -2,6 +2,7 @@ import { Loader2 } from 'lucide-react'
 import type { RuntimeAccessGrant } from '../../../../shared/runtime-access-grants'
 import { Button } from '../ui/button'
 import { getIntlLocale, translate } from '@/i18n/i18n'
+import { OrcaPitGrantUser } from './OrcaPitGrantUser'
 
 function formatAccessTimestamp(timestamp: number): string {
   return new Intl.DateTimeFormat(getIntlLocale(), {
@@ -77,6 +78,8 @@ export function RuntimeAccessGrantList({
                       </span>
                     ) : null}
                   </div>
+                  {/* Orca-Pit: the person behind a browser login. */}
+                  {grant.orcaPitUser ? <OrcaPitGrantUser user={grant.orcaPitUser} /> : null}
                   <div className="text-muted-foreground text-xs">
                     {translate(
                       'auto.components.settings.RuntimeAccessGrantList.createdAt',

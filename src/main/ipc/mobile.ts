@@ -4,6 +4,7 @@ import type { MobilePairingConnectionMode } from '../../shared/mobile-pairing-co
 import { classifyRemotePairingHostname } from '../../shared/remote-pairing-address'
 import type { RuntimePairingReach } from '../../shared/runtime-pairing-reach'
 import type { DeviceEntry } from '../runtime/device-registry'
+import { publicOrcaPitUser } from '../devnx-control/orca-pit-identity'
 import { NETWORK_EXPOSURE_FAILED_GUIDANCE } from '../runtime/network-exposure-guidance'
 import {
   getDefaultPairingAddress,
@@ -37,7 +38,9 @@ function toRuntimeAccessGrant(device: DeviceEntry): RuntimeAccessGrant {
     deviceId: device.deviceId,
     name: device.name,
     createdAt: device.pairedAt,
-    lastSeenAt: device.lastSeenAt > 0 ? device.lastSeenAt : null
+    lastSeenAt: device.lastSeenAt > 0 ? device.lastSeenAt : null,
+    // Orca-Pit: name and role only; the person's Control JWT never leaves the main process.
+    ...(device.orcaPitUser ? { orcaPitUser: publicOrcaPitUser(device) } : {})
   }
 }
 

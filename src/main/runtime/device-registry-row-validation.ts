@@ -5,6 +5,7 @@ import { parseMobilePushRegistration } from '../../shared/mobile-push-contract'
 import { isDevicePublicKeyB64 } from '../../shared/device-key-proof'
 import { RUNTIME_DEVICE_GRANTS, type RuntimeDeviceGrant } from './rpc/rpc-method-permission'
 import { isRecord } from '../../shared/agent-status-child-work-value-guards'
+import { loadedOrcaPitIdentityFields } from '../devnx-control/orca-pit-identity'
 
 const GRANTABLE: ReadonlySet<string> = new Set(RUNTIME_DEVICE_GRANTS)
 
@@ -86,7 +87,9 @@ export function normalizeLoadedDeviceRow(device: unknown): DeviceEntry | null {
       typeof device.callerFingerprint === 'string' && device.callerFingerprint.length > 0
         ? device.callerFingerprint
         : undefined,
-    ...validDeviceKeyFields(device)
+    ...validDeviceKeyFields(device),
+    // Orca-Pit: the signed-in user and its Control JWT; a damaged user stays a member.
+    ...loadedOrcaPitIdentityFields(device)
   }
 }
 

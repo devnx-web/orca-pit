@@ -322,7 +322,8 @@ export class DeviceRegistry {
   }
 
   // Persist before memory swap so failed writes cannot diverge authorization state.
-  private replaceRow(deviceId: string, update: (device: DeviceEntry) => DeviceEntry): boolean {
+  // Orca-Pit: public so the browser login can stamp its user on a row (orca-pit-user-devices).
+  replaceRow(deviceId: string, update: (device: DeviceEntry) => DeviceEntry): boolean {
     const index = this.devices.findIndex((candidate) => candidate.deviceId === deviceId)
     if (index === -1) {
       return false
