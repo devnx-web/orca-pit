@@ -9,6 +9,7 @@ import type {
 } from './terminal-input-sequence-ledger'
 import type { TerminalMultiplexConnection } from './terminal-multiplex-connection'
 import type { TerminalMultiplexStream } from './terminal-stream-types'
+import { observeOrcaPitStreamInput } from '../../../../devnx-control/orca-pit-activity-hooks'
 
 export function handleMultiplexInputFrame(
   state: TerminalMultiplexConnection,
@@ -41,6 +42,10 @@ export function handleMultiplexInputFrame(
     })
     if (!sequenced && outcome !== 'paused') {
       state.notifyStreamWriteUnavailable(stream, outcome)
+    }
+    if (outcome === 'delivered') {
+      // Orca-Pit: the activity diary keeps the line once Enter arrives, never the keys.
+      observeOrcaPitStreamInput(state, stream, text)
     }
     return outcome === 'delivered' || outcome === 'paused'
       ? 'applied'

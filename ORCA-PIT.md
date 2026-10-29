@@ -28,6 +28,26 @@ O código está em `src/main/devnx-control/`. A injeção acontece no fim de
 `buildPtyHostEnv` (`src/main/ipc/pty/host-env/assembly.ts`) e no resolvedor do
 `CODEX_HOME` (`src/main/startup/codex-launch-preparation.ts`).
 
+## Diário de atividade
+
+Cada ação de uma pessoa no Orca central vira um evento assinado em
+`<userData>/orca-pit-activity.db` (SQLite) e é enviada ao Control a cada
+2 minutos em `POST /api/orca/activity/ingest`, com a sessão do próprio central.
+Eventos enviados ficam 90 dias; recusados guardam o motivo e param após
+5 tentativas.
+
+| Ação | De onde vem |
+|---|---|
+| `terminal_line` | Só a linha enviada com Enter (nunca tecla a tecla), do app, do navegador ou do `terminal.send`. Linha com jeito de senha, token ou chave, ou digitada logo depois de `sudo`/`ssh`/`git push`…, vira `[oculto]` |
+| `agent_message` | Prompt do chat nativo (`agentSession.send`/`create`) e linha digitada num terminal com agente rodando |
+| `agent_started` / `agent_stopped` | Linhas de status dos agentes; o stop leva os tokens da sessão |
+| `workspace_created`, `settings_changed` | Criação de workspace e configurações alteradas (só os nomes, nunca os valores) |
+
+As linhas dos agentes na barra lateral mostram o primeiro nome de quem mandou o
+último comando (`orcaPit.agentAuthors`). O código está em
+`src/main/devnx-control/orca-pit-activity*.ts`; os ganchos no Orca chamam
+`orca-pit-activity-hooks.ts`.
+
 ## Regras de segurança
 
 - Refresh token nunca sai do painel. Uma resposta que traga um é recusada.

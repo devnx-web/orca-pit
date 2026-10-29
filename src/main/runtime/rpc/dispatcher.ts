@@ -34,6 +34,7 @@ import type { RpcCallerScope } from './rpc-caller-scope'
 import { runWithActiveRpcCaller } from './rpc-active-caller'
 import { admitRpcRequest } from './rpc-request-admission-prologue'
 import { resolveOrcadFeatureRequirement, rpcMethodFeatureWait } from './orcad-feature-readiness'
+import { recordOrcaPitRpcActivity } from '../../devnx-control/orca-pit-activity-hooks'
 
 export type DispatcherOptions = {
   runtime: OrcaRuntimeService
@@ -264,6 +265,8 @@ export class RpcDispatcher {
       context.orchestrationCaller?.orcaSessionId
     )
     recordRuntimeFeatureInteraction(runtime, request.method, result, undefined, request.params)
+    // Orca-Pit: signs the person's action in the activity diary; one map lookup otherwise.
+    recordOrcaPitRpcActivity(request.method, effectiveParams, context, result)
     return result
   }
 

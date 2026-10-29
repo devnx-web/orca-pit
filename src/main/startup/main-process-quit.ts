@@ -1,6 +1,7 @@
 import { killWslChannelsInCloseGrace } from '../wsl/wsl-command-channel'
 import { app, type Event } from 'electron'
 import { stopDevnxControlService } from '../devnx-control/devnx-control-service'
+import { stopOrcaPitActivity } from '../devnx-control/orca-pit-activity'
 import { closeAllWatchers } from '../ipc/filesystem/watchers/filesystem-watcher-shutdown'
 import { disposeWorktreeBaseDirectoryWatchers } from '../ipc/worktree-base-directory-watcher'
 import { stopFolderRepoGitUpgradeWatch } from '../ipc/folder-repo-git-upgrade'
@@ -163,6 +164,8 @@ function installWillQuitHandler(): void {
     // Chat teardown reads background work afterward; clearing status loses subagent/command-only resume offers.
     agentHookServer.stop({ keepStatus: true })
     stopDevnxControlService()
+    // Orca-Pit: writes the diary's last events and closes its SQLite file.
+    stopOrcaPitActivity()
     // Windows bare hook paths lack POSIX ORCA_PANE_KEY guards, so remove Grok hooks on quit; bound cleanup because GROK_HOME can be a stalled network mount.
     const grokHookCleanup =
       process.platform === 'win32'

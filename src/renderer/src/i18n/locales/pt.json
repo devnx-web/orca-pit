@@ -23069,7 +23069,8 @@
       "active": "Ativos",
       "inactive": "Inativos",
       "split": "Separar ativos e inativos",
-      "splitDescription": "Mostra em Ativos os projetos com mensagem enviada nas últimas 12 horas e o resto em Inativos"
+      "splitDescription": "Mostra em Ativos os projetos com mensagem enviada nas últimas 12 horas e o resto em Inativos",
+      "lastCommandBy": "Último comando de {{name}}"
     },
     "groupBy": {
       "agents": "Agentes"
