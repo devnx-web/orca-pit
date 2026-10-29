@@ -23093,6 +23093,12 @@
       "badgeNew": "Nova",
       "badgeWithdrawn": "Retirada"
     },
-    "aboutMenu": "Sobre o Orca-Pit"
+    "aboutMenu": "Sobre o Orca-Pit",
+    "serverLocations": {
+      "label": "Locais",
+      "home": "Pasta pessoal",
+      "root": "Raiz",
+      "free": "{{value0}} livres"
+    }
   }
 }

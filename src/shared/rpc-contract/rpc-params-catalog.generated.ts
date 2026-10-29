@@ -970,6 +970,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'files.listMarkdownDocuments': WorktreeSelector,
   'files.open': FileOpenTab,
   'files.openDiff': FileOpenDiff,
+  'files.orcaPitServerLocations': null,
   'files.pathsExist': FilePathsExist,
   'files.read': FileOpen,
   'files.readChatImage': ChatImageRead,

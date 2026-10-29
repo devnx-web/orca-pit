@@ -23091,6 +23091,12 @@
       "badgeNew": "New",
       "badgeWithdrawn": "Withdrawn"
     },
-    "aboutMenu": "About Orca-Pit"
+    "aboutMenu": "About Orca-Pit",
+    "serverLocations": {
+      "label": "Places",
+      "home": "Home folder",
+      "root": "Root",
+      "free": "{{value0}} free"
+    }
   }
 }
