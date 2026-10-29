@@ -21,6 +21,7 @@ const FULANO: OrcaPitUser = {
   name: 'Fulano',
   email: 'f@x',
   tenantId: 1,
+  tenantIds: [1],
   orcaRole: 'member'
 }
 const PUBLIC_KEY = Buffer.alloc(32, 3).toString('base64')
@@ -99,6 +100,21 @@ describe('the person behind a device', () => {
     const loaded = new DeviceRegistry(dir!).getDevice(row.deviceId)
     expect(loaded?.orcaPitUser?.orcaRole).toBe('member')
     expect(loaded?.orcaPitControlToken).toBe('jwt-7')
+  })
+
+  it('reads a row stored before tenantIds existed as its one company', () => {
+    const devices = registry()
+    const row = mintOrcaPitUserDevice(devices, { user: FULANO, controlToken: 'jwt-7' })
+    const path = join(dir!, DEVICE_REGISTRY_FILENAME)
+    const rows = JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>[]
+    const older = rows.map((entry) =>
+      entry.deviceId === row.deviceId
+        ? { ...entry, orcaPitUser: { id: 7, name: 'Fulano', tenantId: 4, orcaRole: 'admin' } }
+        : entry
+    )
+    writeFileSync(path, JSON.stringify(older))
+    const loaded = new DeviceRegistry(dir!).getDevice(row.deviceId)?.orcaPitUser
+    expect(loaded).toMatchObject({ tenantId: 4, tenantIds: [4], orcaRole: 'admin' })
   })
 
   it('shows Settings the name and role, never the JWT', () => {

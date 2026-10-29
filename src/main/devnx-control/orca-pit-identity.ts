@@ -96,18 +96,29 @@ export function parseOrcaPitUser(value: unknown): OrcaPitUser | null {
   if (id === null || tenantId === null) {
     return null
   }
+  // Rows stored before "Todas as empresas" have only tenantId.
+  const listed = Array.isArray(value.tenantIds) ? value.tenantIds.map(positiveInteger) : []
+  const others = listed.filter((other): other is number => other !== null && other !== tenantId)
   return {
     id,
     name: typeof value.name === 'string' ? value.name.slice(0, 120) : '',
     email: typeof value.email === 'string' ? value.email.slice(0, 254) : '',
     tenantId,
+    tenantIds: [tenantId, ...new Set(others)],
     orcaRole: value.orcaRole === 'admin' ? 'admin' : 'member'
   }
 }
 
 // Why: a damaged user on a row that had one must not turn into "no user", which keeps every
 // upstream permission. It stays a member until revalidation fixes or revokes it.
-const UNREADABLE_USER: OrcaPitUser = { id: 0, name: '', email: '', tenantId: 0, orcaRole: 'member' }
+const UNREADABLE_USER: OrcaPitUser = {
+  id: 0,
+  name: '',
+  email: '',
+  tenantId: 0,
+  tenantIds: [],
+  orcaRole: 'member'
+}
 
 /** Load-time sanitizer for orca-devices.json rows (device-registry-row-validation). */
 export function loadedOrcaPitIdentityFields(

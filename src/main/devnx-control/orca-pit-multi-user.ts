@@ -49,5 +49,5 @@ export function installOrcaPitMultiUser(rpc: OrcaRuntimeRpcServer): void {
   })
   revalidator.start()
   // Local callers are the central's owner; learn who that is without waiting for a login.
-  void central.user().catch(() => null)
+  void central.me().catch(() => null)
 }

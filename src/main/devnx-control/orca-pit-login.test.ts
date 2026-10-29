@@ -7,14 +7,30 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DeviceRegistry } from '../runtime/device-registry'
 import { createStaticWebClientHandler } from '../runtime/rpc/static-web-client-handler'
 import { DevnxControlError } from './devnx-control-http'
-import { OrcaPitCentral, parseOrcaPitMe, type OrcaPitControlCalls } from './orca-pit-control-me'
-import type { OrcaPitUser } from './orca-pit-identity-types'
+import { OrcaPitCentral, type OrcaPitControlCalls } from './orca-pit-control-me'
+import type { OrcaPitMe } from './orca-pit-memberships'
 import { performOrcaPitLogin } from './orca-pit-login'
 import { OrcaPitLoginRateLimit, setOrcaPitLoginHandler } from './orca-pit-login-route'
 import { mintOrcaPitUserDevice } from './orca-pit-user-devices'
 
-const OWNER: OrcaPitUser = { id: 1, name: 'Dono', email: 'd@x', tenantId: 1, orcaRole: 'admin' }
-const FULANO: OrcaPitUser = { id: 7, name: 'Fulano', email: 'f@x', tenantId: 1, orcaRole: 'member' }
+// The central's owner works for DevNX (1, default) and Ailiv (2) in "Todas as empresas".
+const OWNER: OrcaPitMe = {
+  id: 1,
+  name: 'Dono',
+  email: 'd@x',
+  defaultTenantId: 1,
+  tenants: [
+    { id: 1, orcaRole: 'admin' },
+    { id: 2, orcaRole: 'admin' }
+  ]
+}
+const FULANO: OrcaPitMe = {
+  id: 7,
+  name: 'Fulano',
+  email: 'f@x',
+  defaultTenantId: 1,
+  tenants: [{ id: 1, orcaRole: 'member' }]
+}
 const SESSION = { baseUrl: 'https://control.test', token: 'central-token' }
 
 function httpError(status: number): DevnxControlError {
@@ -32,17 +48,24 @@ beforeEach(async () => {
   dir = mkdtempSync(join(tmpdir(), 'orca-pit-login-'))
   registry = new DeviceRegistry(dir)
   session = SESSION
-  const users = new Map<string, OrcaPitUser>([
+  const users = new Map<string, OrcaPitMe>([
     ['central-token', OWNER],
     ['jwt-fulano', FULANO],
-    ['jwt-outra', { ...FULANO, id: 9, tenantId: 2 }]
+    [
+      'jwt-outra',
+      { ...FULANO, id: 9, defaultTenantId: 3, tenants: [{ id: 3, orcaRole: 'admin' }] }
+    ],
+    [
+      'jwt-ailiv',
+      { ...FULANO, id: 8, defaultTenantId: 2, tenants: [{ id: 2, orcaRole: 'member' }] }
+    ]
   ])
   calls = {
     login: vi.fn(async (_base: string, email: string, password: string) => {
       if (password !== 'certa') {
         throw httpError(401)
       }
-      return email === 'outra@x' ? 'jwt-outra' : 'jwt-fulano'
+      return { 'outra@x': 'jwt-outra', 'ailiv@x': 'jwt-ailiv' }[email] ?? 'jwt-fulano'
     }),
     me: vi.fn(async (_base: string, token: string) => {
       const user = users.get(token)
@@ -97,7 +120,15 @@ describe('POST /orca-pit/login', () => {
     const [, deviceId, endpoint] = body.pairingUrl.split('|')
     expect(endpoint).toBe('ws://h:1')
     const device = registry.getDevice(deviceId)
-    expect(device).toMatchObject({ name: 'Fulano · navegador', orcaPitUser: FULANO })
+    expect(device).toMatchObject({ name: 'Fulano · navegador' })
+    expect(device?.orcaPitUser).toEqual({
+      id: 7,
+      name: 'Fulano',
+      email: 'f@x',
+      tenantId: 1,
+      tenantIds: [1],
+      orcaRole: 'member'
+    })
     expect(device?.orcaPitControlToken).toBe('jwt-fulano')
     expect(JSON.stringify(body)).not.toContain('jwt-fulano')
   })
@@ -109,7 +140,14 @@ describe('POST /orca-pit/login', () => {
     expect(registry.listDevices()).toHaveLength(0)
   })
 
-  it('refuses a user of another company', async () => {
+  it("accepts a person who shares only the owner's second company", async () => {
+    const response = await login({ email: 'ailiv@x', password: 'certa' })
+    expect(response.status).toBe(200)
+    const [device] = registry.listDevices()
+    expect(device.orcaPitUser).toMatchObject({ id: 8, tenantId: 2, tenantIds: [2] })
+  })
+
+  it('refuses a person who shares no company with the owner', async () => {
     const response = await login({ email: 'outra@x', password: 'certa' })
     expect(response.status).toBe(403)
     expect(registry.listDevices()).toHaveLength(0)
@@ -165,19 +203,5 @@ describe('OrcaPitLoginRateLimit', () => {
     expect(limit.take('5.6.7.8')).toBeNull()
     now = 15 * 60_000
     expect(limit.take('1.2.3.4')).toBeNull()
-  })
-})
-
-describe('parseOrcaPitMe', () => {
-  it('flattens the contract and treats any role but admin as member', () => {
-    const payload = {
-      user: { id: 7, name: 'Fulano', email: 'f@x' },
-      tenant: { id: 1, name: 'DEVNX' },
-      role: 'programador',
-      orca_role: 'owner'
-    }
-    expect(parseOrcaPitMe(payload)).toEqual(FULANO)
-    expect(parseOrcaPitMe({ ...payload, orca_role: 'admin' }).orcaRole).toBe('admin')
-    expect(() => parseOrcaPitMe({ user: { id: 7 } })).toThrow(/inválida/)
   })
 })

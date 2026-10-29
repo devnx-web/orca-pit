@@ -11,6 +11,7 @@ import {
 } from './orca-pit-control-me'
 import type { OrcaPitDeviceIdentity } from './orca-pit-identity'
 import type { OrcaPitUser } from './orca-pit-identity-types'
+import { sharedOrcaPitUser, type OrcaPitMe } from './orca-pit-memberships'
 
 export type OrcaPitLoginInput = { email: string; password: string; endpoint: string | null }
 
@@ -52,9 +53,9 @@ export async function performOrcaPitLogin(
   if (!session) {
     return { kind: 'inactive' }
   }
-  let central: OrcaPitUser | null
+  let central: OrcaPitMe | null
   try {
-    central = await deps.central.user()
+    central = await deps.central.me()
   } catch (error) {
     return unavailable('central /api/orca/me', error)
   }
@@ -71,9 +72,9 @@ export async function performOrcaPitLogin(
       : unavailable('/api/login', error)
   }
 
-  let user: OrcaPitUser
+  let me: OrcaPitMe
   try {
-    user = await calls.me(session.baseUrl, controlToken)
+    me = await calls.me(session.baseUrl, controlToken)
   } catch (error) {
     if (isOrcaPitAuthRejection(error)) {
       // 403 is the tenant middleware: a valid person without a company here.
@@ -83,7 +84,8 @@ export async function performOrcaPitLogin(
     }
     return unavailable('/api/orca/me', error)
   }
-  if (user.tenantId !== central.tenantId) {
+  const user = sharedOrcaPitUser(me, central)
+  if (!user) {
     return { kind: 'wrong-tenant' }
   }
 

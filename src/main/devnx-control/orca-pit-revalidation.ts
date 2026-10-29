@@ -1,6 +1,6 @@
 // Orca-Pit: a browser login lasts while the person is still a user of this machine's company.
 // On startup and every 10 minutes the central asks /api/orca/me with each person's JWT; a
-// rejected token or a different company revokes the rows through the normal revoke path, which
+// rejected token or no company shared with the central's owner revokes the rows through the normal revoke path, which
 // also closes their sockets. An outage revokes nothing.
 import { publicErrorMessage } from './devnx-control-http'
 import {
@@ -11,6 +11,7 @@ import {
 } from './orca-pit-control-me'
 import type { DeviceEntry } from '../runtime/device-entry'
 import type { OrcaPitUser } from './orca-pit-identity-types'
+import { sharedOrcaPitUser, type OrcaPitMe } from './orca-pit-memberships'
 
 const REVALIDATE_EVERY_MS = 10 * 60_000
 // Why a delay: the Control session is loaded after the runtime server starts.
@@ -32,6 +33,7 @@ function sameUser(a: OrcaPitUser, b: OrcaPitUser): boolean {
     a.name === b.name &&
     a.email === b.email &&
     a.tenantId === b.tenantId &&
+    a.tenantIds.join() === b.tenantIds.join() &&
     a.orcaRole === b.orcaRole
   )
 }
@@ -45,9 +47,9 @@ export async function revalidateOrcaPitDevices(
   if (!session) {
     return report
   }
-  let central: OrcaPitUser | null
+  let central: OrcaPitMe | null
   try {
-    central = await deps.central.user()
+    central = await deps.central.me()
   } catch (error) {
     console.warn('[orca-pit] revalidation skipped:', publicErrorMessage(error))
     return report
@@ -67,16 +69,18 @@ export async function revalidateOrcaPitDevices(
   const calls = deps.calls ?? ORCA_PIT_CONTROL_CALLS
   for (const [token, devices] of byToken) {
     report.checked += 1
-    let user: OrcaPitUser
+    let me: OrcaPitMe
     try {
-      user = await calls.me(session.baseUrl, token)
+      me = await calls.me(session.baseUrl, token)
     } catch (error) {
       if (isOrcaPitAuthRejection(error)) {
         revokeAll(deps, devices, report)
       }
       continue
     }
-    if (user.tenantId !== central.tenantId) {
+    // No company shared with the central's owner any more.
+    const user = sharedOrcaPitUser(me, central)
+    if (!user) {
       revokeAll(deps, devices, report)
       continue
     }
