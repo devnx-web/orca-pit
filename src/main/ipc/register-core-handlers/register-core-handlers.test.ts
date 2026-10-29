@@ -168,6 +168,11 @@ vi.mock('../onboarding', () => ({
   registerOnboardingHandlers: registerOnboardingHandlersMock
 }))
 
+// Orca-Pit: the DevNX Control handlers register on the real ipcMain, absent from this mock.
+vi.mock('../devnx-control', () => ({
+  registerDevnxControlHandlers: vi.fn()
+}))
+
 vi.mock('../dashboard-popout', () => ({
   registerDashboardPopoutHandlers: registerDashboardPopoutHandlersMock
 }))
