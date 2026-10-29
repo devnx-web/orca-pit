@@ -15,6 +15,32 @@ curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 - Com "Ocultar branch padrão" ligado, um subgrupo de projetos vazio também
   some da barra lateral, como já acontecia com os projetos vazios.
 
+**Orca da empresa: várias pessoas no mesmo Orca**
+
+- **Login com o DevNX Control:** quem abre o endereço do computador central no
+  navegador entra com o e-mail e a senha do Control, sem link de pareamento. O
+  acesso nasce no nome da pessoa ("Ana · navegador"). Entra quem divide ao menos
+  uma empresa com o central; quem é desligado no Control perde o acesso em até
+  10 minutos.
+- **Papéis:** admin no Control é admin no Orca. Os demais trabalham nos
+  projetos, mas não mexem em configurações, contas, skills nem no servidor.
+- **Diário de atividade:** cada mensagem ao agente, linha enviada no terminal
+  (o que parece senha vira "[oculto]"), workspace criado, agente iniciado e
+  parado (com os tokens) e mudança de configuração fica assinada com a pessoa,
+  guardada no central e enviada ao Control a cada 2 minutos, onde aparece na
+  tela **Carga**.
+- **Barra lateral para trabalho remoto:** cada agente mostra a máquina em que
+  roda (com cor própria), quem mandou o último comando ("Fabio · 3m") e quem
+  está olhando agora. Novos filtros "Meus agentes", por pessoa e por máquina, e
+  a faixa "Online agora" com quem está conectado.
+- **Projetos e cartões do Control:** cada projeto do Orca pode ser ligado ao
+  projeto do Control (com sugestão pelo repositório git). Os cartões aparecem em
+  Tarefas e no Cmd+J, com "Minhas", e um workspace pode nascer de um cartão.
+  Cada pessoa vê os cartões com o próprio login.
+- **Discos do servidor:** ao escolher uma pasta numa máquina remota, a linha
+  "Locais" leva direto à pasta pessoal, à raiz ou a cada disco, com o espaço
+  livre.
+
 ## 1.4.214-pit9 — 27/10/2026
 
 - O **Claude Chat** passa a usar a conta do DevNX Control, como os terminais já
