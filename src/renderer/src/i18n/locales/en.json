@@ -23068,7 +23068,6 @@
       "inactive": "Inactive",
       "split": "Split active and inactive",
       "splitDescription": "Show projects with a message sent in the last 12 hours under Active and the rest under Inactive",
-      "lastCommandBy": "Last command by {{name}}",
       "lastCommandByAt": "Last command by {{name}} at {{time}}",
       "justNow": "now"
     },
@@ -23127,7 +23126,9 @@
       "suggestedRemote": "Suggested: same git repository",
       "title": "DevNX Control project",
       "useSuggestion": "Use suggestion",
-      "adminOnly": "Only an administrator of the company in DevNX Control can change this link."
+      "adminOnly": "Only an administrator of the company in DevNX Control can change this link.",
+      "keywordControl": "devnx control",
+      "keywordTasks": "project tasks"
     },
     "tasks": {
       "back": "DevNX Control tasks",

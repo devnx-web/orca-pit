@@ -33,7 +33,11 @@ export function getRepositoryPaneSearchEntries(
         'devnx.projectLink.description',
         'Tasks of this Control project appear under Tasks, and workspaces created from them are linked to the task.'
       ),
-      keywords: [repo.displayName, 'devnx', 'control', 'project', 'task']
+      keywords: [
+        repo.displayName,
+        ...translateSearchKeyword('devnx.projectLink.keywordControl', 'devnx control'),
+        ...translateSearchKeyword('devnx.projectLink.keywordTasks', 'project tasks')
+      ]
     },
     {
       title: translate('components.RepositoryJiraProjectSection.title', 'Default Jira project'),

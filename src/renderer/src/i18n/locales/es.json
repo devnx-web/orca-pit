@@ -23279,6 +23279,10 @@
       "badgeNew": "New",
       "badgeWithdrawn": "Withdrawn"
     },
-    "aboutMenu": "About Orca-Pit"
+    "aboutMenu": "About Orca-Pit",
+    "projectLink": {
+      "keywordControl": "devnx control",
+      "keywordTasks": "project tasks"
+    }
   }
 }
