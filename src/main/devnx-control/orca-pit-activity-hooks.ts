@@ -4,6 +4,8 @@
 import type { OrcaRuntimeService } from '../runtime/orca-runtime'
 import type { RpcCallerIdentity } from '../runtime/rpc/rpc-caller-identity'
 import type { OrcaPitAgentAuthors } from '../../shared/orca-pit-agent-authors'
+import type { OrcaPitAgentAuthorsResult, OrcaPitPerson } from '../../shared/orca-pit-presence'
+import { trackOrcaPitMultiplex, type OrcaPitMultiplexView } from './orca-pit-presence-registry'
 
 export type OrcaPitRpcContext = { runtime: OrcaRuntimeService; caller?: RpcCallerIdentity }
 
@@ -27,6 +29,12 @@ export type OrcaPitActivityCapture = {
   workspaceCreated(worktreeId: string): void
   login(deviceId: string): void
   authors(): OrcaPitAgentAuthors
+  /** paneKey → who started the agent running there. */
+  starters(): Record<string, OrcaPitPerson>
+  presence(
+    runtime: OrcaRuntimeService,
+    caller: RpcCallerIdentity | undefined
+  ): Omit<OrcaPitAgentAuthorsResult, 'authors' | 'starters'>
 }
 
 let capture: OrcaPitActivityCapture | null = null
@@ -64,10 +72,12 @@ export function recordOrcaPitRpcActivity(
 const multiplexCallers = new WeakMap<object, RpcCallerIdentity | undefined>()
 
 export function tagOrcaPitMultiplexCaller(
-  connection: object,
+  connection: OrcaPitMultiplexView,
   caller: RpcCallerIdentity | undefined
 ): void {
   multiplexCallers.set(connection, caller)
+  // The sidebar's "who is looking" reads this connection's unpaused streams.
+  trackOrcaPitMultiplex(connection, caller)
 }
 
 /** Keys a remote client (browser, paired desktop, phone) typed into a streamed terminal. */
@@ -101,7 +111,26 @@ export function recordOrcaPitLogin(deviceId: string): void {
   guarded((active) => active.login(deviceId))
 }
 
-/** Who sent the last command to each pane (paneKey → first name), for the sidebar rows. */
-export function orcaPitAgentAuthors(): OrcaPitAgentAuthors {
-  return capture?.authors() ?? {}
+/**
+ * The sidebar's people for one caller: who sent the last command to each pane, who started it,
+ * who is looking at it and who is connected. Empty until the diary starts.
+ */
+export function orcaPitAgentAuthorsFor(
+  runtime: OrcaRuntimeService,
+  caller: RpcCallerIdentity | undefined
+): OrcaPitAgentAuthorsResult {
+  if (!capture) {
+    return { authors: {} }
+  }
+  const active = capture
+  try {
+    return {
+      authors: active.authors(),
+      starters: active.starters(),
+      ...active.presence(runtime, caller)
+    }
+  } catch (error) {
+    console.warn('[orca-pit] sidebar presence failed:', error)
+    return { authors: active.authors() }
+  }
 }

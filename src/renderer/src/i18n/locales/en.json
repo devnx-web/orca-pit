@@ -23068,7 +23068,9 @@
       "inactive": "Inactive",
       "split": "Split active and inactive",
       "splitDescription": "Show projects with a message sent in the last 12 hours under Active and the rest under Inactive",
-      "lastCommandBy": "Last command by {{name}}"
+      "lastCommandBy": "Last command by {{name}}",
+      "lastCommandByAt": "Last command by {{name}} at {{time}}",
+      "justNow": "now"
     },
     "groupBy": {
       "agents": "Agents"
@@ -23175,6 +23177,22 @@
       "hostNotConnected": "The Orca that holds this project is not connected to DevNX Control."
     },
     "signInAgain": "Your DevNX Control sign-in has ended. Sign in again to see its projects and tasks.",
-    "unavailable": "DevNX Control did not answer."
+    "unavailable": "DevNX Control did not answer.",
+    "presence": {
+      "viewing": "Looking at it now: {{names}}",
+      "onlineNow": "Online now",
+      "deviceSince": "{{device}} · since {{time}}",
+      "centralComputer": "Central computer"
+    },
+    "machine": {
+      "runsOn": "Runs on {{name}}"
+    },
+    "filters": {
+      "mine": "My agents",
+      "person": "Person",
+      "everyone": "Everyone",
+      "machine": "Machine",
+      "allMachines": "All"
+    }
   }
 }

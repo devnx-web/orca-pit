@@ -47,6 +47,7 @@ import {
 } from './header-event-guards'
 import type { WorktreeSidebarHeaderDrag } from '../drag/use-header-drag'
 import { getWorktreeOptionId } from './option-dom'
+import { OrcaPitHeaderMachineChip } from '../../OrcaPitMachineChip'
 
 export type SectionHeaderRowContext = {
   groupBy: WorktreeGroupBy
@@ -337,6 +338,8 @@ export function renderWorktreeSectionHeaderRow(args: {
               <div className="flex min-w-0 items-center gap-1.5">
                 <div className="min-w-0 truncate text-[13px] font-semibold leading-4">{label}</div>
                 {hostContext ? <ProjectHeaderHostLabel context={hostContext} /> : null}
+                {/* Orca-Pit: the one machine all of this project's agents run on. */}
+                <OrcaPitHeaderMachineChip headerKey={row.key} />
                 <RepoForkIndicator upstream={row.repo?.upstream} />
                 <FolderPathStatusIndicator status={projectGroupPathStatus} />
                 {isRepoHeader ? <RepoScanUnavailableIndicator repo={row.repo!} /> : null}

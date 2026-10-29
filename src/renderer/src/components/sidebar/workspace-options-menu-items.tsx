@@ -36,6 +36,8 @@ import {
 import { translate } from '@/i18n/i18n'
 import { SidebarGroupByToggle } from './SidebarGroupByToggle'
 import { OrcaPitActivitySplitToggle } from './OrcaPitActivitySplitToggle'
+import { OrcaPitAgentFilterMenu } from './OrcaPitAgentFilterMenu'
+import { orcaPitAgentFilterCount, useOrcaPitAgentFilters } from './orca-pit-agent-filters'
 
 export function useWorkspaceOptionsFilterBadge(): {
   hasAnyFilter: boolean
@@ -43,13 +45,15 @@ export function useWorkspaceOptionsFilterBadge(): {
 } {
   const filterState = useAppStore(useShallow(selectSidebarFilterState))
   const repos = useAppStore((s) => s.repos)
+  // Orca-Pit: the mine/person/machine filters count too, so a remembered one is never silent.
+  const orcaPitFilterCount = orcaPitAgentFilterCount(useOrcaPitAgentFilters())
   const activeFilterCount = useMemo(
     () =>
       countActiveWorkspaceFilters(
         sidebarWorkspaceRowFilters(filterState),
         repos.map((repo) => repo.id)
-      ),
-    [filterState, repos]
+      ) + orcaPitFilterCount,
+    [filterState, repos, orcaPitFilterCount]
   )
   return {
     hasAnyFilter: activeFilterCount > 0,
@@ -81,13 +85,17 @@ function HostsOptionItem({
   )
 }
 
-function GroupByOptionItem(): JSX.Element {
+function GroupByOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.Element {
   const groupBy = useAppStore((s) => s.groupBy)
   const setGroupBy = useAppStore((s) => s.setGroupBy)
   return (
-    <div className="px-2 pt-0.5 pb-1">
-      <SidebarGroupByToggle groupBy={groupBy} setGroupBy={setGroupBy} />
-    </div>
+    <>
+      <div className="px-2 pt-0.5 pb-1">
+        <SidebarGroupByToggle groupBy={groupBy} setGroupBy={setGroupBy} />
+      </div>
+      {/* Orca-Pit: mine / person / machine, right under the grouping. */}
+      <OrcaPitAgentFilterMenu preserveOpen={preserveWorkspaceBoardOpen} />
+    </>
   )
 }
 

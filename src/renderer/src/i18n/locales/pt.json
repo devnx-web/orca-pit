@@ -23070,7 +23070,9 @@
       "inactive": "Inativos",
       "split": "Separar ativos e inativos",
       "splitDescription": "Mostra em Ativos os projetos com mensagem enviada nas últimas 12 horas e o resto em Inativos",
-      "lastCommandBy": "Último comando de {{name}}"
+      "lastCommandBy": "Último comando de {{name}}",
+      "lastCommandByAt": "Último comando de {{name}} às {{time}}",
+      "justNow": "agora"
     },
     "groupBy": {
       "agents": "Agentes"
@@ -23177,6 +23179,22 @@
       "hostNotConnected": "O Orca onde está este projeto não está conectado ao DevNX Control."
     },
     "signInAgain": "Sua sessão do DevNX Control acabou. Entre de novo para ver os projetos e as tarefas.",
-    "unavailable": "O DevNX Control não respondeu."
+    "unavailable": "O DevNX Control não respondeu.",
+    "presence": {
+      "viewing": "Olhando agora: {{names}}",
+      "onlineNow": "Online agora",
+      "deviceSince": "{{device}} · desde {{time}}",
+      "centralComputer": "Computador central"
+    },
+    "machine": {
+      "runsOn": "Roda em {{name}}"
+    },
+    "filters": {
+      "mine": "Meus agentes",
+      "person": "Pessoa",
+      "everyone": "Todas",
+      "machine": "Máquina",
+      "allMachines": "Todas"
+    }
   }
 }

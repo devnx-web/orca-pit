@@ -11,6 +11,7 @@ import { orcaPitUserForDevice } from './orca-pit-identity'
 import { ORCA_PIT_ACTIVITY_DB_FILE, OrcaPitActivityDb } from './orca-pit-activity-db'
 import { installOrcaPitActivityCapture } from './orca-pit-activity-hooks'
 import { orcaPitActivity } from './orca-pit-activity-recorder'
+import { orcaPitPresence } from './orca-pit-presence'
 import { OrcaPitActivitySender } from './orca-pit-activity-sender'
 import { providerSessionTotals, tokenDelta } from './orca-pit-activity-tokens'
 
@@ -72,7 +73,11 @@ export function startOrcaPitActivity(
     flushRecorder: () => orcaPitActivity.flush()
   })
   sender.start()
-  installOrcaPitActivityCapture(orcaPitActivityCapture)
+  installOrcaPitActivityCapture({
+    ...orcaPitActivityCapture,
+    starters: () => tracker.startersByPane(),
+    presence: orcaPitPresence
+  })
   const unsubscribeSettings =
     state.store?.onSettingsChanged((updates, _settings, origin) =>
       recordDesktopSettings(updates, origin)

@@ -4,6 +4,7 @@
 import { structuredAgentSessionTabId } from '../../shared/structured-agent-session-projection'
 import type { AgentStatusIpcPayload } from '../../shared/agent-status-ipc-payload'
 import type { AgentHookStatusRowMutation } from '../agent-hooks/server/server-types'
+import type { OrcaPitPerson } from '../../shared/orca-pit-presence'
 import { workspaceContext, type OrcaPitActor } from './orca-pit-activity-context'
 import type { OrcaPitTokenTotals } from './orca-pit-activity-tokens'
 import type { OrcaPitActivityDraft } from './orca-pit-activity-types'
@@ -78,6 +79,21 @@ export class OrcaPitAgentTracker {
   agentForPane(paneKey: string): { agent: string; sessionId: string } | null {
     const open = this.open.get(paneKey)
     return open ? { agent: open.agent, sessionId: open.sessionId } : null
+  }
+
+  /** Who started each running agent, for the sidebar's "Mine" filter. */
+  startersByPane(): Record<string, OrcaPitPerson> {
+    const out: Record<string, OrcaPitPerson> = {}
+    for (const [paneKey, { actor }] of this.open) {
+      if (actor.name && !actor.programmatic) {
+        out[paneKey] = {
+          key: actor.userId === null ? `n:${actor.name.trim()}` : `u:${actor.userId}`,
+          name: actor.name,
+          userId: actor.userId
+        }
+      }
+    }
+    return out
   }
 
   // Why batched: hook rows change on every tool call; one pass per tick reads each pane once.

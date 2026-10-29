@@ -35,10 +35,12 @@ import { selectWorkspaceBoardStatuses } from '@/store/host-workspace-status-colu
 import { getProjectActivity } from './orca-pit-project-activity'
 import {
   flattenAgentsOnlyRows,
-  getWorkspaceIdsWithAgents,
-  isAgentsOnlyView,
-  scopeRowInputsToAgents
+  getWorkspaceAgentPanes,
+  isAgentsOnlyView
 } from './orca-pit-agents-view'
+import { getOrcaPitAgentFilters, orcaPitAgentFilterCount } from './orca-pit-agent-filters'
+import { getOrcaPitHostPresences } from './orca-pit-sidebar-presence'
+import { scopeOrcaPitRowInputs } from './orca-pit-row-scope'
 
 const EMPTY_REPO_ID_SET: ReadonlySet<string> = Object.freeze(new Set<string>())
 const EMPTY_IMPORTED_BY_REPO: ReadonlyMap<string, ImportedWorktreesCardCandidate> = new Map()
@@ -94,10 +96,21 @@ export function computeRenderedSidebarRows(
     importedWorktreesByRepo: EMPTY_IMPORTED_BY_REPO,
     newExternalWorktreesInboxByRepo: EMPTY_INBOX_BY_REPO
   }
-  // Orca-Pit: the "Agents" view drops workspaces without agents; the shortcuts must skip them too.
-  const inputs = agentsOnly
-    ? scopeRowInputsToAgents(unscopedInputs, getWorkspaceIdsWithAgents(state))
-    : unscopedInputs
+  // Orca-Pit: the "Agents" view and the mine/person/machine filters drop workspaces; the
+  // shortcuts must skip them too.
+  const orcaPitFilters = getOrcaPitAgentFilters()
+  const inputs = scopeOrcaPitRowInputs({
+    inputs: unscopedInputs,
+    agentsOnly,
+    panesByWorkspace:
+      agentsOnly || orcaPitAgentFilterCount(orcaPitFilters) > 0
+        ? getWorkspaceAgentPanes(state)
+        : undefined,
+    filters: orcaPitFilters,
+    hosts: getOrcaPitHostPresences(),
+    repoOf: (repoId) => repoMap.get(repoId),
+    defaultHostId
+  })
   const plan = planSidebarRows({
     groupBy: state.groupBy,
     worktrees: inputs.worktrees,

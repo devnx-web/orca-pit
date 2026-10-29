@@ -1,22 +1,20 @@
 // Orca-Pit: in the "Agents" view a workspace row draws only its agent rows, so the project
-// header sits right above its agents; see orca-pit-agents-view.
+// header sits right above its agents; see orca-pit-agents-view. With "Mine" or a person picked,
+// only that person's agents are drawn. The machine chip lives on the rows and headers now
+// (OrcaPitMachineChip).
 import type React from 'react'
-import { useAppStore } from '@/store'
+import { useMemo } from 'react'
 import type { Repo } from '../../../../shared/repo-types'
 import type { Worktree } from '../../../../shared/worktree/types'
-import {
-  getSettingsFocusedExecutionHostId,
-  getWorktreeExecutionHostId,
-  LOCAL_EXECUTION_HOST_ID,
-  parseExecutionHostId,
-  toRuntimeExecutionHostId,
-  toSshExecutionHostId,
-  type ExecutionHostId
-} from '../../../../shared/execution-host'
-import { getHostDisplayLabelOverrides } from '../../../../shared/host-setting-overrides'
 import WorktreeCardAgents from './WorktreeCardAgents'
-import { WorktreeHostContextBadge } from './WorktreeHostContextBadge'
 import { useAgentsOnlyView } from './orca-pit-agents-view'
+import {
+  orcaPitPaneBelongsTo,
+  orcaPitPeopleFilterKeys,
+  useOrcaPitAgentFilters
+} from './orca-pit-agent-filters'
+import { getOrcaPitHostPresences, useOrcaPitPresenceRevision } from './orca-pit-sidebar-presence'
+import { useWorktreeAgentRows } from './useWorktreeAgentRows'
 import {
   getFlushWorktreeCardPaddingLeft,
   getWorktreeCardContentIndent
@@ -37,54 +35,38 @@ type Props = {
   children: React.ReactNode
 }
 
-// Same precedence as the dashboard's host labels: a user override, then the SSH target or
-// paired-server name, then the raw id so the chip never goes blank.
-function useHostLabel(hostId: ExecutionHostId): string {
-  const sshTargetLabels = useAppStore((s) => s.sshTargetLabels)
-  const runtimeEnvironments = useAppStore((s) => s.runtimeEnvironments)
-  const settings = useAppStore((s) => s.settings)
-  const override = getHostDisplayLabelOverrides(settings).get(hostId)
-  if (override) {
-    return override
-  }
-  const parsed = parseExecutionHostId(hostId)
-  if (parsed?.kind === 'ssh') {
-    const label = [...(sshTargetLabels ?? [])].find(
-      ([targetId]) => toSshExecutionHostId(targetId) === hostId
-    )?.[1]
-    return label ?? parsed.targetId
-  }
-  if (parsed?.kind === 'runtime') {
-    const environment = runtimeEnvironments?.find(
-      (candidate) => toRuntimeExecutionHostId(candidate.id) === hostId
-    )
-    return environment?.name ?? parsed.environmentId
-  }
-  return hostId
+function AgentRows({ worktreeId }: { worktreeId: string }): React.JSX.Element {
+  const filters = useOrcaPitAgentFilters()
+  const personFiltered = filters.mine || filters.person !== null
+  const agents = useWorktreeAgentRows(worktreeId, personFiltered)
+  const revision = useOrcaPitPresenceRevision(personFiltered)
+  const shown = useMemo(() => {
+    void revision
+    const hosts = getOrcaPitHostPresences()
+    const people = personFiltered ? orcaPitPeopleFilterKeys(filters, hosts) : null
+    // A child agent goes with its parent: it has no author of its own.
+    return people
+      ? agents.filter((agent) =>
+          orcaPitPaneBelongsTo(agent.activationPaneKey ?? agent.paneKey, people, hosts)
+        )
+      : undefined
+  }, [agents, filters, personFiltered, revision])
+  return (
+    <WorktreeCardAgents worktreeId={worktreeId} agents={shown} className="mt-0" listEveryAgent />
+  )
 }
 
-function RemoteHostBadge({ hostId }: { hostId: ExecutionHostId }): React.JSX.Element {
-  return <WorktreeHostContextBadge label={useHostLabel(hostId)} className="mt-1 shrink-0" />
-}
-
-export function OrcaPitWorkspaceCardSlot({ worktree, repo, children }: Props): React.JSX.Element {
+export function OrcaPitWorkspaceCardSlot({ worktree, children }: Props): React.JSX.Element {
   const agentsOnly = useAgentsOnlyView()
-  const defaultHostId = useAppStore((s) => getSettingsFocusedExecutionHostId(s.settings))
   if (!agentsOnly) {
     return <>{children}</>
   }
-  const hostId = getWorktreeExecutionHostId(worktree, repo, defaultHostId)
   return (
     <div
-      className="flex items-start gap-1.5 pb-0.5 pr-1.5"
+      className="pb-0.5 pr-1.5"
       style={{ paddingLeft: getFlushWorktreeCardPaddingLeft(AGENT_ROW_CONTENT_INDENT) }}
     >
-      <div className="min-w-0 flex-1">
-        <WorktreeCardAgents worktreeId={worktree.id} className="mt-0" listEveryAgent />
-      </div>
-      {/* Why only off this computer: a local chip on every row is noise; the remote one says
-          which machine a click will reach. */}
-      {hostId !== LOCAL_EXECUTION_HOST_ID && <RemoteHostBadge hostId={hostId} />}
+      <AgentRows worktreeId={worktree.id} />
     </div>
   )
 }

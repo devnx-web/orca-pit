@@ -165,7 +165,8 @@ function desktopInput(runtime: OrcaRuntimeService, ptyId: string, data: string):
   )
 }
 
-export const orcaPitActivityCapture: OrcaPitActivityCapture = {
+/** The capture minus what needs the agent tracker and Electron; orca-pit-activity adds those. */
+export const orcaPitActivityCapture: Omit<OrcaPitActivityCapture, 'starters' | 'presence'> = {
   recordsRpc: (method) => Object.hasOwn(RPC_RECORDERS, method),
   rpc: (method, params, context, result) => RPC_RECORDERS[method]?.(params, context, result),
   streamInput,
