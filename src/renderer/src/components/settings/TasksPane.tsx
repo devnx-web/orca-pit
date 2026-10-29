@@ -9,6 +9,8 @@ import {
 } from '../../../../shared/task-providers'
 import { JiraIcon } from '@/components/icons/JiraIcon'
 import { LinearIcon } from '@/components/icons/LinearIcon'
+// Orca-Pit: DevNX Control tasks.
+import { OrcaPitDevnxIcon } from '@/components/icons/OrcaPitDevnxIcon'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/store'
 import { SearchableSetting } from './SearchableSetting'
@@ -89,6 +91,19 @@ const PROVIDER_META: Record<
       )
     },
     Icon: ({ className }) => <JiraIcon className={className} />
+  },
+  // Orca-Pit: DevNX Control tasks of the project's linked Control project.
+  devnx: {
+    get label() {
+      return translate('devnx.tasks.providerLabel', 'DevNX Control')
+    },
+    get description() {
+      return translate(
+        'devnx.tasks.providerDescription',
+        'Browse the tasks of the linked DevNX Control project and start workspaces from them.'
+      )
+    },
+    Icon: ({ className }) => <OrcaPitDevnxIcon className={className} />
   }
 }
 
@@ -231,7 +246,16 @@ export function TasksPane({ settings, updateSettings }: TasksPaneProps): React.J
                     visible={visible}
                     canHide={canHide}
                     onToggleVisible={() => toggleProvider(provider)}
-                    onOpenIntegrations={() => openIntegrations()}
+                    onOpenIntegrations={() =>
+                      // Orca-Pit: the DevNX Control sign-in lives under Accounts.
+                      provider === 'devnx'
+                        ? openSettingsTarget({
+                            pane: 'accounts',
+                            repoId: null,
+                            sectionId: 'accounts-devnx-control'
+                          })
+                        : openIntegrations()
+                    }
                     onRetryConnection={() =>
                       void refreshPreflightStatus({ force: true, wakeWslDistro: true })
                     }

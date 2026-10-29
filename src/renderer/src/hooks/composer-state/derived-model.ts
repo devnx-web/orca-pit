@@ -16,7 +16,8 @@ export type ComposerDerivedModel = {
   currentYamlHooks: OrcaHooks | null
   setupConfig: SetupConfig | null
   setupPolicy: SetupRunPolicy
-  linkedWorkItemProvider: 'github' | 'gitlab' | 'linear' | 'jira' | null
+  // Orca-Pit: 'devnx' is a DevNX Control task.
+  linkedWorkItemProvider: 'github' | 'gitlab' | 'linear' | 'jira' | 'devnx' | null
   requiresExplicitSetupChoice: boolean
   resolvedSetupDecision: 'skip' | 'run' | null
   isSetupCheckPending: boolean

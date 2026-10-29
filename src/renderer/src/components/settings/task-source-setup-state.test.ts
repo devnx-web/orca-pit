@@ -27,7 +27,9 @@ function buildReadiness(
       skillChecking: false,
       visible: true
     },
-    jira: { connected: true, checking: false, visible: true }
+    jira: { connected: true, checking: false, visible: true },
+    // Orca-Pit: DevNX Control tasks.
+    devnx: { connected: true, checking: false, visible: true }
   }
   for (const provider of ORDER) {
     Object.assign(base[provider], overrides[provider])

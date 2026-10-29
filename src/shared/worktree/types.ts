@@ -21,7 +21,16 @@ export type WorkspaceAttachmentOrigin = {
 }
 
 export type WorkspaceAttachment = {
-  provider: 'github' | 'gitlab' | 'linear' | 'jira' | 'bitbucket' | 'azure-devops' | 'gitea'
+  provider:
+    | 'github'
+    | 'gitlab'
+    | 'linear'
+    | 'jira'
+    | 'bitbucket'
+    | 'azure-devops'
+    | 'gitea'
+    // Orca-Pit: DevNX Control task.
+    | 'devnx'
   type: 'issue' | 'pr' | 'mr'
   number: number
   identifier?: string
@@ -37,7 +46,8 @@ export type WorkspaceAttachment = {
 }
 
 export type WorkspaceLinkedItem = {
-  provider: 'github' | 'gitlab' | 'linear' | 'jira'
+  // Orca-Pit: 'devnx' is a DevNX Control task (number = Control task id).
+  provider: 'github' | 'gitlab' | 'linear' | 'jira' | 'devnx'
   type: 'issue' | 'pr' | 'mr'
   number: number
   title: string

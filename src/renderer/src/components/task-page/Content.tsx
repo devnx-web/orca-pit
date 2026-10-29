@@ -7,6 +7,8 @@ import { TaskPageGitHubList } from './github/List'
 import { TaskPageGitLabTodoList } from './gitlab/TodoList'
 import { TaskPageGitLabItemList } from './gitlab/ItemList'
 import { TaskPageJiraContent } from './jira/Content'
+// Orca-Pit: DevNX Control tasks.
+import { OrcaPitDevnxTaskContent } from './OrcaPitDevnxTaskContent'
 export function TaskPageContent({
   model
 }: {
@@ -73,6 +75,9 @@ export function TaskPageContent({
     <TaskPageGitLabTodoList model={model} />
   ) : taskSource === 'gitlab' ? (
     <TaskPageGitLabItemList model={model} />
+  ) : taskSource === 'devnx' ? (
+    // Orca-Pit: before the Jira/Linear fallback, which would claim any other source.
+    <OrcaPitDevnxTaskContent model={model} />
   ) : (
     <TaskPageJiraContent model={model} />
   )

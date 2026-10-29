@@ -102,6 +102,8 @@ export class RepoUpdatePersistenceOperations {
         | 'symlinkPaths'
         | 'issueSourcePreference'
         | 'defaultJiraProject'
+        // Orca-Pit: DevNX Control project link.
+        | 'devnxControlProject'
         | 'forkSyncMode'
         | 'externalWorktreeVisibilityPromptDismissedAt'
         | 'externalWorktreeInboxBaselinePaths'

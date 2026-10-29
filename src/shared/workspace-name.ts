@@ -47,7 +47,8 @@ export type WorkspaceIntentWorkItem = {
   type: 'issue' | 'pr' | 'mr'
   number: number
   title: string
-  provider?: 'github' | 'gitlab' | 'linear' | 'jira'
+  // Orca-Pit: 'devnx' is a DevNX Control task.
+  provider?: 'github' | 'gitlab' | 'linear' | 'jira' | 'devnx'
   linearIdentifier?: string
   jiraIdentifier?: string
 }

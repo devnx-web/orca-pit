@@ -216,6 +216,8 @@ export function buildDefaultSettings(args: {
     defaultTaskSource: 'github',
     visibleTaskProviders: [...TASK_PROVIDERS],
     visibleTaskProvidersDefaultedForJira: true,
+    // Orca-Pit: DevNX Control source.
+    visibleTaskProvidersDefaultedForDevnx: true,
     defaultRepoSelection: null,
     defaultLinearTeamSelection: null,
     opencodeSessionCookie: '',

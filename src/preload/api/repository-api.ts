@@ -54,6 +54,8 @@ export type RepositoryApi = {
         | 'kind'
         | 'issueSourcePreference'
         | 'defaultJiraProject'
+        // Orca-Pit: DevNX Control project link.
+        | 'devnxControlProject'
         | 'externalWorktreeVisibilityPromptDismissedAt'
         | 'externalWorktreeInboxBaselinePaths'
         | 'importedExternalWorktreePaths'

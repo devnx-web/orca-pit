@@ -1,6 +1,13 @@
-export type TaskProvider = 'github' | 'gitlab' | 'linear' | 'jira'
+// Orca-Pit: 'devnx' lists the DevNX Control tasks of the project's linked Control project.
+export type TaskProvider = 'github' | 'gitlab' | 'linear' | 'jira' | 'devnx'
 
-export const TASK_PROVIDERS: readonly TaskProvider[] = ['github', 'gitlab', 'linear', 'jira']
+export const TASK_PROVIDERS: readonly TaskProvider[] = [
+  'github',
+  'gitlab',
+  'linear',
+  'jira',
+  'devnx'
+]
 
 const TASK_PROVIDER_SET = new Set<TaskProvider>(TASK_PROVIDERS)
 
@@ -97,7 +104,8 @@ function isTaskProviderAvailable(
     return availability.gitlabInstalled
   }
   // Disconnected Jira must remain visible as its own first-time setup entry point.
-  if (provider === 'jira') {
+  // Orca-Pit: like Jira, a missing DevNX Control session shows its own sign-in entry point.
+  if (provider === 'jira' || provider === 'devnx') {
     return true
   }
   return availability.linearConnected

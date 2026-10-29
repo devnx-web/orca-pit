@@ -71,6 +71,8 @@ export type TaskPageData = {
   openLinearSourceContext?: TaskSourceContext | null
   openJiraIssue?: JiraIssue
   openJiraSourceContext?: TaskSourceContext | null
+  /** Orca-Pit: opens this DevNX Control task's detail on the DevNX source. */
+  openDevnxTaskId?: number
 }
 
 export type NewWorkspaceDraft = {
@@ -85,7 +87,8 @@ export type NewWorkspaceDraft = {
   note: string
   attachments: string[]
   linkedWorkItem: {
-    provider?: 'github' | 'gitlab' | 'linear' | 'jira'
+    // Orca-Pit: 'devnx' is a DevNX Control task.
+    provider?: 'github' | 'gitlab' | 'linear' | 'jira' | 'devnx'
     type: 'issue' | 'pr' | 'mr'
     number: number
     title: string

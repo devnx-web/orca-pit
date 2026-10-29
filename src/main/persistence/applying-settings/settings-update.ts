@@ -166,6 +166,8 @@ export function updateSettings(
     sanitizedUpdates.visibleTaskProviders = taskProviderSettings.visibleTaskProviders
     if ('visibleTaskProviders' in updates) {
       sanitizedUpdates.visibleTaskProvidersDefaultedForJira = true
+      // Orca-Pit: a deliberate choice also settles the DevNX Control default.
+      sanitizedUpdates.visibleTaskProvidersDefaultedForDevnx = true
     }
   }
   stampDefaultOnMigrationGuards(updates, sanitizedUpdates)

@@ -25,6 +25,8 @@ import { getTaskPageRepoSourceContext } from '../task-page/task-page-source-cont
 import { searchJiraIssuesByKeyOrText } from '../jira-key-or-text-search'
 import { bindTaskPageJiraItemSourceContext } from '../task-page-jira-item-source-context'
 import { makeCmdJTaskSearchResult, type CmdJTaskSearchResult } from './task-search-results'
+// Orca-Pit: DevNX Control tasks.
+import { createDevnxCmdJTaskSearchRequests } from './orca-pit-devnx-task-search'
 
 const RESULT_LIMIT = 12
 export type CmdJTaskSearchRequest = {
@@ -189,6 +191,18 @@ export function createCmdJTaskSearchRequests(args: {
         }
       })
     }
+  }
+  // Orca-Pit: one request per DevNX Control project linked to the searched Orca projects.
+  if (providers.includes('devnx')) {
+    requests.push(
+      ...createDevnxCmdJTaskSearchRequests({
+        query,
+        repos: eligibleRepos,
+        limit: RESULT_LIMIT,
+        signal,
+        makeResult: makeCmdJTaskSearchResult
+      })
+    )
   }
   return requests
 }

@@ -7,6 +7,8 @@ import type { GitRemoteIdentity } from './git-remote-identity'
 import type { RepoSourceControlAiOverrides } from './source-control-ai-types'
 import type { RepoProjectHostSetupMethod } from './project-types'
 import type { JiraProjectReference } from './jira/jira-project-reference'
+// Orca-Pit: DevNX Control project link.
+import type { DevnxControlProjectReference } from './orca-pit-devnx-tasks'
 import type { OrcadRetainedMarker } from './orcad-retained-marker'
 
 export type RepoKind = 'git' | 'folder'
@@ -62,6 +64,8 @@ export type Repo = {
   issueSourcePreference?: IssueSourcePreference
   /** Host-owned Jira project default; users can override it in each composer. */
   defaultJiraProject?: JiraProjectReference | null
+  /** Orca-Pit: the DevNX Control project whose tasks this project works on; chosen by hand. */
+  devnxControlProject?: DevnxControlProjectReference | null
   /** Bind host/login only; resolve a short-lived gh token at spawn and inject into that child’s environment. */
   ghAccount?: GhAccountBinding
   /** Controls Orca's fork-default-branch sync offer for repos with upstream metadata. */

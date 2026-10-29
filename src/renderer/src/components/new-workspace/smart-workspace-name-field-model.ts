@@ -48,7 +48,16 @@ export type SmartWorkspaceNameFieldProps = {
 }
 
 export type SmartWorkspaceNameSelection = {
-  kind: 'github-pr' | 'github-issue' | 'gitlab-mr' | 'gitlab-issue' | 'branch' | 'linear' | 'jira'
+  kind:
+    | 'github-pr'
+    | 'github-issue'
+    | 'gitlab-mr'
+    | 'gitlab-issue'
+    | 'branch'
+    | 'linear'
+    | 'jira'
+    // Orca-Pit: DevNX Control task.
+    | 'devnx'
   label: string
   url?: string
 }

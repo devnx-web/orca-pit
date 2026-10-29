@@ -125,8 +125,15 @@ export function prepareLoadedProfileSettings(
     : rawTaskProviderSettings.visibleTaskProviders.includes('jira')
       ? rawTaskProviderSettings.visibleTaskProviders
       : [...rawTaskProviderSettings.visibleTaskProviders, 'jira' as const]
+  // Orca-Pit: show the DevNX Control source once on existing profiles, like Jira above.
+  const visibleTaskProvidersDefaultedForDevnx =
+    parsed.settings?.visibleTaskProvidersDefaultedForDevnx === true
+  const devnxVisibleTaskProviders =
+    visibleTaskProvidersDefaultedForDevnx || migratedVisibleTaskProviders.includes('devnx')
+      ? migratedVisibleTaskProviders
+      : [...migratedVisibleTaskProviders, 'devnx' as const]
   const taskProviderSettings = normalizeTaskProviderSettings({
-    visibleTaskProviders: migratedVisibleTaskProviders,
+    visibleTaskProviders: devnxVisibleTaskProviders,
     defaultTaskSource: rawTaskProviderSettings.defaultTaskSource
   })
   const primarySelectionDefaultedForLinux =
@@ -145,7 +152,7 @@ export function prepareLoadedProfileSettings(
   if (migratePrimarySelectionPlatformDefault || stampPrimarySelectionTerminalDefaults) {
     markNeedsSave()
   }
-  if (!visibleTaskProvidersDefaultedForJira) {
+  if (!visibleTaskProvidersDefaultedForJira || !visibleTaskProvidersDefaultedForDevnx) {
     markNeedsSave()
   }
   const claudeAgentTeamsDefaultDisabledMigrated =

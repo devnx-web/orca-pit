@@ -99,7 +99,14 @@ describe('Store', () => {
     expect(store.getSettings().showTasksButton).toBe(true)
     expect(store.getSettings().showAutomationsButton).toBe(true)
     expect(store.getSettings().combinedDiffFileTreeVisibleByDefault).toBe(false)
-    expect(store.getSettings().visibleTaskProviders).toEqual(['github', 'gitlab', 'linear', 'jira'])
+    // Orca-Pit: the DevNX Control source is visible by default.
+    expect(store.getSettings().visibleTaskProviders).toEqual([
+      'github',
+      'gitlab',
+      'linear',
+      'jira',
+      'devnx'
+    ])
     expect(store.getSettings().experimentalActivity).toBe(false)
     expect(store.getSettings().experimentalActivityDefaultedOffForAllUsers).toBe(true)
     expect(store.getSettings().experimentalTerminalAttention).toBe(false)
@@ -520,7 +527,8 @@ describe('Store', () => {
     })
 
     const store = await createStore()
-    expect(store.getSettings().visibleTaskProviders).toEqual(['gitlab', 'jira'])
+    // Orca-Pit: the one-shot migration also adds the DevNX Control source.
+    expect(store.getSettings().visibleTaskProviders).toEqual(['gitlab', 'jira', 'devnx'])
   })
 
   it('preserves a deliberate Jira provider opt-out after migration', async () => {
@@ -530,7 +538,9 @@ describe('Store', () => {
       worktreeMeta: {},
       settings: {
         visibleTaskProviders: ['gitlab'],
-        visibleTaskProvidersDefaultedForJira: true
+        visibleTaskProvidersDefaultedForJira: true,
+        // Orca-Pit: the DevNX Control migration already ran too.
+        visibleTaskProvidersDefaultedForDevnx: true
       },
       ui: {},
       githubCache: { pr: {}, issue: {} },
@@ -584,7 +594,8 @@ describe('Store', () => {
 
     const store = await createStore()
     expect(store.getSettings().defaultTaskSource).toBe('github')
-    expect(store.getSettings().visibleTaskProviders).toEqual(['github', 'linear', 'jira'])
+    // Orca-Pit: the one-shot migration also adds the DevNX Control source.
+    expect(store.getSettings().visibleTaskProviders).toEqual(['github', 'linear', 'jira', 'devnx'])
   })
 
   it('normalizes invalid task provider defaults on load', async () => {
@@ -600,7 +611,8 @@ describe('Store', () => {
 
     const store = await createStore()
     expect(store.getSettings().defaultTaskSource).toBe('gitlab')
-    expect(store.getSettings().visibleTaskProviders).toEqual(['gitlab', 'jira'])
+    // Orca-Pit: the one-shot migration also adds the DevNX Control source.
+    expect(store.getSettings().visibleTaskProviders).toEqual(['gitlab', 'jira', 'devnx'])
   })
 
   it('normalizes persisted open-in applications on load', async () => {

@@ -14,6 +14,7 @@ import {
   type DevnxControlStatus
 } from '../../../../shared/devnx-control-types'
 import { DEVNX_PROVIDER_LABELS, DevnxControlAccountsTable } from './DevnxControlAccountsTable'
+import { refreshOrcaPitDevnxConnection } from '@/lib/orca-pit-devnx-status'
 
 // Why optional: the web client has no main process, so the bridge is absent there.
 function devnxApi(): Window['api']['devnxControl'] | null {
@@ -70,6 +71,8 @@ export function DevnxControlSection(): React.JSX.Element | null {
       return
     }
     setStatus(next)
+    // Tasks and the project link show or hide with the session.
+    void refreshOrcaPitDevnxConnection()
     for (const warning of next.warnings) {
       toast.warning(warning)
     }

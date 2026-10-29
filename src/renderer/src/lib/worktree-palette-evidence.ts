@@ -205,7 +205,13 @@ export function buildWorktreePortEvidence(
 export function buildWorktreeAttachmentEvidence(
   item: WorkspaceAttachment
 ): PaletteComposedEvidence | null {
-  if (item.type !== 'issue' && item.provider !== 'linear' && item.provider !== 'jira') {
+  // Orca-Pit: a DevNX Control task is a task, never a review.
+  if (
+    item.type !== 'issue' &&
+    item.provider !== 'linear' &&
+    item.provider !== 'jira' &&
+    item.provider !== 'devnx'
+  ) {
     return buildWorktreeReviewEvidence({
       provider: item.provider,
       number: item.number,
@@ -215,7 +221,12 @@ export function buildWorktreeAttachmentEvidence(
   if (item.provider === 'github' || item.provider === 'gitlab') {
     return buildWorktreeIssueEvidence(item)
   }
-  const identifier = item.identifier ?? item.linearIdentifier ?? item.jiraIdentifier ?? ''
+  const identifier =
+    item.identifier ??
+    item.linearIdentifier ??
+    item.jiraIdentifier ??
+    // Orca-Pit: Control tasks are matched by their #id.
+    (item.provider === 'devnx' ? `#${item.number}` : '')
   return composePaletteEvidence({
     id: `task:${identifier}`,
     kind: 'task',

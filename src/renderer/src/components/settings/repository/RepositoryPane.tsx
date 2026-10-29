@@ -30,6 +30,8 @@ import { RepositoryWindowsRuntimeSection } from './execution/RepositoryWindowsRu
 import { matchesRepositoryIdentitySearch } from './identity/repository-identity-search'
 import { RepositoryWorktreeDefaultsSection } from './execution/RepositoryWorktreeDefaultsSection'
 import { RepositoryJiraProjectSection } from './RepositoryJiraProjectSection'
+// Orca-Pit: DevNX Control project link.
+import { OrcaPitDevnxProjectSection } from './OrcaPitDevnxProjectSection'
 import { getProjectRuntimeSessionSummary } from './execution/repository-runtime-session-summary'
 import { getRepoOwnerWorktreeVisibilityDefaults } from '../../../store/worktree-visibility-defaults-by-host'
 
@@ -170,6 +172,8 @@ export function RepositoryPane({
     translate('auto.components.settings.repository.search.7e1e456a95', 'Display Name'),
     translate('auto.components.settings.repository.search.b24f00294a', 'Project Icon'),
     translate('components.RepositoryJiraProjectSection.title', 'Default Jira project'),
+    // Orca-Pit: DevNX Control project link.
+    translate('devnx.projectLink.title', 'DevNX Control project'),
     translate('auto.components.settings.repository.search.githubAccount', 'GitHub Account'),
     translate(
       'auto.components.settings.repository.search.keepForkUpToDate',
@@ -299,6 +303,14 @@ export function RepositoryPane({
 
         <RepositoryJiraProjectSection
           key={`${selectedHostId}:${repo.id}`}
+          repo={repo}
+          updateRepo={updateSelectedRepo}
+          forceVisible={forceFullPaneForRepoMatch}
+        />
+
+        {/* Orca-Pit: right below the Jira default, the DevNX Control project link. */}
+        <OrcaPitDevnxProjectSection
+          key={`devnx:${selectedHostId}:${repo.id}`}
           repo={repo}
           updateRepo={updateSelectedRepo}
           forceVisible={forceFullPaneForRepoMatch}

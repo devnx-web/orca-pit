@@ -5,6 +5,8 @@ import { sanitizeRepoIcon } from '../../../../shared/repo-icon'
 import { normalizeRepoBadgeColor } from '../../../../shared/repo-badge-color'
 import { normalizeGhAccountBinding } from '../../../../shared/github/account-binding'
 import { normalizeJiraProjectReference } from '../../../../shared/jira/jira-project-reference'
+// Orca-Pit: DevNX Control project link.
+import { normalizeDevnxControlProjectReference } from '../../../../shared/orca-pit-devnx-tasks'
 import {
   findRepoForHost,
   getRepoHostIdentityForParts,
@@ -29,6 +31,15 @@ export function sanitizeRepoUpdate(updates: RepoUpdate): RepoUpdate {
       delete sanitized.defaultJiraProject
     } else {
       sanitized.defaultJiraProject = reference
+    }
+  }
+  // Orca-Pit: DevNX Control project link, same rules as the Jira default.
+  if ('devnxControlProject' in sanitized) {
+    const reference = normalizeDevnxControlProjectReference(sanitized.devnxControlProject)
+    if (reference === undefined) {
+      delete sanitized.devnxControlProject
+    } else {
+      sanitized.devnxControlProject = reference
     }
   }
   if ('badgeColor' in sanitized) {

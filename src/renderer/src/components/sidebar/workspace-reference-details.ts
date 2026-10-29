@@ -125,7 +125,13 @@ export function workspaceReferenceReview(
   item: WorkspaceAttachment,
   details: WorkspaceReferenceDetails | undefined
 ): WorktreeCardPrDisplay | null {
-  if (item.provider === 'linear' || item.provider === 'jira' || item.type === 'issue') {
+  // Orca-Pit: a DevNX Control task is never a review.
+  if (
+    item.provider === 'linear' ||
+    item.provider === 'jira' ||
+    item.provider === 'devnx' ||
+    item.type === 'issue'
+  ) {
     return null
   }
   return (

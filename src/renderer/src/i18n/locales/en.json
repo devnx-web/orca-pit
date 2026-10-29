@@ -23114,6 +23114,63 @@
       "home": "Home folder",
       "root": "Root",
       "free": "{{value0}} free"
+    },
+    "projectLink": {
+      "description": "Tasks of this Control project appear under Tasks, and workspaces created from them are linked to the task.",
+      "empty": "No projects found.",
+      "none": "Not linked",
+      "saveFailed": "Could not save the DevNX Control project.",
+      "search": "Search Control projects",
+      "suggestedName": "Suggested: similar name",
+      "suggestedRemote": "Suggested: same git repository",
+      "title": "DevNX Control project",
+      "useSuggestion": "Use suggestion"
+    },
+    "tasks": {
+      "back": "DevNX Control tasks",
+      "checking": "Checking DevNX Control…",
+      "column": {
+        "assignee": "Assignee",
+        "dueDate": "Due",
+        "priority": "Priority",
+        "status": "Status",
+        "title": "Task"
+      },
+      "empty": "No tasks match these filters.",
+      "filter": {
+        "all": "All",
+        "open": "Open"
+      },
+      "loadingTask": "Loading task…",
+      "mine": "Mine",
+      "noDescription": "This task has no description.",
+      "noLink": "No Orca project is linked to a DevNX Control project yet. Choose it in the project settings, under “DevNX Control project”.",
+      "noUrl": "The DevNX Control did not send a link for this task, so it cannot be linked.",
+      "openAccounts": "Open Accounts",
+      "openInControl": "Open in DevNX Control",
+      "openProjectSettings": "Open project settings",
+      "openWorkspace": "Open workspace",
+      "priority": {
+        "high": "High",
+        "low": "Low",
+        "medium": "Medium",
+        "urgent": "Urgent"
+      },
+      "providerDescription": "Browse the tasks of the linked DevNX Control project and start workspaces from them.",
+      "providerLabel": "DevNX Control",
+      "refresh": "Refresh",
+      "search": "Search tasks",
+      "signIn": "Sign in to DevNX Control under Settings → Accounts to see its tasks here.",
+      "startWorkspace": "Start workspace",
+      "status": {
+        "blocked": "Blocked",
+        "cancelled": "Cancelled",
+        "completed": "Completed",
+        "inProgress": "In progress",
+        "pending": "Pending",
+        "review": "In review"
+      },
+      "unassigned": "Unassigned"
     }
   }
 }
