@@ -268,7 +268,12 @@ describe('Dashboard and retained sidebar destination contract', () => {
         activeTabType: 'editor'
       })
       expect(effects.composerFocus).not.toHaveBeenCalled()
-      expect(effects.rpc).not.toHaveBeenCalled()
+      // Orca-Pit: the sidebar's author/presence poll (orcaPit.*) runs on its own, not from the click.
+      expect(
+        (effects.rpc.mock.calls as unknown[][]).filter(
+          (call) => !String(call[1]).startsWith('orcaPit.')
+        )
+      ).toEqual([])
       expect(effects.environmentCall).not.toHaveBeenCalled()
     }
   )
