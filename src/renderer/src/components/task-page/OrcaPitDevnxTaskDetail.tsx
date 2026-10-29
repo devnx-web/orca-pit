@@ -7,7 +7,8 @@ import type { DevnxControlTaskDetail } from '../../../../shared/orca-pit-devnx-t
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import { useAllWorktrees } from '@/store/selectors'
-import { orcaPitDevnxApi } from '@/lib/orca-pit-devnx-status'
+import { devnxFailureText } from '@/lib/orca-pit-devnx-status'
+import { devnxTargetOfKey, getDevnxTask } from '@/runtime/orca-pit-devnx-client'
 import {
   findDevnxTaskWorkspace,
   openDevnxTaskInControl,
@@ -22,34 +23,26 @@ import {
 } from '@/lib/orca-pit-devnx-task-labels'
 import { cn } from '@/lib/utils'
 
-function useDevnxTask(taskId: number) {
+function useDevnxTask(taskId: number, targetKey: string | null) {
   const [task, setTask] = useState<DevnxControlTaskDetail | null>(null)
   const [error, setError] = useState<string | null>(null)
   useEffect(() => {
-    const api = orcaPitDevnxApi()
-    if (!api) {
+    if (!targetKey) {
       return
     }
     let cancelled = false
     setTask(null)
     setError(null)
-    void api.getTask(taskId).then(
-      (result) => {
-        if (!cancelled) {
-          setTask(result.ok ? result.value : null)
-          setError(result.ok ? null : result.error)
-        }
-      },
-      (caught: unknown) => {
-        if (!cancelled) {
-          setError(String(caught))
-        }
+    void getDevnxTask(devnxTargetOfKey(targetKey), taskId).then((result) => {
+      if (!cancelled) {
+        setTask(result.ok ? result.value : null)
+        setError(result.ok ? null : devnxFailureText(result))
       }
-    )
+    })
     return () => {
       cancelled = true
     }
-  }, [taskId])
+  }, [targetKey, taskId])
   return { task, error }
 }
 
@@ -65,13 +58,16 @@ function Fact({ label, value }: { label: string; value: string }): React.JSX.Ele
 export function OrcaPitDevnxTaskDetail({
   taskId,
   repo,
+  targetKey,
   onBack
 }: {
   taskId: number
   repo: Repo | null
+  /** The host that reads the Control for this person (devnxTargetKey). */
+  targetKey: string | null
   onBack: () => void
 }): React.JSX.Element {
-  const { task, error } = useDevnxTask(taskId)
+  const { task, error } = useDevnxTask(taskId, targetKey)
   const workspaces = useAllWorktrees()
   const existing = findDevnxTaskWorkspace(taskId, workspaces)
   return (

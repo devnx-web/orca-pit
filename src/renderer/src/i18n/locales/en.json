@@ -23124,7 +23124,8 @@
       "suggestedName": "Suggested: similar name",
       "suggestedRemote": "Suggested: same git repository",
       "title": "DevNX Control project",
-      "useSuggestion": "Use suggestion"
+      "useSuggestion": "Use suggestion",
+      "adminOnly": "Only an administrator of the company in DevNX Control can change this link."
     },
     "tasks": {
       "back": "DevNX Control tasks",
@@ -23170,7 +23171,10 @@
         "pending": "Pending",
         "review": "In review"
       },
-      "unassigned": "Unassigned"
-    }
+      "unassigned": "Unassigned",
+      "hostNotConnected": "The Orca that holds this project is not connected to DevNX Control."
+    },
+    "signInAgain": "Your DevNX Control sign-in has ended. Sign in again to see its projects and tasks.",
+    "unavailable": "DevNX Control did not answer."
   }
 }

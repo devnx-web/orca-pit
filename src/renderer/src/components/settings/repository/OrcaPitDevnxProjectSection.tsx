@@ -9,7 +9,13 @@ import type {
 } from '../../../../../shared/orca-pit-devnx-tasks'
 import { getRepoExecutionHostId } from '../../../../../shared/execution-host'
 import { useAppStore } from '@/store/index'
-import { orcaPitDevnxApi, useOrcaPitDevnxConnection } from '@/lib/orca-pit-devnx-status'
+import { devnxFailureText, useOrcaPitDevnxConnection } from '@/lib/orca-pit-devnx-status'
+import {
+  devnxTargetForRepo,
+  devnxTargetKey,
+  devnxTargetOfKey,
+  listDevnxProjects
+} from '@/runtime/orca-pit-devnx-client'
 import { Button } from '../../ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui/popover'
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '../../ui/command'
@@ -21,35 +27,27 @@ type ProjectsState =
   | { status: 'ready'; list: DevnxControlProjectList }
   | { status: 'error'; error: string }
 
-function useControlProjects(repoId: string, enabled: boolean): ProjectsState {
+function useControlProjects(targetKey: string | null, repoId: string, enabled: boolean) {
   const [state, setState] = useState<ProjectsState>({ status: 'loading' })
   useEffect(() => {
-    const api = orcaPitDevnxApi()
-    if (!enabled || !api) {
+    if (!enabled || !targetKey) {
       return
     }
     let cancelled = false
     setState({ status: 'loading' })
-    void api.listProjects({ repoId }).then(
-      (result) => {
-        if (!cancelled) {
-          setState(
-            result.ok
-              ? { status: 'ready', list: result.value }
-              : { status: 'error', error: result.error }
-          )
-        }
-      },
-      (error: unknown) => {
-        if (!cancelled) {
-          setState({ status: 'error', error: String(error) })
-        }
+    void listDevnxProjects(devnxTargetOfKey(targetKey), { repoId }).then((result) => {
+      if (!cancelled) {
+        setState(
+          result.ok
+            ? { status: 'ready', list: result.value }
+            : { status: 'error', error: devnxFailureText(result) }
+        )
       }
-    )
+    })
     return () => {
       cancelled = true
     }
-  }, [enabled, repoId])
+  }, [enabled, repoId, targetKey])
   return state
 }
 
@@ -65,8 +63,14 @@ export function OrcaPitDevnxProjectSection({
   ) => unknown
   forceVisible?: boolean
 }): React.JSX.Element | null {
-  const connection = useOrcaPitDevnxConnection()
-  const projects = useControlProjects(repo.id, connection.connected)
+  // The host that owns the project answers, with the person's own Control login.
+  const target = devnxTargetForRepo(repo)
+  const connection = useOrcaPitDevnxConnection(target)
+  const projects = useControlProjects(
+    target ? devnxTargetKey(target) : null,
+    repo.id,
+    connection.connected && connection.canLink
+  )
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -101,6 +105,32 @@ export function OrcaPitDevnxProjectSection({
   }
   const label = translate('devnx.projectLink.title', 'DevNX Control project')
   const noneLabel = translate('devnx.projectLink.none', 'Not linked')
+  const description = translate(
+    'devnx.projectLink.description',
+    'Tasks of this Control project appear under Tasks, and workspaces created from them are linked to the task.'
+  )
+  const keywords = ['devnx', 'control', 'project', 'task', repo.displayName]
+  if (!connection.canLink) {
+    // A member sees the link; the Control's admins decide where the team's work is counted.
+    return (
+      <SearchableSetting
+        title={label}
+        description={description}
+        keywords={keywords}
+        forceVisible={forceVisible}
+        className="space-y-2"
+      >
+        <p className="text-sm font-semibold">{label}</p>
+        <p className="text-sm">{value ? value.name : noneLabel}</p>
+        <p className="text-xs text-muted-foreground">
+          {translate(
+            'devnx.projectLink.adminOnly',
+            'Only an administrator of the company in DevNX Control can change this link.'
+          )}
+        </p>
+      </SearchableSetting>
+    )
+  }
   const suggestionLabel =
     list?.suggestionReason === 'remote'
       ? translate('devnx.projectLink.suggestedRemote', 'Suggested: same git repository')
@@ -108,11 +138,8 @@ export function OrcaPitDevnxProjectSection({
   return (
     <SearchableSetting
       title={label}
-      description={translate(
-        'devnx.projectLink.description',
-        'Tasks of this Control project appear under Tasks, and workspaces created from them are linked to the task.'
-      )}
-      keywords={['devnx', 'control', 'project', 'task', repo.displayName]}
+      description={description}
+      keywords={keywords}
       forceVisible={forceVisible}
       className="space-y-2"
     >

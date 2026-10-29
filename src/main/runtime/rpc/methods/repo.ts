@@ -34,6 +34,8 @@ import {
   RepoUpdate
 } from '../../../../shared/rpc-contract/repo-params'
 import { RepoAddRemote } from '../../../../shared/rpc-contract/ssh-params'
+// Orca-Pit: only an admin links a project to the DevNX Control.
+import { assertOrcaPitMayChangeRepoLink } from '../../../devnx-control/orca-pit-devnx-link-guard'
 
 export const REPO_METHODS = [
   defineMethod({
@@ -189,15 +191,19 @@ export const REPO_METHODS = [
     name: 'repo.update',
     permission: 'workspace',
     params: RepoUpdate,
-    handler: async (params, context) => ({
-      repo: projectRepoVisibilityForClient(
-        await context.runtime.updateRepo(
-          params.repo,
-          params.updates as Parameters<typeof context.runtime.updateRepo>[1]
-        ),
-        context
-      )
-    })
+    handler: async (params, context) => {
+      // Orca-Pit: a member may not move the project's DevNX Control link.
+      assertOrcaPitMayChangeRepoLink(params.updates, context)
+      return {
+        repo: projectRepoVisibilityForClient(
+          await context.runtime.updateRepo(
+            params.repo,
+            params.updates as Parameters<typeof context.runtime.updateRepo>[1]
+          ),
+          context
+        )
+      }
+    }
   }),
   defineMethod({
     name: 'repo.rm',

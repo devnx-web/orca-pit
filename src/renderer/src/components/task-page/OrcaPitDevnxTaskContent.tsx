@@ -16,7 +16,16 @@ import {
 import { translate } from '@/i18n/i18n'
 import { useAppStore } from '@/store'
 import { cn } from '@/lib/utils'
-import { useOrcaPitDevnxConnection } from '@/lib/orca-pit-devnx-status'
+import {
+  devnxFailureText,
+  hasLocalDevnxControlBridge,
+  useOrcaPitDevnxConnection
+} from '@/lib/orca-pit-devnx-status'
+import {
+  devnxDefaultTarget,
+  devnxTargetForRepo,
+  devnxTargetKey
+} from '@/runtime/orca-pit-devnx-client'
 import {
   devnxTaskDueDateLabel,
   devnxTaskPriorityLabel,
@@ -54,7 +63,6 @@ export function OrcaPitDevnxTaskContent({
 }: {
   model: TaskPageComposerActionsModel
 }): React.JSX.Element {
-  const connection = useOrcaPitDevnxConnection()
   const openSettingsPage = useAppStore((s) => s.openSettingsPage)
   const openSettingsTarget = useAppStore((s) => s.openSettingsTarget)
   // Each Cmd+J open is a new taskPageData, so going back dismisses only that one request.
@@ -62,34 +70,54 @@ export function OrcaPitDevnxTaskContent({
   const projects = getDevnxLinkedProjects(model.selectedRepos, model.repos)
   const [chosenProjectId, setChosenProjectId] = useState<number | null>(null)
   const project = projects.find((entry) => entry.id === chosenProjectId) ?? projects[0] ?? null
-  const list = useOrcaPitDevnxTasks(connection.connected ? (project?.id ?? null) : null)
+  const repo = project?.repos[0] ?? model.selectedRepos[0] ?? null
+  // The host that owns the Orca project reads the Control, with this person's own login.
+  const target = repo ? devnxTargetForRepo(repo) : devnxDefaultTarget()
+  const targetKey = target ? devnxTargetKey(target) : null
+  const connection = useOrcaPitDevnxConnection(target)
+  const list = useOrcaPitDevnxTasks(connection.connected ? (project?.id ?? null) : null, targetKey)
   const [openedTaskId, setOpenedTaskId] = useState<number | null>(null)
   const [dismissedPage, setDismissedPage] = useState<object | null>(null)
   const detailTaskId =
     openedTaskId ?? (pageData !== dismissedPage ? (pageData.openDevnxTaskId ?? null) : null)
-  const repo = project?.repos[0] ?? model.selectedRepos[0] ?? null
 
   if (connection.checking) {
     return <Notice text={translate('devnx.tasks.checking', 'Checking DevNX Control…')} />
   }
+  if (connection.needsLogin) {
+    return <Notice text={devnxFailureText({ code: 'relogin', error: '' })} />
+  }
   if (!connection.connected) {
+    // Only this app's own window signs the machine in; elsewhere the central's admin does.
+    const local = target?.kind === 'local' && hasLocalDevnxControlBridge()
     return (
       <Notice
-        text={translate(
-          'devnx.tasks.signIn',
-          'Sign in to DevNX Control under Settings → Accounts to see its tasks here.'
-        )}
-        action={{
-          label: translate('devnx.tasks.openAccounts', 'Open Accounts'),
-          onClick: () => {
-            openSettingsPage()
-            openSettingsTarget({
-              pane: 'accounts',
-              repoId: null,
-              sectionId: 'accounts-devnx-control'
-            })
-          }
-        }}
+        text={
+          local
+            ? translate(
+                'devnx.tasks.signIn',
+                'Sign in to DevNX Control under Settings → Accounts to see its tasks here.'
+              )
+            : translate(
+                'devnx.tasks.hostNotConnected',
+                'The Orca that holds this project is not connected to DevNX Control.'
+              )
+        }
+        action={
+          local
+            ? {
+                label: translate('devnx.tasks.openAccounts', 'Open Accounts'),
+                onClick: () => {
+                  openSettingsPage()
+                  openSettingsTarget({
+                    pane: 'accounts',
+                    repoId: null,
+                    sectionId: 'accounts-devnx-control'
+                  })
+                }
+              }
+            : undefined
+        }
       />
     )
   }
@@ -98,6 +126,7 @@ export function OrcaPitDevnxTaskContent({
       <OrcaPitDevnxTaskDetail
         taskId={detailTaskId}
         repo={repo}
+        targetKey={targetKey}
         onBack={() => {
           setOpenedTaskId(null)
           setDismissedPage(pageData)

@@ -8,7 +8,8 @@ import {
   type DevnxControlTask,
   type DevnxTaskStatus
 } from '../../../../shared/orca-pit-devnx-tasks'
-import { orcaPitDevnxApi } from '@/lib/orca-pit-devnx-status'
+import { devnxFailureText } from '@/lib/orca-pit-devnx-status'
+import { devnxTargetOfKey, listDevnxTasks } from '@/runtime/orca-pit-devnx-client'
 
 export type DevnxStatusFilter = 'open' | 'all' | DevnxTaskStatus
 
@@ -40,7 +41,8 @@ export function devnxStatusesForFilter(filter: DevnxStatusFilter): readonly stri
   return filter === 'open' ? DEVNX_OPEN_TASK_STATUSES : filter === 'all' ? [] : [filter]
 }
 
-export function useOrcaPitDevnxTasks(projectId: number | null) {
+/** `targetKey` names the host that owns the linked Orca project (devnxTargetKey). */
+export function useOrcaPitDevnxTasks(projectId: number | null, targetKey: string | null) {
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<DevnxStatusFilter>('open')
@@ -58,31 +60,26 @@ export function useOrcaPitDevnxTasks(projectId: number | null) {
   const statuses = useMemo(() => devnxStatusesForFilter(statusFilter), [statusFilter])
 
   useEffect(() => {
-    const api = orcaPitDevnxApi()
-    if (!api || projectId === null) {
+    if (projectId === null || targetKey === null) {
       setTasks([])
       return
     }
     let cancelled = false
     setLoading(true)
     setError(null)
-    void api
-      .listTasks({ projectId, search: debouncedSearch, statuses, mine, limit: LIST_LIMIT })
-      .then(
-        (result) => {
-          if (cancelled) {
-            return
-          }
+    void listDevnxTasks(devnxTargetOfKey(targetKey), {
+      projectId,
+      search: debouncedSearch,
+      statuses,
+      mine,
+      limit: LIST_LIMIT
+    })
+      .then((result) => {
+        if (!cancelled) {
           setTasks(result.ok ? result.value : [])
-          setError(result.ok ? null : result.error)
-        },
-        (caught: unknown) => {
-          if (!cancelled) {
-            setTasks([])
-            setError(String(caught))
-          }
+          setError(result.ok ? null : devnxFailureText(result))
         }
-      )
+      })
       .finally(() => {
         if (!cancelled) {
           setLoading(false)
@@ -91,7 +88,7 @@ export function useOrcaPitDevnxTasks(projectId: number | null) {
     return () => {
       cancelled = true
     }
-  }, [debouncedSearch, mine, nonce, projectId, statuses])
+  }, [debouncedSearch, mine, nonce, projectId, statuses, targetKey])
 
   return {
     search,

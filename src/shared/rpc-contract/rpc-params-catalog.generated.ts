@@ -437,6 +437,11 @@ import {
   NotificationsSubscribeParams
 } from './notifications-params'
 import {
+  OrcaPitDevnxProjectsParams,
+  OrcaPitDevnxTaskParams,
+  OrcaPitDevnxTasksParams
+} from './orca-pit-devnx-params'
+import {
   OrcadMigrationCatalogParams,
   OrcadMigrationCatalogReferenceParams,
   OrcadMigrationCommitCatalogParams
@@ -1231,6 +1236,10 @@ export const RPC_PARAMS_BY_METHOD = {
   'notifications.unregisterPush': null,
   'notifications.unsubscribe': NotificationUnsubscribeParams,
   'orcaPit.agentAuthors': null,
+  'orcaPit.devnxProjects': OrcaPitDevnxProjectsParams,
+  'orcaPit.devnxStatus': null,
+  'orcaPit.devnxTask': OrcaPitDevnxTaskParams,
+  'orcaPit.devnxTasks': OrcaPitDevnxTasksParams,
   'orcad.migration.abortCatalog': OrcadMigrationCatalogParams,
   'orcad.migration.abortCatalogByReference': OrcadMigrationCatalogReferenceParams,
   'orcad.migration.catalogState': OrcadMigrationCatalogParams,

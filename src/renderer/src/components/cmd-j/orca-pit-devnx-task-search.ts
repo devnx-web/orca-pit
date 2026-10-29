@@ -7,7 +7,9 @@ import {
 } from '../../../../shared/orca-pit-devnx-tasks'
 import { normalizeTaskSourceContext } from '../../../../shared/task-source-context'
 import { useAppStore } from '@/store'
-import { isOrcaPitDevnxConnected, orcaPitDevnxApi } from '@/lib/orca-pit-devnx-status'
+import { devnxFailureText, peekOrcaPitDevnxConnection } from '@/lib/orca-pit-devnx-status'
+import { devnxTargetForRepo, listDevnxTasks } from '@/runtime/orca-pit-devnx-client'
+import { getRepoExecutionHostId } from '../../../../shared/execution-host'
 import { startWorkspaceFromDevnxTask } from '@/lib/orca-pit-devnx-task-actions'
 import { getTaskPageRepoSourceContext } from '../task-page/task-page-source-context'
 import type { CmdJTaskSearchResult } from './task-search-results'
@@ -33,22 +35,26 @@ export function createDevnxCmdJTaskSearchRequests(args: {
     hostLabel: string
   ) => CmdJTaskSearchResult
 }): DevnxRequest[] {
-  const api = orcaPitDevnxApi()
-  if (!api || !isOrcaPitDevnxConnected()) {
-    return []
-  }
   const seen = new Set<number>()
   const requests: DevnxRequest[] = []
   for (const repo of args.repos) {
     const project = repo.devnxControlProject
-    if (!project || seen.has(project.id)) {
+    const target = devnxTargetForRepo(repo)
+    // A host already known to have no Control session (or a stale login) is not asked.
+    const known = target ? peekOrcaPitDevnxConnection(target) : null
+    if (
+      !project ||
+      !target ||
+      seen.has(project.id) ||
+      (known && !known.checking && (!known.connected || known.needsLogin))
+    ) {
       continue
     }
     seen.add(project.id)
     const source = normalizeTaskSourceContext({
       provider: 'devnx',
       projectId: getTaskPageRepoSourceContext(repo, 'github')?.projectId ?? repo.id,
-      hostId: 'local',
+      hostId: getRepoExecutionHostId(repo),
       repoId: repo.id,
       providerIdentity: { provider: 'devnx', controlProjectId: String(project.id) },
       accountLabel: project.name
@@ -64,14 +70,17 @@ export function createDevnxCmdJTaskSearchRequests(args: {
         if (args.signal.aborted) {
           return []
         }
-        const result = await api.listTasks({
+        const result = await listDevnxTasks(target, {
           projectId: project.id,
           search: args.query,
           statuses: DEVNX_OPEN_TASK_STATUSES,
           limit: args.limit
         })
         if (!result.ok) {
-          throw new Error(result.error)
+          if (result.code === 'not_connected') {
+            return []
+          }
+          throw new Error(devnxFailureText(result))
         }
         return result.value.flatMap((task) =>
           task.url

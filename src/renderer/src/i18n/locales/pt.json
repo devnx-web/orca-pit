@@ -23126,7 +23126,8 @@
       "suggestedName": "Sugestão: nome parecido",
       "suggestedRemote": "Sugestão: mesmo repositório git",
       "title": "Projeto do DevNX Control",
-      "useSuggestion": "Usar sugestão"
+      "useSuggestion": "Usar sugestão",
+      "adminOnly": "Só um administrador da empresa no DevNX Control pode trocar este vínculo."
     },
     "tasks": {
       "back": "Tarefas do DevNX Control",
@@ -23172,7 +23173,10 @@
         "pending": "Pendente",
         "review": "Em revisão"
       },
-      "unassigned": "Sem responsável"
-    }
+      "unassigned": "Sem responsável",
+      "hostNotConnected": "O Orca onde está este projeto não está conectado ao DevNX Control."
+    },
+    "signInAgain": "Sua sessão do DevNX Control acabou. Entre de novo para ver os projetos e as tarefas.",
+    "unavailable": "O DevNX Control não respondeu."
   }
 }

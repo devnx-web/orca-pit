@@ -12,9 +12,6 @@ export const devnxControlApi = {
   getInstalledRelease: () => ipcRenderer.invoke('devnxControl:getInstalledRelease'),
   checkForUpdate: () => ipcRenderer.invoke('devnxControl:checkForUpdate'),
   installUpdate: () => ipcRenderer.invoke('devnxControl:installUpdate'),
-  listProjects: (input) => ipcRenderer.invoke('devnxControl:listProjects', input),
-  listTasks: (query) => ipcRenderer.invoke('devnxControl:listTasks', query),
-  getTask: (taskId) => ipcRenderer.invoke('devnxControl:getTask', taskId),
   onOpenUpdates: (callback) => {
     const listener = (): void => callback()
     ipcRenderer.on('devnxControl:openUpdates', listener)

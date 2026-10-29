@@ -4,9 +4,12 @@ import { basename } from 'node:path'
 import { splitWorktreeId } from '../../shared/worktree/id'
 import type { RpcCallerIdentity } from '../runtime/rpc/rpc-caller-identity'
 import { mainProcessState as state } from '../startup/main-process-state'
-import { isRecord } from './devnx-control-http'
 import { pairedDeviceName } from './orca-pit-activity-control'
 import { orcaPitUserForDevice } from './orca-pit-identity'
+import {
+  devnxControlLinkForWorkspace,
+  type OrcaPitWorkspaceLinkStore
+} from './orca-pit-workspace-link'
 
 export type OrcaPitActor = {
   userId: number | null
@@ -66,67 +69,22 @@ export function actorForCaller(caller: RpcCallerIdentity | undefined): OrcaPitAc
   }
 }
 
-function positiveInt(value: unknown): number | null {
-  const parsed = typeof value === 'string' ? Number(value) : value
-  return typeof parsed === 'number' && Number.isInteger(parsed) && parsed > 0 ? parsed : null
-}
-
-function linkedId(source: unknown, keys: readonly string[]): number | null {
-  if (!isRecord(source)) {
-    return null
-  }
-  for (const key of keys) {
-    const value = source[key]
-    const direct = positiveInt(value)
-    if (direct !== null) {
-      return direct
-    }
-    if (isRecord(value)) {
-      const nested = positiveInt(value.id)
-      if (nested !== null) {
-        return nested
-      }
-    }
-  }
-  return null
-}
-
-// Why defensive: the project/task link is added by another change; any of these names works
-// and an absent link leaves both ids null.
-const PROJECT_LINK_KEYS = [
-  'orcaPitControlProject',
-  'orcaPitControlProjectId',
-  'devnxControlProject',
-  'devnxControlProjectId'
-]
-const TASK_LINK_KEYS = [
-  'orcaPitControlTask',
-  'orcaPitControlTaskId',
-  'devnxControlTask',
-  'devnxControlTaskId'
-]
-
-export function readControlLink(
-  repo: unknown,
-  meta: unknown
-): Pick<OrcaPitWorkspaceContext, 'project_id' | 'task_id'> {
-  return {
-    project_id: linkedId(meta, PROJECT_LINK_KEYS) ?? linkedId(repo, PROJECT_LINK_KEYS),
-    task_id: linkedId(meta, TASK_LINK_KEYS)
-  }
-}
-
-export function workspaceContext(worktreeId: string | null | undefined): OrcaPitWorkspaceContext {
-  const store = state.store
+export function workspaceContext(
+  worktreeId: string | null | undefined,
+  store: OrcaPitWorkspaceLinkStore | null = state.store
+): OrcaPitWorkspaceContext {
   const parsed = worktreeId ? splitWorktreeId(worktreeId) : null
   if (!store || !worktreeId || !parsed) {
     return EMPTY_WORKSPACE_CONTEXT
   }
   const repo = store.getRepo(parsed.repoId)
   const meta = store.getWorktreeMeta(worktreeId)
+  // The project picked in the project's settings and the Control card linked to the workspace.
+  const link = devnxControlLinkForWorkspace(worktreeId, store)
   return {
     orca_project: repo?.displayName || (repo ? basename(repo.path) : '') || null,
     workspace: meta?.displayName || basename(parsed.worktreePath) || null,
-    ...readControlLink(repo, meta)
+    project_id: link.projectId,
+    task_id: link.taskId
   }
 }

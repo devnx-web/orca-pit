@@ -16,7 +16,6 @@ import {
   getDevnxControlService,
   type DevnxControlService
 } from '../devnx-control/devnx-control-service'
-import { registerOrcaPitTaskHandlers } from '../devnx-control/orca-pit-tasks-ipc'
 
 const DISCONNECTED_STATUS: DevnxControlStatus = {
   connected: false,
@@ -83,7 +82,6 @@ export function registerDevnxControlHandlers(): void {
       return service.selectAccount(normalized, accountId.trim())
     })
   )
-  registerOrcaPitTaskHandlers()
   ipcMain.handle('devnxControl:getInstalledRelease', () => getInstalledRelease())
   // Why: About is a native panel set once at startup; refresh it when dpkg names the release.
   void getInstalledRelease().then(() => updateGpuAccelerationAboutPanel())
