@@ -50,6 +50,7 @@ import { CLIPBOARD_METHODS } from './clipboard'
 import { HOST_CAPABILITY_METHODS } from './host-capabilities'
 import { MOBILE_WEB_BUNDLE_METHODS } from './mobile-web-bundle'
 import { RUNTIME_CLIENT_CAPABILITY_METHODS } from './runtime-client-capabilities'
+import { ORCA_PIT_ACTIVITY_METHODS } from '../../../devnx-control/orca-pit-activity-rpc'
 import { EMULATOR_METHODS } from './emulator'
 import { PAIRING_METHODS } from './pairing'
 import { MOBILE_RELAY_HOSTS_METHODS } from './mobile-relay-hosts'
@@ -147,5 +148,7 @@ export const ALL_RPC_METHODS = [
   // Switch point: a window-fed build publishes no sidebar input.
   ...(ORCA_SIDEBAR_INPUTS_IS_MAIN ? SIDEBAR_INPUT_METHODS : []),
   ...UPDATER_METHODS,
-  ...AUTOMATIC_WORK_METHODS
+  ...AUTOMATIC_WORK_METHODS,
+  // Orca-Pit: who sent the last command to each agent pane, for the sidebar rows.
+  ...ORCA_PIT_ACTIVITY_METHODS
 ]

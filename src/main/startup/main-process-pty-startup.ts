@@ -1,5 +1,6 @@
 import { app } from 'electron'
 import { startDevnxControlService } from '../devnx-control/devnx-control-service'
+import { startOrcaPitActivity } from '../devnx-control/orca-pit-activity'
 import { parseWorkspaceKey } from '../../shared/workspace-scope'
 import { isLocalExecutionHost } from '../../shared/execution-host'
 import { classifyError } from '../telemetry/classify-error'
@@ -182,6 +183,8 @@ export function startTerminalRuntimeStartupServices(): WindowsDesktopStartupServ
       })
       // Orca-Pit: terminals read the DevNX broker URL at spawn, so it must listen before restore.
       await startDevnxControlService(app.getPath('userData'), app.isPackaged)
+      // Orca-Pit: the activity diary follows agent rows from this server for start/stop.
+      startOrcaPitActivity(app.getPath('userData'), agentHookServer)
       logStartupMilestone('startup-service-done', { service: 'agent-hook-server' })
     },
     onDaemonError: (error) => {

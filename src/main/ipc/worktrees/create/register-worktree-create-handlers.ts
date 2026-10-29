@@ -33,6 +33,7 @@ import { workspaceLifecycleKey } from '../../../runtime/workspaces/workspace-lif
 import type { WorktreeIpcContext } from '../worktree-ipc-context'
 import { beginWorkspaceCreateTelemetry } from '../../../workspace-create-telemetry'
 import { assertWslMoveRepoWritable } from '../../../persistence/moving-wsl-projects/wsl-move-scope-guard'
+import { recordOrcaPitDesktopWorkspaceCreated } from '../../../devnx-control/orca-pit-activity-hooks'
 
 export function registerWorktreeCreateHandlers(context: WorktreeIpcContext): void {
   const { mainWindow, store, runtime, options } = context
@@ -110,6 +111,8 @@ export function registerWorktreeCreateHandlers(context: WorktreeIpcContext): voi
         }
 
         telemetry.succeeded(result.timing)
+        // Orca-Pit: signs the new workspace in the activity diary.
+        recordOrcaPitDesktopWorkspaceCreated(result.worktree.id)
 
         if (isFolderRepo(repo)) {
           notifyWorktreesChanged(mainWindow, repo.id)

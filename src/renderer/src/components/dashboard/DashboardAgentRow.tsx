@@ -35,6 +35,7 @@ import {
 } from '@/components/agent-child-row-text'
 import { translate } from '@/i18n/i18n'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
+import { OrcaPitAgentAuthor } from '@/components/sidebar/OrcaPitAgentAuthor'
 
 function formatTimeAgo(ts: number, now: number): string {
   const delta = now - ts
@@ -316,6 +317,12 @@ const DashboardAgentRow = React.memo(function DashboardAgentRow({
         >
           {displayLabel}
         </span>
+        {/* Orca-Pit: who sent the last command to this agent. */}
+        <OrcaPitAgentAuthor
+          paneKey={agent.paneKey}
+          worktreeId={agent.tab.worktreeId}
+          highlighted={highlighted}
+        />
         {model && (
           <span
             className={cn(

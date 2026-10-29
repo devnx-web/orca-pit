@@ -14,6 +14,7 @@ import { LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
 import type { TerminalInputKind } from '../../../../shared/terminal-input-kind'
 import { interactiveOutputCharsByPty, lastInputAtByPty } from '../delivery/visibility-state'
 import { isSettledWrite, type WriteSettlement } from '../../../../shared/pty-write-settlement'
+import { observeOrcaPitDesktopInput } from '../../../devnx-control/orca-pit-activity-hooks'
 
 export function isMainWindowPtyIpcEvent(
   event: IpcMainEvent | IpcMainInvokeEvent,
@@ -212,6 +213,10 @@ export function createPtyWriteInput(deps: {
     interactiveOutputCharsByPty.set(args.id, 0)
     runtime?.terminalRunFacts?.recordInput(args.id, args.inputKind, args.data)
     runtime?.noteRemoteDesktopHostInput(args.id, args.inputKind, args.data)
+    if (args.inputKind === 'driving') {
+      // Orca-Pit: this window's typing, for the activity diary's Enter-terminated lines.
+      observeOrcaPitDesktopInput(runtime, args.id, args.data)
+    }
   }
 
   const writeAndObserveInput = (

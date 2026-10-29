@@ -14,6 +14,7 @@ import { installMultiplexCleanup } from './terminal-multiplex-cleanup'
 import { installMultiplexSlotFrames } from './terminal-multiplex-slot-frames'
 import { installMultiplexSubscribeFrame } from './terminal-multiplex-subscribe-frame'
 import { createMultiplexPtyWaitAdmission } from './terminal-multiplex-pty-wait-admission'
+import { tagOrcaPitMultiplexCaller } from '../../../../devnx-control/orca-pit-activity-hooks'
 
 export const TERMINAL_MULTIPLEX_METHODS = [
   defineStreamingMethod({
@@ -22,7 +23,7 @@ export const TERMINAL_MULTIPLEX_METHODS = [
     params: TerminalMultiplex,
     handler: async (
       _params,
-      { runtime, connectionId, sendBinary, registerBinaryStreamHandler, signal },
+      { runtime, connectionId, sendBinary, registerBinaryStreamHandler, signal, caller },
       emit
     ) => {
       if (!sendBinary || !registerBinaryStreamHandler || !connectionId) {
@@ -57,6 +58,8 @@ export const TERMINAL_MULTIPLEX_METHODS = [
         unregisterControlHandler: () => {}
       } as TerminalMultiplexConnection
 
+      // Orca-Pit: input frames carry no caller; the diary reads who opened this connection.
+      tagOrcaPitMultiplexCaller(state, caller)
       installMultiplexFrameDelivery(state)
       installMultiplexFlowControl(state)
       installMultiplexCleanup(state)

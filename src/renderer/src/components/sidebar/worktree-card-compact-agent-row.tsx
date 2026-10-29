@@ -24,6 +24,7 @@ import {
   type ProgramStatusPresentation
 } from '../../../../shared/program-status/presentation'
 import { resolveRowProgramStatus } from '@/lib/program-status/agent-row-presentation'
+import { OrcaPitAgentAuthor } from './OrcaPitAgentAuthor'
 
 function getCompactAgentPrimary(
   agent: DashboardAgentRowData,
@@ -248,6 +249,12 @@ export const CompactAgentRow = React.memo(function CompactAgentRow({
           </span>
         </>
       )}
+      {/* Orca-Pit: who sent the last command to this agent. */}
+      <OrcaPitAgentAuthor
+        paneKey={agent.paneKey}
+        worktreeId={agent.tab.worktreeId}
+        highlighted={highlighted}
+      />
       {model && (
         <span
           className={cn(
