@@ -3,8 +3,8 @@ import type { FolderWorkspace } from '../../../../../../shared/folder-workspace-
 import type { ProjectGroup } from '../../../../../../shared/project-group-types'
 import type { Worktree } from '../../../../../../shared/worktree/types'
 import { folderWorkspaceKey } from '../../../../../../shared/workspace-scope'
-import { isProjectActivitySectionKey } from './activity-sections'
-import type { GroupHeaderRow, Row } from './row-types'
+import { isProjectActivitySectionKey } from '../../../../../../shared/sidebar-list/orca-pit-activity-sections'
+import type { GroupHeaderRow, Row } from '../../../../../../shared/sidebar-list/row-types'
 
 export type AgentsOnlyRowInputs<Imported, Inbox> = {
   worktrees: Worktree[]

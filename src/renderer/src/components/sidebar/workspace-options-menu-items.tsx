@@ -36,12 +36,10 @@ import {
 import { translate } from '@/i18n/i18n'
 import { SidebarGroupByToggle } from './SidebarGroupByToggle'
 import { OrcaPitActivitySplitToggle } from './OrcaPitActivitySplitToggle'
-import { formatActiveFilterLabel } from './options-filter-count-badge'
 
 export function useWorkspaceOptionsFilterBadge(): {
   hasAnyFilter: boolean
   activeFilterCount: number
-  activeFilterLabel: string
 } {
   const filterState = useAppStore(useShallow(selectSidebarFilterState))
   const repos = useAppStore((s) => s.repos)
@@ -55,8 +53,7 @@ export function useWorkspaceOptionsFilterBadge(): {
   )
   return {
     hasAnyFilter: activeFilterCount > 0,
-    activeFilterCount,
-    activeFilterLabel: formatActiveFilterLabel(activeFilterCount)
+    activeFilterCount
   }
 }
 
@@ -126,8 +123,7 @@ function SortByOptionItem({ preserveWorkspaceBoardOpen }: OptionItemProps): JSX.
               <DropdownMenuRadioItem
                 key={opt.id}
                 value={opt.id}
-                // Keep the menu open so people can compare sort modes and
-                // toggle card properties without reopening the same panel.
+                // Keep the menu open for comparing modes and toggling properties.
                 onSelect={(e) => e.preventDefault()}
               >
                 {opt.label}

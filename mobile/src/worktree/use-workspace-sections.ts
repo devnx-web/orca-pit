@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useMobileTranslation } from '../i18n/use-mobile-translation'
 import type { WorkspaceStatusDefinition } from '../../../src/shared/worktree/types'
 import type { ExecutionHostId } from '../../../src/shared/execution-host'
 import type {
@@ -7,7 +8,7 @@ import type {
 } from '../../../src/shared/workspace-view/workspace-view-options'
 import {
   buildSectionRepoMap,
-  buildSections,
+  buildMobileWorkspacePlan,
   type FilterState,
   type ProjectSectionCatalog,
   type Section,
@@ -35,9 +36,9 @@ export function useWorkspaceSections(args: {
   sections: Section[]
   rawSections: Section[]
   uniqueRepos: WorkspaceSectionRepo[]
-  /** Each row's repo by id, as the desktop's cards look theirs up for colour and icon. */
   repoById: ReadonlyMap<string, SectionRepo>
 } {
+  const t = useMobileTranslation()
   const {
     displayWorktrees,
     sortMode,
@@ -55,17 +56,17 @@ export function useWorkspaceSections(args: {
 
   const uniqueRepos = useMemo(
     () => buildFilterRepos(filterCatalogRepos, displayWorktrees),
-    [filterCatalogRepos, displayWorktrees]
+    [filterCatalogRepos, displayWorktrees, t]
   )
 
   const repoById = useMemo(
     () => buildSectionRepoMap(projectCatalog.repos, displayWorktrees),
-    [projectCatalog.repos, displayWorktrees]
+    [projectCatalog.repos, displayWorktrees, t]
   )
 
-  const rawSections = useMemo(
+  const plan = useMemo(
     () =>
-      buildSections(
+      buildMobileWorkspacePlan(
         displayWorktrees,
         sortMode,
         filters,
@@ -74,7 +75,7 @@ export function useWorkspaceSections(args: {
         pinnedIds,
         projectCatalog,
         workspaceStatuses,
-        collapsedGroups,
+        undefined,
         showPinnedInGroups,
         repoHostIdByRepoId
       ),
@@ -88,10 +89,12 @@ export function useWorkspaceSections(args: {
       pinnedIds,
       projectCatalog,
       workspaceStatuses,
-      collapsedGroups,
-      showPinnedInGroups
+      showPinnedInGroups,
+      t
     ]
   )
+
+  const rawSections = useMemo(() => plan.render(collapsedGroups), [plan, collapsedGroups])
 
   const sections = useMemo(
     () =>

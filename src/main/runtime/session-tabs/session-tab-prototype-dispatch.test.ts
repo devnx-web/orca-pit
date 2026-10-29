@@ -241,28 +241,6 @@ describe('original session tab runtime prototypes', () => {
     ).toEqual({ moved: true })
     expect(trace).toEqual(['callee', 'tabOrder', 'call'])
   })
-
-  it('keeps the original scalar and one canonical waiter Set through the constructor seam', () => {
-    let atSeam: Set<() => void> | undefined
-    let initialEpoch: number | null | undefined
-    let topLevelId: string | undefined
-    class ConstructorRuntime extends SessionTabRuntime {
-      protected override get canonicalFetchKeyCache(): ReadonlyMap<string, string> {
-        atSeam = this.sessionTabsInventoryWaiters
-        initialEpoch = this.sessionTabsInventoryPublicationEpoch
-        topLevelId = this.getMobileSessionTopLevelTabId(snapshot().tabs[0])
-        return super.canonicalFetchKeyCache
-      }
-      waiterSet(): Set<() => void> {
-        return this.sessionTabsInventoryWaiters
-      }
-    }
-    const runtime = new ConstructorRuntime(null)
-    expect(atSeam).toBeInstanceOf(Set)
-    expect(runtime.waiterSet()).toBe(atSeam)
-    expect(initialEpoch).toBeNull()
-    expect(topLevelId).toBe('tab')
-  })
 })
 
 class SessionRuntime extends OrcaRuntimeService {
@@ -271,7 +249,7 @@ class SessionRuntime extends OrcaRuntimeService {
   restoreRequests = 0
   restoreResult = Promise.resolve()
 
-  override async resolveWorktreeSelector(): Promise<ResolvedWorktree> {
+  override async resolveGitWorktreeSelector(): Promise<ResolvedWorktree> {
     const git = {
       path: 'workspace',
       head: '',

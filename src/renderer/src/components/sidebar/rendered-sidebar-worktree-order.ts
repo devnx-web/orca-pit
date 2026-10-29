@@ -3,18 +3,35 @@ import type { AppState } from '@/store/types'
 import { getHostDisplayLabelOverrides } from '../../../../shared/host-setting-overrides'
 import {
   ALL_EXECUTION_HOSTS_SCOPE,
+  getLocalExecutionHostLabel,
   getSettingsFocusedExecutionHostId
 } from '../../../../shared/execution-host'
 import { getRepoMapFromState, getWorktreeMapFromState } from '@/store/selectors'
 import { getProjectHostSetupProjectionFromState } from '@/store/project-host-setup-selector'
-import { buildRows } from './worktree-list/grouping/build-rows'
-import { getPinnedWorktreeDisplayPolicy } from './worktree-list/grouping/row-types'
-import { addHostSectionRows, type HostSectionRow } from './host-section-rows'
-import { orderHostSectionOptions } from './host-section-order'
+import { planSidebarRows } from '../../../../shared/sidebar-list/sidebar-row-plan'
+import { createSidebarPRGroupReader } from './worktree-list/grouping/pr-group-key'
+import {
+  getPinnedWorktreeDisplayPolicy,
+  type ImportedWorktreesCardCandidate,
+  type NewExternalWorktreesInboxCandidate,
+  type PendingCreationRef
+} from '../../../../shared/sidebar-list/row-types'
+import {
+  addHostSectionRows,
+  type HostSectionRow
+} from '../../../../shared/sidebar-list/host-section-rows'
+import { orderHostSectionOptions } from '../../../../shared/sidebar-list/host-section-order'
 import { buildSidebarHostOptions } from './sidebar-host-options'
 import { getLogicalRepoOrderRankById } from '../../../../shared/project-section-order'
 import { getRenderedWorktreesInSidebarOrder } from './worktree-sidebar-row-preference'
 import { selectWorktreeListReviewCacheInputs } from './worktree-list/listing/review-cache-inputs'
+import {
+  filterFolderWorkspacesForVisibleHosts,
+  filterProjectGroupsForVisibleHosts,
+  getVisibleSidebarHostIdSet
+} from '../../../../shared/sidebar-list/host-filtering'
+import { selectFolderWorkspaces } from '@/store/workspace-record-selectors'
+import { selectWorkspaceBoardStatuses } from '@/store/host-workspace-status-columns'
 import { getProjectActivity } from './orca-pit-project-activity'
 import {
   flattenAgentsOnlyRows,
@@ -22,26 +39,13 @@ import {
   isAgentsOnlyView,
   scopeRowInputsToAgents
 } from './orca-pit-agents-view'
-import {
-  filterFolderWorkspacesForVisibleHosts,
-  filterProjectGroupsForVisibleHosts,
-  getVisibleSidebarHostIdSet
-} from './worktree-list/listing/host-filtering'
 
 const EMPTY_REPO_ID_SET: ReadonlySet<string> = Object.freeze(new Set<string>())
-const EMPTY_IMPORTED_BY_REPO = Object.freeze(new Map()) as never
-const EMPTY_INBOX_BY_REPO = Object.freeze(new Map()) as never
-const EMPTY_PENDING_CREATIONS = Object.freeze([]) as never
+const EMPTY_IMPORTED_BY_REPO: ReadonlyMap<string, ImportedWorktreesCardCandidate> = new Map()
+const EMPTY_INBOX_BY_REPO: ReadonlyMap<string, NewExternalWorktreesInboxCandidate> = new Map()
+const EMPTY_PENDING_CREATIONS: readonly PendingCreationRef[] = []
 
-/**
- * Orders already-filtered worktrees the way the sidebar would render them, for
- * Cmd+1–9 numbering while WorktreeList is unmounted (#9497).
- *
- * Why replay the pipeline: a flat list drops grouping, pinning, main-worktree
- * hoisting and collapse elision, so the shortcut numbered the wrong card.
- * Why worktrees are passed in: keeps the dependency on visible-worktrees.ts
- * one-way, since test suites mock that module's path.
- */
+/** Replay grouping, pins and collapse for unmounted-list shortcut order without reversing the visible-worktrees dependency. */
 export function computeRenderedSidebarWorktrees(
   state: AppState,
   visibleWorktrees: readonly Worktree[]
@@ -52,7 +56,6 @@ export function computeRenderedSidebarWorktrees(
   )
 }
 
-/** The sidebar's row model, replayed from the store without mounting WorktreeList. */
 export function computeRenderedSidebarRows(
   state: AppState,
   visibleWorktrees: readonly Worktree[]
@@ -76,7 +79,7 @@ export function computeRenderedSidebarRows(
   const unscopedInputs = {
     worktrees: [...visibleWorktrees],
     folderWorkspaces: filterFolderWorkspacesForVisibleHosts(
-      state.folderWorkspaces,
+      selectFolderWorkspaces(state),
       projectGroups,
       visibleHostIdSet,
       defaultHostId
@@ -95,39 +98,37 @@ export function computeRenderedSidebarRows(
   const inputs = agentsOnly
     ? scopeRowInputsToAgents(unscopedInputs, getWorkspaceIdsWithAgents(state))
     : unscopedInputs
-
-  const built = buildRows(
-    state.groupBy,
-    inputs.worktrees,
+  const plan = planSidebarRows({
+    groupBy: state.groupBy,
+    worktrees: inputs.worktrees,
     repoMap,
-    prCache,
-    agentsOnly ? new Set<string>() : state.collapsedGroups,
-    getLogicalRepoOrderRankById(state.repos.map((repo) => repo.id)),
-    state.workspaceStatuses,
-    state.projectOrderBy,
-    state.worktreeLineageById,
-    getWorktreeMapFromState(state),
-    !agentsOnly,
-    state.settings,
-    inputs.projectGroups,
-    inputs.placeholderRepoIds,
-    inputs.importedWorktreesByRepo,
-    inputs.newExternalWorktreesInboxByRepo,
-    EMPTY_PENDING_CREATIONS,
-    { projects: projection.projects, projectHostSetups: projection.setups },
-    inputs.folderWorkspaces,
+    prGroupOf: createSidebarPRGroupReader(repoMap, prCache),
+    repoOrder: getLogicalRepoOrderRankById(state.repos.map((repo) => repo.id)),
+    workspaceStatuses: selectWorkspaceBoardStatuses(state),
+    projectOrderBy: state.projectOrderBy,
+    lineageById: state.worktreeLineageById,
+    worktreeMap: getWorktreeMapFromState(state),
+    nestLineage: !agentsOnly,
+    projectGroups: inputs.projectGroups,
+    placeholderRepoIds: inputs.placeholderRepoIds,
+    importedWorktreesByRepo: inputs.importedWorktreesByRepo,
+    newExternalWorktreesInboxByRepo: inputs.newExternalWorktreesInboxByRepo,
+    pendingCreations: EMPTY_PENDING_CREATIONS,
+    projectGrouping: { projects: projection.projects, projectHostSetups: projection.setups },
+    folderWorkspaces: inputs.folderWorkspaces,
     // Why no hostLabelById: it only feeds display-only host context labels, never row order.
-    undefined,
     defaultHostId,
     pinnedDisplayPolicy,
-    state.hideDefaultBranchWorkspace && !agentsOnly,
-    getProjectActivity()
-  )
+    filterRepoIds: state.filterRepoIds,
+    hideEmptyProjectGroupRepos: state.hideDefaultBranchWorkspace && !agentsOnly,
+    projectActivity: getProjectActivity()
+  })
   // Orca-Pit: same flattening as the rendered "Agents" view, collapse included.
-  const rows = agentsOnly ? flattenAgentsOnlyRows(built, state.collapsedGroups) : built
+  const rows = agentsOnly
+    ? flattenAgentsOnlyRows(plan.render(new Set<string>()), state.collapsedGroups)
+    : plan.render(state.collapsedGroups)
 
-  // Why lazy: with no host filter, addHostSectionRows is a pass-through, so skip building the whole host registry on a keystroke.
-  // Deliberately a superset of its internal guards — on <=1 host it still no-ops, wasting only the registry build.
+  // Build the host registry only when sections may affect order; zero/one-host cases still safely no-op.
   const needsHostSections =
     state.workspaceHostScope !== ALL_EXECUTION_HOSTS_SCOPE || state.visibleWorkspaceHostIds != null
   return needsHostSections
@@ -148,6 +149,7 @@ export function computeRenderedSidebarRows(
         workspaceHostScope: state.workspaceHostScope,
         visibleWorkspaceHostIds: state.visibleWorkspaceHostIds,
         defaultHostId,
+        localHostLabel: getLocalExecutionHostLabel(),
         collapsedHostKeys: state.collapsedGroups,
         forceCollapseHosts: false,
         preferProjectGrouping: true

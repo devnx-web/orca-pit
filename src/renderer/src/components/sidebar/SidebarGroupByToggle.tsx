@@ -1,6 +1,6 @@
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { translate } from '@/i18n/i18n'
-import type { WorktreeGroupBy } from './worktree-list/grouping/row-types'
+import type { WorktreeGroupBy } from '../../../../shared/sidebar-list/row-types'
 import { GROUP_BY_OPTIONS } from './sidebar-workspace-option-items'
 import { setAgentsOnlyView, useAgentsOnlyView } from './orca-pit-agents-view'
 
@@ -40,9 +40,7 @@ export function SidebarGroupByToggle({ groupBy, setGroupBy }: SidebarGroupByTogg
         <ToggleGroupItem
           key={option.id}
           value={option.id}
-          // Why: inside the dropdown menu, Radix can focus a toggle item without
-          // committing ToggleGroup's value change; capture the pointer intent
-          // before the menu's roving-focus handling turns it into a no-op.
+          // Capture pointer intent before Radix roving focus can consume the click without changing ToggleGroup value.
           onPointerDownCapture={() => select(option.id)}
           className="h-6 grow basis-0 px-1 text-[10px] data-[state=on]:bg-foreground/10 data-[state=on]:font-semibold data-[state=on]:text-foreground"
         >

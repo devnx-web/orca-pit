@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildRows } from './worktree-list/grouping/build-rows'
+import { buildRows } from './worktree-list/grouping/build-rows.test-fixture'
 import {
   flattenAgentsOnlyRows,
   scopeRowInputsToAgents
@@ -82,7 +82,7 @@ function rowsFor(workspaceIdsWithAgents: string[], collapsed: string[] = []) {
     undefined,
     undefined,
     undefined,
-    false
+    undefined
   )
   const rows = flattenAgentsOnlyRows(built, new Set(collapsed))
   return {

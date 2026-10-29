@@ -7,6 +7,7 @@ import { createStore } from 'zustand/vanilla'
 import { parseWorkspaceKey } from '../../../../shared/workspace-scope'
 import { getRepoIdFromWorktreeId } from '../../../../shared/worktree/id'
 import type { AgentStatusEntry } from '../../../../shared/agent-status-types'
+import type { ProjectActivity } from '../../../../shared/sidebar-list/orca-pit-activity-sections'
 import { useNow } from '@/hooks/use-now'
 import { useAppStore } from '../../store'
 import { getTabIdToWorktreeId } from './worktree-agent-row-selectors'
@@ -18,10 +19,7 @@ const PROMPT_RETENTION_MS = 30 * 24 * 60 * 60 * 1000
 const ACTIVE_WINDOW_TICK_MS = 5 * 60 * 1000
 const STORAGE_KEY = 'orca-pit.project-activity.v1'
 
-export type ProjectActivity = {
-  activeRepoIds: ReadonlySet<string>
-  activeFolderWorkspaceIds: ReadonlySet<string>
-}
+export type { ProjectActivity }
 
 type ProjectActivityState = {
   /** Worktree id (or `folder:<id>` key) → when the user last sent its agent a prompt. */

@@ -1,4 +1,5 @@
 import type { OrcaRuntimeService } from '../orca-runtime'
+import { captureStructuredAgentCliSource } from '../../native-chat/structured-agent-cli-source'
 import type { OrchestrationSessionCaller } from '../orchestration/orchestration-caller-identity'
 import { isRegistrationFencedUnsubscribe, type RpcContext, type RpcRequest } from './core'
 import { resolveRpcCallerIdentity } from './rpc-caller-identity'
@@ -19,6 +20,7 @@ export type RpcDispatchStreamingOptions = Pick<
   | 'pairing'
   | 'deviceSelf'
   | 'mobileRelayHosts'
+  | 'peerDesktops'
   | 'delegatedMobileDevices'
   | 'sendBinary'
   | 'registerBinaryStreamHandler'
@@ -26,6 +28,8 @@ export type RpcDispatchStreamingOptions = Pick<
 > & {
   /** What the transport proved the caller may do; absent means this host's owner. */
   callerScope?: RpcCallerScope
+  /** Aborts when the caller's connection closes; only for the dispatcher's own waits, never handlers. */
+  connectionSignal?: AbortSignal
 }
 
 export function rpcContextFromTransport(
@@ -44,6 +48,10 @@ export function rpcContextFromTransport(
     subscriptionRegistrationVersion: isRegistrationFencedUnsubscribe(request.method)
       ? runtime.getSubscriptionRegistrationVersion()
       : undefined,
+    structuredAgentCliSourceEvidence:
+      request.method === 'agentSession.create'
+        ? captureStructuredAgentCliSource(() => runtime.getAgentProviderSessionRows())
+        : undefined,
     clientId: options?.clientId,
     pairedDeviceId: options?.pairedDeviceId,
     pairedDeviceParentId: options?.pairedDeviceParentId,
@@ -55,6 +63,7 @@ export function rpcContextFromTransport(
     pairing: options?.pairing,
     deviceSelf: options?.deviceSelf,
     mobileRelayHosts: options?.mobileRelayHosts,
+    peerDesktops: options?.peerDesktops,
     delegatedMobileDevices: options?.delegatedMobileDevices,
     sendBinary: options?.sendBinary,
     registerBinaryStreamHandler: options?.registerBinaryStreamHandler,

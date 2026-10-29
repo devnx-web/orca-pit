@@ -11,6 +11,7 @@ import {
   DropdownMenuSubTrigger
 } from '@/components/ui/dropdown-menu'
 import type { WorktreeCardProperty } from '../../../../shared/ui-chrome-types'
+import { getWorkspaceCardPropertiesValue } from '../../../../shared/workspace-view/workspace-view-options'
 import {
   AGENT_ACTIVITY_DISPLAY_OPTIONS,
   CARD_LAYOUT_OPTIONS,
@@ -106,8 +107,7 @@ export function WorktreeCardLayoutMenuItem({
         <DropdownMenuRadioGroup
           value={cardLayout}
           onValueChange={(value) => {
-            // Why: layout changes are presets, not just density toggles; keep
-            // the visible menu path aligned with card property defaults.
+            // Apply layout presets so menu selection stays aligned with card-property defaults.
             setWorktreeCardMode(value === 'compact' ? 'Compact' : 'Default')
           }}
         >
@@ -131,9 +131,7 @@ export function WorktreeCardPropertiesMenuItem({
   const agentActivityDisplayMode = useAppStore((s) => s.agentActivityDisplayMode)
   const setAgentActivityDisplayMode = useAppStore((s) => s.setAgentActivityDisplayMode)
   const toggleProperty = useToggleCardProperty()
-  const visiblePropertyCount = PROPERTY_OPTIONS.filter((opt) =>
-    worktreeCardProperties.includes(opt.id)
-  ).length
+  const value = getWorkspaceCardPropertiesValue(worktreeCardProperties, compact)
   return (
     <DropdownMenuSub>
       <DropdownMenuSubTrigger>
@@ -144,15 +142,16 @@ export function WorktreeCardPropertiesMenuItem({
               'Show properties'
             )}
           </span>
-          {compact ? (
+          {value === null ? null : (
             <span className="text-[11px] font-medium text-muted-foreground">
-              {translate('auto.components.sidebar.SidebarWorkspaceOptionsMenu.3d4b9c4997', 'Hover')}
+              {value === 'hover'
+                ? translate(
+                    'auto.components.sidebar.SidebarWorkspaceOptionsMenu.3d4b9c4997',
+                    'Hover'
+                  )
+                : value}
             </span>
-          ) : visiblePropertyCount > 0 ? (
-            <span className="text-[11px] font-medium text-muted-foreground">
-              {visiblePropertyCount}
-            </span>
-          ) : null}
+          )}
         </span>
       </DropdownMenuSubTrigger>
       <DropdownMenuSubContent
@@ -170,7 +169,7 @@ export function WorktreeCardPropertiesMenuItem({
           </DropdownMenuCheckboxItem>
         ))}
         <DropdownMenuSeparator />
-        <DropdownMenuLabel className="px-2 py-1 text-[11px] font-medium text-muted-foreground">
+        <DropdownMenuLabel>
           {translate(
             'auto.components.sidebar.SidebarWorkspaceOptionsMenu.95c9754653',
             'Agent activity layout'

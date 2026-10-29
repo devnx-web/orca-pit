@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { buildRows } from './worktree-list/grouping/build-rows'
+import { buildRows } from './worktree-list/grouping/build-rows.test-fixture'
 import {
   ACTIVE_PROJECTS_SECTION_KEY,
   INACTIVE_PROJECTS_SECTION_KEY
-} from './worktree-list/grouping/activity-sections'
+} from '../../../../shared/sidebar-list/orca-pit-activity-sections'
 import { repo, worktree } from './worktree-list-groups-test-fixtures'
 import type { ProjectActivity } from './orca-pit-project-activity'
 import type { ProjectGroup } from '../../../../shared/project-group-types'
@@ -64,8 +64,8 @@ function headerKeys(
     undefined,
     undefined,
     undefined,
-    false,
-    projectActivity
+    undefined,
+    { projectActivity }
   )
   return rows.filter((row) => row.type === 'header').map((row) => row.key)
 }

@@ -4,7 +4,7 @@
 import { readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import type { RelayAuthContext } from '../runtime/relay/relay-auth-identity'
+import type { RelayAuthContext } from '../runtime/mobile-cloud-relay/relay-auth-identity'
 
 export const ORCA_PIT_RELAY_URL = 'https://orca-relay.ndlyrz.easypanel.host'
 export const ORCA_PIT_RELAY_TOKEN_URL =
