@@ -23110,6 +23110,12 @@
     "access": {
       "roleAdmin": "Administrador",
       "roleMember": "Membro"
+    },
+    "serverLocations": {
+      "label": "Locais",
+      "home": "Pasta pessoal",
+      "root": "Raiz",
+      "free": "{{value0}} livres"
     }
   }
 }

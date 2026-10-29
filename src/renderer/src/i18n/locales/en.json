@@ -23108,6 +23108,12 @@
     "access": {
       "roleAdmin": "Administrator",
       "roleMember": "Member"
+    },
+    "serverLocations": {
+      "label": "Places",
+      "home": "Home folder",
+      "root": "Root",
+      "free": "{{value0}} free"
     }
   }
 }

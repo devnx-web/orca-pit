@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils'
 import { filterEntries, joinPath, parentPath, type DirEntry } from './remote-file-browser-helpers'
 import { RemoteFileBrowserBreadcrumbs } from './RemoteFileBrowserBreadcrumbs'
 import { RemoteFileBrowserEntryList } from './RemoteFileBrowserEntryList'
+// Orca-Pit: shortcut chips (home, root, data disks) for runtime-server browsing.
+import { OrcaPitServerLocations } from './OrcaPitServerLocations'
 import { initialRemoteFileBrowserHighlight } from './remote-file-browser-highlight'
 import type { PreviewState } from './remote-file-browser-path-preview-resolver'
 import { useRemoteFileBrowserFilterKeyCommands } from './use-remote-file-browser-filter-key-commands'
@@ -277,6 +279,16 @@ export function RemoteFileBrowser({
         navigate={navigate}
         navigateUp={navigateUp}
       />
+      {/* Orca-Pit: SSH listings have no server-side hook, so only the runtime server gets chips. */}
+      {runtimeEnvironmentId && !targetId && (
+        <OrcaPitServerLocations
+          runtimeEnvironmentId={runtimeEnvironmentId}
+          resolvedPath={resolvedPath}
+          pathFlavor={pathFlavor}
+          loading={loading}
+          navigate={navigate}
+        />
+      )}
 
       <div className="relative">
         <Search className="size-3.5 text-muted-foreground absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none" />
