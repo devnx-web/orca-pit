@@ -47,6 +47,8 @@ export const HOST_OPERATION_OWNERSHIP = {
   notifications: 'host',
   orcad: 'host',
   orchestration: 'host',
+  // Orca-Pit: authors, presence and DevNX Control tasks, answered by the host that owns them.
+  orcaPit: 'host',
   pairing: 'host',
   plugins: 'host',
   preflight: 'host',
