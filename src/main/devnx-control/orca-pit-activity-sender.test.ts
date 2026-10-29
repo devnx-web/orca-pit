@@ -69,7 +69,9 @@ describe('Orca-Pit activity diary and sender', () => {
       db,
       connection: () => CONNECTION,
       owner: async () =>
-        owner ? { ...owner, name: 'Dono', email: '', tenantId: 1, orcaRole: 'admin' } : null,
+        owner
+          ? { ...owner, name: 'Dono', email: '', tenantId: 1, tenantIds: [1], orcaRole: 'admin' }
+          : null,
       post: post as never,
       deviceUid: 'pc-central',
       now: () => NOW

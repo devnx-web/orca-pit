@@ -9,6 +9,7 @@ import { performOrcaPitLogin } from './orca-pit-login'
 import { OrcaPitLoginRateLimit, setOrcaPitLoginHandler } from './orca-pit-login-route'
 import { OrcaPitRevalidator } from './orca-pit-revalidation'
 import { mintOrcaPitUserDevice, updateOrcaPitUser } from './orca-pit-user-devices'
+import { recordOrcaPitLogin } from './orca-pit-activity-hooks'
 
 let revalidator: OrcaPitRevalidator | null = null
 
@@ -29,7 +30,12 @@ export function installOrcaPitMultiUser(rpc: OrcaRuntimeRpcServer): void {
             const offer = rpc.createPairingOffer({
               address: endpoint,
               scope: 'runtime',
-              mintDevice: (registry) => mintOrcaPitUserDevice(registry, identity)
+              mintDevice: (registry) => {
+                const device = mintOrcaPitUserDevice(registry, identity)
+                // Why here: the device id exists only once minted, and the diary signs by device.
+                recordOrcaPitLogin(device.deviceId)
+                return device
+              }
             })
             return offer.available ? offer.pairingUrl : null
           }
