@@ -38,6 +38,7 @@ import { selectPendingWorktreeCreationKeys } from './pending-worktree-creation-k
 import { selectWorktreesByRepo } from '@/store/workspace-record-selectors'
 import { useProjectActivity } from '../../orca-pit-project-activity'
 import { flattenAgentsOnlyRows, useAgentsViewRowInputs } from '../../orca-pit-agents-view'
+import { usePublishOrcaPitMachinePlan } from '../../orca-pit-machine-chips'
 
 // Why a Set nobody writes to: render takes a mutable Set.
 const NOTHING_COLLAPSED = new Set<string>()
@@ -238,6 +239,8 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
         : rowPlan.render(rowCollapsedGroups),
     [agentsOnly, rowPlan, rowCollapsedGroups]
   )
+  // Orca-Pit: which machine chips the "Agents" view draws, from its uncollapsed rows.
+  usePublishOrcaPitMachinePlan(agentsOnly, rowPlan, defaultHostId)
   const orderedHostOptions = useMemo(
     () => orderHostSectionOptions(hostOptions, workspaceHostOrder),
     [hostOptions, workspaceHostOrder]

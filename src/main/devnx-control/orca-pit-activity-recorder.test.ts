@@ -103,7 +103,9 @@ describe('Orca-Pit recorder', () => {
       paneKey: 'tab-2:pane',
       worktreeId: null
     }))
-    expect(recorder.authorsByPane()).toEqual({ 'tab-1:pane': { name: 'Fulano', at: 1_000 } })
+    expect(recorder.authorsByPane()).toEqual({
+      'tab-1:pane': { name: 'Fulano', at: 1_000, userId: FULANO.userId }
+    })
     expect(recorder.actorForPane('tab-1:pane')).toBe(FULANO)
     expect(recorder.actorForPane('tab-2:pane')).toBe(OWNER)
   })
@@ -145,6 +147,10 @@ describe('Orca-Pit agent start/stop', () => {
     emit({ before: null, after: { paneKey: 'tab-1:pane' } })
     tracker.flush()
     expect(tracker.agentForPane('tab-1:pane')).toEqual({ agent: 'claude', sessionId: 'prov-1' })
+    // The sidebar's "Mine" counts whoever started the agent.
+    expect(tracker.startersByPane()).toEqual({
+      'tab-1:pane': { key: 'u:7', name: 'Fulano de Tal', userId: 7 }
+    })
     rows.delete('tab-1:pane')
     emit({ before: { paneKey: 'tab-1:pane' }, after: null })
     tracker.flush()

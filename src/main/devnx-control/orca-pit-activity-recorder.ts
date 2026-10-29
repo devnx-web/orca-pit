@@ -77,8 +77,8 @@ export class OrcaPitActivityRecorder {
 
   authorsByPane(): OrcaPitAgentAuthors {
     const out: OrcaPitAgentAuthors = {}
-    for (const [paneKey, { name, at }] of this.authors) {
-      out[paneKey] = { name, at }
+    for (const [paneKey, { name, at, actor }] of this.authors) {
+      out[paneKey] = { name, at, userId: actor.userId }
     }
     return out
   }

@@ -21,11 +21,12 @@ import {
 } from '../dashboard/worktree-agent-rows-cache'
 import { EMPTY_WORKTREE_AGENT_ORCHESTRATION } from './worktree-agent-orchestration-batch'
 
-import {
-  scopeRowInputsToAgents,
-  type AgentsOnlyRowInputs
-} from './worktree-list/grouping/agents-only-inputs'
+import type { AgentsOnlyRowInputs } from './worktree-list/grouping/agents-only-inputs'
 import type { Repo } from '../../../../shared/repo-types'
+import { getSettingsFocusedExecutionHostId } from '../../../../shared/execution-host'
+import { orcaPitAgentFilterCount, useOrcaPitAgentFilters } from './orca-pit-agent-filters'
+import { getOrcaPitHostPresences, useOrcaPitPresenceRevision } from './orca-pit-sidebar-presence'
+import { scopeOrcaPitRowInputs } from './orca-pit-row-scope'
 
 export {
   flattenAgentsOnlyRows,
@@ -75,11 +76,30 @@ export function isAgentsOnlyView(state: Pick<AppState, 'groupBy'>): boolean {
 // workspace is kept exactly when its card would have shown at least one agent row.
 const rowsCache = createWorktreeAgentRowsCache()
 let lastInputs: AgentBucketCountState | null = null
-let lastIds: ReadonlySet<string> = new Set()
+let lastPanes: ReadonlyMap<string, readonly string[]> = new Map()
 
-function selectWorkspaceIdsWithAgents(state: AgentBucketCountState): ReadonlySet<string> {
+function samePanes(
+  a: ReadonlyMap<string, readonly string[]>,
+  b: ReadonlyMap<string, readonly string[]>
+): boolean {
+  if (a.size !== b.size) {
+    return false
+  }
+  for (const [id, panes] of a) {
+    const other = b.get(id)
+    if (!other || other.length !== panes.length || panes.some((pane, i) => other[i] !== pane)) {
+      return false
+    }
+  }
+  return true
+}
+
+/** Workspace id → the pane keys of its agent rows, for workspaces that have any. */
+function selectWorkspaceAgentPanes(
+  state: AgentBucketCountState
+): ReadonlyMap<string, readonly string[]> {
   if (state === lastInputs) {
-    return lastIds
+    return lastPanes
   }
   const workspaces = collectActiveDashboardWorkspaces(state, false)
   const { singletonOrchestration, orchestrationByWorktree } = selectDashboardOrchestration(
@@ -87,7 +107,7 @@ function selectWorkspaceIdsWithAgents(state: AgentBucketCountState): ReadonlySet
     workspaces
   )
   const now = Date.now()
-  const ids = new Set<string>()
+  const panes = new Map<string, readonly string[]>()
   startWorktreeAgentRowsCachePass(rowsCache)
   for (const { worktree } of workspaces) {
     const rows = selectWorktreeAgentRowsCached({
@@ -102,35 +122,48 @@ function selectWorkspaceIdsWithAgents(state: AgentBucketCountState): ReadonlySet
       cache: rowsCache
     })
     if (rows.length > 0) {
-      ids.add(worktree.id)
+      panes.set(
+        worktree.id,
+        rows.map((row) => row.paneKey)
+      )
     }
   }
   finishWorktreeAgentRowsCachePass(rowsCache)
   lastInputs = state
-  // Why keep the old set when nothing moved: agent pings arrive every few seconds and a new
+  // Why keep the old map when nothing moved: agent pings arrive every few seconds and a new
   // identity would rebuild the whole sidebar row model each time.
-  if (ids.size !== lastIds.size || [...ids].some((id) => !lastIds.has(id))) {
-    lastIds = ids
+  if (!samePanes(panes, lastPanes)) {
+    lastPanes = panes
   }
-  return lastIds
+  return lastPanes
 }
 
-export function useWorkspaceIdsWithAgents(enabled: boolean): ReadonlySet<string> | undefined {
+export function useWorkspaceAgentPanes(
+  enabled: boolean
+): ReadonlyMap<string, readonly string[]> | undefined {
   const state = useAppStore((s) => (enabled ? selectAgentBucketCountState(s) : null))
-  return useMemo(() => (state ? selectWorkspaceIdsWithAgents(state) : undefined), [state])
+  return useMemo(() => (state ? selectWorkspaceAgentPanes(state) : undefined), [state])
 }
 
-export function getWorkspaceIdsWithAgents(state: AppState): ReadonlySet<string> {
-  return selectWorkspaceIdsWithAgents(selectAgentBucketCountState(state))
+export function getWorkspaceAgentPanes(state: AppState): ReadonlyMap<string, readonly string[]> {
+  return selectWorkspaceAgentPanes(selectAgentBucketCountState(state))
 }
 
-/** The row inputs for the sidebar, narrowed to agents while the "Agents" view is on. */
+/**
+ * The row inputs for the sidebar: narrowed to agents while the "Agents" view is on, and to the
+ * workspaces the Orca-Pit filters (mine, person, machine) keep.
+ */
 export function useAgentsViewRowInputs<Imported, Inbox>(
   inputs: AgentsOnlyRowInputs<Imported, Inbox>,
   visibleRepos: readonly Repo[]
 ): { agentsOnly: boolean; rowInputs: AgentsOnlyRowInputs<Imported, Inbox> } {
   const agentsOnly = useAgentsOnlyView()
-  const workspaceIdsWithAgents = useWorkspaceIdsWithAgents(agentsOnly)
+  const filters = useOrcaPitAgentFilters()
+  const filtering = orcaPitAgentFilterCount(filters) > 0
+  const panesByWorkspace = useWorkspaceAgentPanes(agentsOnly || filtering)
+  // Why: "Mine" and the person filter read the hosts' replies, which change without the store.
+  const presenceRevision = useOrcaPitPresenceRevision(filtering)
+  const defaultHostId = useAppStore((s) => getSettingsFocusedExecutionHostId(s.settings))
   const {
     worktrees,
     folderWorkspaces,
@@ -140,21 +173,25 @@ export function useAgentsViewRowInputs<Imported, Inbox>(
     newExternalWorktreesInboxByRepo
   } = inputs
   const rowInputs = useMemo(() => {
-    const unscoped = {
-      worktrees,
-      folderWorkspaces,
-      projectGroups,
-      placeholderRepoIds,
-      importedWorktreesByRepo,
-      newExternalWorktreesInboxByRepo
-    }
-    return workspaceIdsWithAgents
-      ? scopeRowInputsToAgents(
-          unscoped,
-          workspaceIdsWithAgents,
-          visibleRepos.map((repo) => repo.id)
-        )
-      : unscoped
+    void presenceRevision
+    const repoById = new Map(visibleRepos.map((repo) => [repo.id, repo]))
+    return scopeOrcaPitRowInputs({
+      inputs: {
+        worktrees,
+        folderWorkspaces,
+        projectGroups,
+        placeholderRepoIds,
+        importedWorktreesByRepo,
+        newExternalWorktreesInboxByRepo
+      },
+      agentsOnly,
+      panesByWorkspace,
+      filters,
+      hosts: getOrcaPitHostPresences(),
+      repoOf: (repoId) => repoById.get(repoId),
+      defaultHostId,
+      everyRepoId: visibleRepos.map((repo) => repo.id)
+    })
   }, [
     worktrees,
     folderWorkspaces,
@@ -162,7 +199,11 @@ export function useAgentsViewRowInputs<Imported, Inbox>(
     placeholderRepoIds,
     importedWorktreesByRepo,
     newExternalWorktreesInboxByRepo,
-    workspaceIdsWithAgents,
+    agentsOnly,
+    panesByWorkspace,
+    filters,
+    presenceRevision,
+    defaultHostId,
     visibleRepos
   ])
   return { agentsOnly, rowInputs }

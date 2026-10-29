@@ -23068,7 +23068,8 @@
       "inactive": "Inactive",
       "split": "Split active and inactive",
       "splitDescription": "Show projects with a message sent in the last 12 hours under Active and the rest under Inactive",
-      "lastCommandBy": "Last command by {{name}}"
+      "lastCommandByAt": "Last command by {{name}} at {{time}}",
+      "justNow": "now"
     },
     "groupBy": {
       "agents": "Agents"
@@ -23114,6 +23115,22 @@
       "home": "Home folder",
       "root": "Root",
       "free": "{{value0}} free"
+    },
+    "presence": {
+      "viewing": "Looking at it now: {{names}}",
+      "onlineNow": "Online now",
+      "deviceSince": "{{device}} · since {{time}}",
+      "centralComputer": "Central computer"
+    },
+    "machine": {
+      "runsOn": "Runs on {{name}}"
+    },
+    "filters": {
+      "mine": "My agents",
+      "person": "Person",
+      "everyone": "Everyone",
+      "machine": "Machine",
+      "allMachines": "All"
     }
   }
 }

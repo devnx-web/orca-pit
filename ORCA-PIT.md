@@ -43,10 +43,27 @@ Eventos enviados ficam 90 dias; recusados guardam o motivo e param após
 | `agent_started` / `agent_stopped` | Linhas de status dos agentes; o stop leva os tokens da sessão |
 | `workspace_created`, `settings_changed` | Criação de workspace e configurações alteradas (só os nomes, nunca os valores) |
 
-As linhas dos agentes na barra lateral mostram o primeiro nome de quem mandou o
-último comando (`orcaPit.agentAuthors`). O código está em
-`src/main/devnx-control/orca-pit-activity*.ts`; os ganchos no Orca chamam
-`orca-pit-activity-hooks.ts`.
+O código está em `src/main/devnx-control/orca-pit-activity*.ts`; os ganchos no
+Orca chamam `orca-pit-activity-hooks.ts`.
+
+## Quem está por perto (barra lateral)
+
+Cada cliente (a janela do central, o navegador, um desktop pareado) pergunta ao
+central a cada 15 s, numa chamada só por máquina (`orcaPit.agentAuthors`):
+
+| Na tela | De onde vem |
+|---|---|
+| "Fabio · 3m" com as iniciais, na linha do agente | Quem mandou o último comando e quando (diário, em memória) |
+| Olho + iniciais de quem está olhando o agente | Conexões com o terminal aberto e visível (stream do `terminal.multiplex` sem pausa) e, para quem está no próprio central, o painel ativo da janela enquanto o computador não está ocioso |
+| "Online agora" no topo da lista | Sockets autenticados de aparelhos pareados (navegador, desktop, celular) mais o dono no central; some quando há uma pessoa só |
+| Selo colorido da máquina | No modo Agentes, quando há mais de uma máquina: no cabeçalho se o projeto inteiro roda numa, em cada linha se mistura. O central aparece com o nome da máquina, nunca "Local" |
+
+Em Opções da lista, logo abaixo de "Agrupar por", ficam os filtros **Meus
+agentes** (último comando ou início do agente foi meu), **Pessoa** e
+**Máquina**. Ficam salvos no aparelho, contam no selo de filtros e valem também
+para os atalhos de teclado. O código está em
+`src/main/devnx-control/orca-pit-presence*.ts` e
+`src/renderer/src/components/sidebar/orca-pit-*` / `OrcaPit*`.
 
 ## Regras de segurança
 

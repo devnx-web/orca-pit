@@ -28,6 +28,10 @@ import {
 } from './runtime-rpc-socket-metadata'
 import { errorMessage } from '../../../shared/error-message'
 import { loadHostDescriptor, publishHostDescriptor } from '../host-descriptor'
+import {
+  forgetOrcaPitConnection,
+  noteOrcaPitConnection
+} from '../../devnx-control/orca-pit-presence-registry'
 
 export class RuntimeRpcLifecycle extends RuntimeRpcWebSocketDispatch {
   async start(): Promise<void> {
@@ -245,6 +249,8 @@ export class RuntimeRpcLifecycle extends RuntimeRpcWebSocketDispatch {
         this.handleWebSocketBinaryMessage(bytes, socket.ws)
       },
       onReady: (socket) => {
+        // Orca-Pit: who is connected, for the sidebar's "online now".
+        noteOrcaPitConnection(socket.connectionId, socket.device.deviceId)
         this.mobileRelayPairingProvider?.onDemandStateChanged?.()
         if (socket.clientCapabilities.includes(AGENT_LAUNCH_RUNTIME_CAPABILITY)) {
           this.runtime.noteAgentLaunchClientReady?.()
@@ -265,6 +271,7 @@ export class RuntimeRpcLifecycle extends RuntimeRpcWebSocketDispatch {
         if (!socket) {
           return
         }
+        forgetOrcaPitConnection(socket.connectionId) // Orca-Pit
         this.abortWebSocketDispatches(socket.ws)
         this.mobileDesktopRelay?.closePhoneConnection(socket.connectionId)
         // Stream cleanup is socket-scoped; disconnect state spans all transports for that device.

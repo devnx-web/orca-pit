@@ -6,6 +6,7 @@ import {
 import { resolveVisibleWorkspaceHostIds } from '../../../../shared/workspace-view/workspace-host-visibility'
 import type { AppState } from '../../store/types'
 import type { ExecutionHostId, ExecutionHostScope } from '../../../../shared/execution-host'
+import { NO_ORCA_PIT_AGENT_FILTERS, setOrcaPitAgentFilters } from './orca-pit-agent-filters'
 
 export type SidebarFilterState = {
   showSleepingWorkspaces: boolean
@@ -107,4 +108,6 @@ export function clearSidebarFilters(state: SidebarFilterState, store: SidebarFil
   for (const key of activeWorkspaceRowFilterKeys(sidebarWorkspaceRowFilters(state))) {
     RESET_SIDEBAR_FILTER[key](store)
   }
+  // Orca-Pit: "Clear filters" also drops mine/person/machine, which the badge counts.
+  setOrcaPitAgentFilters(NO_ORCA_PIT_AGENT_FILTERS)
 }
