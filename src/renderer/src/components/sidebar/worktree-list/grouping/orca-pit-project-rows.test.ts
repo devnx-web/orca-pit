@@ -149,6 +149,57 @@ describe('Orca-Pit: Agents view by project', () => {
     expect(shape(rows)).toEqual(['# jacarei', 'w1', 'fold(1)', '# griffinlog'])
   })
 
+  it('keeps apart durable projects whose ids share a prefix (repo:…, github:…)', () => {
+    const griffin = repo('griffinlog')
+    const phd = repo('phd', { executionHostId: 'runtime:nitro5' })
+    const sigep = repo('sigep', { executionHostId: 'runtime:nitro5' })
+    const soulog = repo('soulog')
+    const rows = organizeAgentsViewRows(
+      [
+        header('project:github:devnx-web/soulog', 'soulog', soulog),
+        item('w-soulog', soulog),
+        header('project:repo:1111', 'griffinlog', griffin),
+        header('project:repo:2222', 'phd', phd),
+        item('w-phd', phd),
+        header('project:github:devnx-web/sigep::setup:sigep', 'sigep', sigep),
+        item('w-sigep', sigep)
+      ],
+      new Map([
+        ['w-soulog', 300],
+        ['w-phd', 200],
+        ['w-sigep', 100]
+      ])
+    )
+    expect(shape(rows)).toEqual([
+      '# soulog',
+      'w-soulog',
+      '# phd',
+      'w-phd',
+      '# sigep',
+      'w-sigep',
+      'fold(1)',
+      '# griffinlog'
+    ])
+  })
+
+  it('still merges the same durable project on two machines, setup-scoped or not', () => {
+    const a = repo('sigep-a')
+    const b = repo('sigep-b', { executionHostId: 'runtime:nitro5' })
+    const rows = organizeAgentsViewRows(
+      [
+        header('project:github:devnx-web/sigep::setup:sigep-a', 'sigep', a),
+        item('w-a', a),
+        header('project:github:devnx-web/sigep', 'Sigep (Nitro5)', b),
+        item('w-b', b)
+      ],
+      new Map([
+        ['w-a', 1],
+        ['w-b', 2]
+      ])
+    )
+    expect(shape(rows)).toEqual(['# sigep', 'w-b', 'w-a'])
+  })
+
   it('names projects alike regardless of case and accents', () => {
     expect(normalizeProjectName(' Educação ')).toBe(normalizeProjectName('educacao'))
   })
