@@ -19,8 +19,17 @@ export type ProjectActivity = {
 export const ACTIVE_PROJECTS_SECTION_KEY = 'orca-pit-activity:active'
 export const INACTIVE_PROJECTS_SECTION_KEY = 'orca-pit-activity:inactive'
 
+/** The "Agents" view's fold of projects with no agent; see orca-pit-project-rows. */
+export const IDLE_PROJECTS_SECTION_KEY = 'orca-pit-activity:idle'
+/** In collapsedGroups this key means the idle fold is OPEN: the fold starts closed. */
+export const IDLE_PROJECTS_OPEN_KEY = 'orca-pit-activity:idle-open'
+
 export function isProjectActivitySectionKey(key: string): boolean {
-  return key === ACTIVE_PROJECTS_SECTION_KEY || key === INACTIVE_PROJECTS_SECTION_KEY
+  return (
+    key === ACTIVE_PROJECTS_SECTION_KEY ||
+    key === INACTIVE_PROJECTS_SECTION_KEY ||
+    key === IDLE_PROJECTS_SECTION_KEY
+  )
 }
 
 type ActivitySectionArgs = {

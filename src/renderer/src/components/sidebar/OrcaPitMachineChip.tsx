@@ -1,5 +1,5 @@
-// Orca-Pit: the colored machine chip of the "Agents" view, on a project header or an agent row;
-// orca-pit-machine-chips decides which. Replaces the plain host badge remote agents had.
+// Orca-Pit: the colored machine chip of the "Agents" view, on an agent row; orca-pit-machine-chips
+// decides which rows name their machine. Replaces the plain host badge remote agents had.
 import type React from 'react'
 import { useAppStore } from '@/store'
 import { translate } from '@/i18n/i18n'
@@ -12,11 +12,7 @@ import {
 } from '../../../../shared/execution-host'
 import { getHostDisplayLabelOverrides } from '../../../../shared/host-setting-overrides'
 import { orcaPitMachineTone } from './orca-pit-colors'
-import {
-  resolveOrcaPitMachineLabel,
-  useOrcaPitHeaderMachine,
-  useOrcaPitRowMachine
-} from './orca-pit-machine-chips'
+import { resolveOrcaPitMachineLabel, useOrcaPitRowMachine } from './orca-pit-machine-chips'
 import { useOrcaPitMachineName } from './orca-pit-sidebar-presence'
 
 export function useOrcaPitMachineLabel(hostId: ExecutionHostId): string {
@@ -74,15 +70,5 @@ export function OrcaPitRowMachineChip({
   worktreeId: string | null | undefined
 }): React.JSX.Element | null {
   const hostId = useOrcaPitRowMachine(worktreeId)
-  return hostId ? <OrcaPitMachineChip hostId={hostId} /> : null
-}
-
-/** On a project header, when all of its agents run on one machine. */
-export function OrcaPitHeaderMachineChip({
-  headerKey
-}: {
-  headerKey: string
-}): React.JSX.Element | null {
-  const hostId = useOrcaPitHeaderMachine(headerKey)
   return hostId ? <OrcaPitMachineChip hostId={hostId} /> : null
 }

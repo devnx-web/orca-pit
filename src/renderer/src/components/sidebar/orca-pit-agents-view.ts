@@ -28,10 +28,7 @@ import { orcaPitAgentFilterCount, useOrcaPitAgentFilters } from './orca-pit-agen
 import { getOrcaPitHostPresences, useOrcaPitPresenceRevision } from './orca-pit-sidebar-presence'
 import { scopeOrcaPitRowInputs } from './orca-pit-row-scope'
 
-export {
-  flattenAgentsOnlyRows,
-  scopeRowInputsToAgents
-} from './worktree-list/grouping/agents-only-inputs'
+export { scopeRowInputsToAgents } from './worktree-list/grouping/agents-only-inputs'
 
 const STORAGE_KEY = 'orca-pit.agents-view.v1'
 
@@ -77,6 +74,14 @@ export function isAgentsOnlyView(state: Pick<AppState, 'groupBy'>): boolean {
 const rowsCache = createWorktreeAgentRowsCache()
 let lastInputs: AgentBucketCountState | null = null
 let lastPanes: ReadonlyMap<string, readonly string[]> = new Map()
+let lastRecency: ReadonlyMap<string, number> = new Map()
+// Why a minute: the order by newest agent needs no finer clock, and status pings would
+// otherwise reorder (and rebuild) the list every few seconds.
+const RECENCY_STEP_MS = 60_000
+
+function sameRecency(a: ReadonlyMap<string, number>, b: ReadonlyMap<string, number>): boolean {
+  return a.size === b.size && [...a].every(([id, at]) => b.get(id) === at)
+}
 
 function samePanes(
   a: ReadonlyMap<string, readonly string[]>,
@@ -108,6 +113,7 @@ function selectWorkspaceAgentPanes(
   )
   const now = Date.now()
   const panes = new Map<string, readonly string[]>()
+  const recency = new Map<string, number>()
   startWorktreeAgentRowsCachePass(rowsCache)
   for (const { worktree } of workspaces) {
     const rows = selectWorktreeAgentRowsCached({
@@ -126,10 +132,15 @@ function selectWorkspaceAgentPanes(
         worktree.id,
         rows.map((row) => row.paneKey)
       )
+      const newest = Math.max(...rows.map((row) => row.entry.updatedAt || row.startedAt))
+      recency.set(worktree.id, Math.floor(newest / RECENCY_STEP_MS) * RECENCY_STEP_MS)
     }
   }
   finishWorktreeAgentRowsCachePass(rowsCache)
   lastInputs = state
+  if (!sameRecency(recency, lastRecency)) {
+    lastRecency = recency
+  }
   // Why keep the old map when nothing moved: agent pings arrive every few seconds and a new
   // identity would rebuild the whole sidebar row model each time.
   if (!samePanes(panes, lastPanes)) {
@@ -147,6 +158,26 @@ export function useWorkspaceAgentPanes(
 
 export function getWorkspaceAgentPanes(state: AppState): ReadonlyMap<string, readonly string[]> {
   return selectWorkspaceAgentPanes(selectAgentBucketCountState(state))
+}
+
+/** Workspace id → when its newest agent last changed (by the minute), from the same pass. */
+export function getWorkspaceAgentRecency(state: AppState): ReadonlyMap<string, number> {
+  selectWorkspaceAgentPanes(selectAgentBucketCountState(state))
+  return lastRecency
+}
+
+const NO_RECENCY: ReadonlyMap<string, number> = new Map()
+
+export function useWorkspaceAgentRecency(enabled: boolean): ReadonlyMap<string, number> {
+  const state = useAppStore((s) => (enabled ? selectAgentBucketCountState(s) : null))
+  // The pass keeps the map's identity while no minute moved, so the list rebuilds only then.
+  return useMemo(() => {
+    if (!state) {
+      return NO_RECENCY
+    }
+    selectWorkspaceAgentPanes(state)
+    return lastRecency
+  }, [state])
 }
 
 /**

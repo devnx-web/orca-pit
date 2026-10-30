@@ -23069,7 +23069,8 @@
       "split": "Split active and inactive",
       "splitDescription": "Show projects with a message sent in the last 12 hours under Active and the rest under Inactive",
       "lastCommandByAt": "Last command by {{name}} at {{time}}",
-      "justNow": "now"
+      "justNow": "now",
+      "idle": "No agent right now"
     },
     "groupBy": {
       "agents": "Agents"
@@ -23232,6 +23233,10 @@
       "unreachable": "Couldn't reach this server. Check the address and that Orca-Pit is open there.",
       "useLink": "Use an access link instead",
       "wrongTenant": "You do not share a company with this server's DevNX Control."
+    },
+    "projectMerge": {
+      "createWhere": "Create workspace for {{name}} on…",
+      "createWhereTitle": "Create the workspace on"
     }
   }
 }

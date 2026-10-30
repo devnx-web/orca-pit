@@ -37,7 +37,6 @@ import {
   ProjectGroupHeaderMenu
 } from './project-group-header-actions'
 import {
-  RepoHeaderCreateWorkspaceButton,
   RepoHeaderProjectActionsMenu,
   type RepoHeaderProjectActions
 } from './repo-header-project-actions'
@@ -47,7 +46,7 @@ import {
 } from './header-event-guards'
 import type { WorktreeSidebarHeaderDrag } from '../drag/use-header-drag'
 import { getWorktreeOptionId } from './option-dom'
-import { OrcaPitHeaderMachineChip } from '../../OrcaPitMachineChip'
+import { OrcaPitCreateWorkspaceButton } from '../../OrcaPitCreateWorkspaceButton'
 import { OrcaPitControlProjectChip } from '../../OrcaPitControlProjectChip'
 
 export type SectionHeaderRowContext = {
@@ -177,7 +176,9 @@ export function renderWorktreeSectionHeaderRow(args: {
       })
     : null
   const collapseKey = row.collapseKey ?? row.key
-  const isHeaderCollapsed = ctx.collapsedGroups.has(collapseKey)
+  // Orca-Pit: the idle fold starts closed, so its key in the set means open.
+  const isHeaderCollapsed =
+    ctx.collapsedGroups.has(collapseKey) !== (row.orcaPitOpenWhenSet === true)
   // Why: repo/project/status/pinned share compact section chrome; flat "All" stays a simple label.
   const showHeaderCollapseAffordance =
     row.count > 0 &&
@@ -339,8 +340,7 @@ export function renderWorktreeSectionHeaderRow(args: {
               <div className="flex min-w-0 items-center gap-1.5">
                 <div className="min-w-0 truncate text-[13px] font-semibold leading-4">{label}</div>
                 {hostContext ? <ProjectHeaderHostLabel context={hostContext} /> : null}
-                {/* Orca-Pit: the one machine all of this project's agents run on, and its Control project. */}
-                <OrcaPitHeaderMachineChip headerKey={row.key} />
+                {/* Orca-Pit: the DevNX Control project this project counts toward. */}
                 <OrcaPitControlProjectChip
                   repo={ctx.groupBy === 'repo' ? createRepo : undefined}
                   onOpenRepoSettings={ctx.projectActions.onOpenRepoSettings}
@@ -402,9 +402,10 @@ export function renderWorktreeSectionHeaderRow(args: {
             ) : null}
 
             {createRepo && ctx.groupBy === 'repo' ? (
-              <RepoHeaderCreateWorkspaceButton
+              <OrcaPitCreateWorkspaceButton
                 key={`${createRepo.executionHostId ?? 'local'}:${createRepo.connectionId ?? ''}`}
                 repo={createRepo}
+                repos={row.orcaPitCreateRepos}
                 label={label}
                 onCreateForRepo={ctx.projectActions.onCreateForRepo}
               />

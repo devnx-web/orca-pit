@@ -37,28 +37,22 @@ describe('Orca-Pit machine chip placement', () => {
       [header('a'), item('w1'), item('w2'), header('b'), item('w3')],
       'local'
     )
-    expect(plan.hostByHeaderKey.size).toBe(0)
     expect(plan.hostByWorkspaceId.size).toBe(0)
   })
 
-  it('puts the chip on the header of a one-machine project and on the rows of a mixed one', () => {
+  it('names other machines on their rows, and every row of a project on several', () => {
     const rows: Row[] = [
-      header(ACTIVE_PROJECTS_SECTION_KEY),
       header('central-only'),
       item('w1'),
-      item('w2'),
       header('nitro-only'),
       item('w3', NITRO),
       header('mixed'),
       item('w4'),
+      { ...header('nested'), projectGroupDepth: 1 },
       item('w5', NITRO)
     ]
-    const plan = planOrcaPitMachineChips(rows, 'local')
-    expect([...plan.hostByHeaderKey]).toEqual([
-      ['central-only', 'local'],
-      ['nitro-only', NITRO]
-    ])
-    expect([...plan.hostByWorkspaceId]).toEqual([
+    expect([...planOrcaPitMachineChips(rows, 'local').hostByWorkspaceId]).toEqual([
+      ['w3', NITRO],
       ['w4', 'local'],
       ['w5', NITRO]
     ])
@@ -69,7 +63,6 @@ describe('Orca-Pit machine chip placement', () => {
       [header(ACTIVE_PROJECTS_SECTION_KEY), item('w1'), item('w2', 'local')],
       NITRO
     )
-    expect(plan.hostByHeaderKey.size).toBe(0)
     expect([...plan.hostByWorkspaceId]).toEqual([
       ['w1', NITRO],
       ['w2', 'local']

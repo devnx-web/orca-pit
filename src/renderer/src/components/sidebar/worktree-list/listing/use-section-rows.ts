@@ -37,7 +37,8 @@ import {
 import { selectPendingWorktreeCreationKeys } from './pending-worktree-creation-keys'
 import { selectWorktreesByRepo } from '@/store/workspace-record-selectors'
 import { useProjectActivity } from '../../orca-pit-project-activity'
-import { flattenAgentsOnlyRows, useAgentsViewRowInputs } from '../../orca-pit-agents-view'
+import { useAgentsViewRowInputs, useWorkspaceAgentRecency } from '../../orca-pit-agents-view'
+import { collapseAgentsViewRows, organizeAgentsViewRows } from '../grouping/orca-pit-project-rows'
 import { usePublishOrcaPitMachinePlan } from '../../orca-pit-machine-chips'
 
 // Why a Set nobody writes to: render takes a mutable Set.
@@ -181,7 +182,8 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
         pinnedDisplayPolicy: args.pinnedDisplayPolicy,
         filterRepoIds: args.filterRepoIds,
         hideEmptyProjectGroupRepos: hideDefaultBranchWorkspace && !agentsOnly,
-        projectActivity
+        // Orca-Pit: the "Agents" view orders by its newest agent instead of Active/Inactive.
+        projectActivity: agentsOnly ? undefined : projectActivity
       }),
     [
       args.groupBy,
@@ -231,16 +233,22 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
         : effectiveCollapsedGroups,
     [effectiveCollapsedGroups, hostScopedGroups]
   )
+  // Orca-Pit: the "Agents" view is organized by project first, then collapsed.
+  const agentRecency = useWorkspaceAgentRecency(agentsOnly)
+  const agentsViewRows = useMemo(
+    () =>
+      agentsOnly ? organizeAgentsViewRows(rowPlan.render(NOTHING_COLLAPSED), agentRecency) : null,
+    [agentsOnly, rowPlan, agentRecency]
+  )
   const rows: Row[] = useMemo(
     () =>
-      // Orca-Pit: the "Agents" view applies collapse itself, after flattening.
-      agentsOnly
-        ? flattenAgentsOnlyRows(rowPlan.render(NOTHING_COLLAPSED), rowCollapsedGroups)
+      agentsViewRows
+        ? collapseAgentsViewRows(agentsViewRows, rowCollapsedGroups)
         : rowPlan.render(rowCollapsedGroups),
-    [agentsOnly, rowPlan, rowCollapsedGroups]
+    [agentsViewRows, rowPlan, rowCollapsedGroups]
   )
   // Orca-Pit: which machine chips the "Agents" view draws, from its uncollapsed rows.
-  usePublishOrcaPitMachinePlan(agentsOnly, rowPlan, defaultHostId)
+  usePublishOrcaPitMachinePlan(agentsViewRows, defaultHostId)
   const orderedHostOptions = useMemo(
     () => orderHostSectionOptions(hostOptions, workspaceHostOrder),
     [hostOptions, workspaceHostOrder]

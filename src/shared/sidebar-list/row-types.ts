@@ -26,6 +26,8 @@ export type SidebarHeaderIcon =
   | { kind: 'workspace-status'; status: WorkspaceStatus }
   /** Orca-Pit: the Active / Inactive project sections. */
   | { kind: 'orca-pit-activity'; active: boolean }
+  /** Orca-Pit: the "Agents" view's fold of projects with no agent right now. */
+  | { kind: 'orca-pit-idle' }
 
 /** A worktree's PR lane, read by each client from its own PR facts. */
 export type SidebarPRGroupReader = (worktree: Worktree) => PRGroupKey
@@ -47,6 +49,10 @@ export type GroupHeaderRow = {
   worktreeIds?: readonly string[]
   /** Orca-Pit: the project this group header's "+" creates in, in the "Agents" view. */
   orcaPitCreateRepo?: Repo
+  /** Orca-Pit: a header merged over several machines; its "+" asks which project to create in. */
+  orcaPitCreateRepos?: readonly Repo[]
+  /** Orca-Pit: `collapseKey` in collapsedGroups means open (the idle fold starts closed). */
+  orcaPitOpenWhenSet?: boolean
 }
 
 export type WorktreeRow = {

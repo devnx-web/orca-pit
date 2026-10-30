@@ -1,44 +1,45 @@
-// Orca-Pit: where the "Agents" view names machines. With one machine in play nothing is named.
-// With more, a project whose agents all run on one machine names it once on its header, and a
-// project spread over several names it on every agent row.
+// Orca-Pit: where the "Agents" view names machines. The chip is on each agent's row, never on
+// the project header, since one project may run on several machines. With one machine in play
+// nothing is named; otherwise a row names its machine when that is not this computer, and every
+// row of a project spread over several machines names its own, this computer included.
 import { useEffect, useSyncExternalStore } from 'react'
 import { createStore } from 'zustand/vanilla'
 import {
   getWorktreeExecutionHostId,
+  LOCAL_EXECUTION_HOST_ID,
   parseExecutionHostId,
   type ExecutionHostId
 } from '../../../../shared/execution-host'
 import { folderWorkspaceToWorktree } from '../../../../shared/folder-workspace-worktree'
 import { isProjectActivitySectionKey } from '../../../../shared/sidebar-list/orca-pit-activity-sections'
 import type { Row } from '../../../../shared/sidebar-list/row-types'
-import { flattenAgentsOnlyRows } from './worktree-list/grouping/agents-only-inputs'
 
 export type OrcaPitMachinePlan = {
-  /** Header key → the one machine all of that project's agents run on. */
-  hostByHeaderKey: ReadonlyMap<string, ExecutionHostId>
-  /** Workspace id → its machine, for workspaces in projects spread over several machines. */
+  /** Workspace id → the machine its row names. */
   hostByWorkspaceId: ReadonlyMap<string, ExecutionHostId>
 }
 
 export const EMPTY_ORCA_PIT_MACHINE_PLAN: OrcaPitMachinePlan = Object.freeze({
-  hostByHeaderKey: new Map(),
   hostByWorkspaceId: new Map()
 })
 
 const NO_HEADER = '\u0000'
 
-/** `rows` are the "Agents" view's flattened rows, with nothing collapsed. */
+/** `rows` are the "Agents" view's organized rows, with nothing collapsed. */
 export function planOrcaPitMachineChips(
   rows: readonly Row[],
   defaultHostId: ExecutionHostId
 ): OrcaPitMachinePlan {
-  const groups = new Map<string, { workspaceId: string; hostId: ExecutionHostId }[]>()
+  const projects = new Map<string, { workspaceId: string; hostId: ExecutionHostId }[]>()
   const allHosts = new Set<ExecutionHostId>()
-  let headerKey = NO_HEADER
+  let projectKey = NO_HEADER
   for (const row of rows) {
     if (row.type === 'header') {
-      if (!isProjectActivitySectionKey(row.key)) {
-        headerKey = row.key
+      // A nested project header belongs to its top-level project; a section starts none.
+      if (isProjectActivitySectionKey(row.key)) {
+        projectKey = NO_HEADER
+      } else if ((row.projectGroupDepth ?? 0) === 0) {
+        projectKey = row.key
       }
       continue
     }
@@ -54,82 +55,60 @@ export function planOrcaPitMachineChips(
     const repo = row.type === 'item' ? row.repo : undefined
     const hostId = getWorktreeExecutionHostId(worktree, repo, defaultHostId)
     allHosts.add(hostId)
-    const group = groups.get(headerKey) ?? []
-    group.push({ workspaceId: worktree.id, hostId })
-    groups.set(headerKey, group)
+    const members = projects.get(projectKey) ?? []
+    members.push({ workspaceId: worktree.id, hostId })
+    projects.set(projectKey, members)
   }
   if (allHosts.size <= 1) {
     return EMPTY_ORCA_PIT_MACHINE_PLAN
   }
-  const hostByHeaderKey = new Map<string, ExecutionHostId>()
   const hostByWorkspaceId = new Map<string, ExecutionHostId>()
-  for (const [key, members] of groups) {
-    const hosts = new Set(members.map((member) => member.hostId))
-    const [only] = hosts
-    if (hosts.size === 1 && only && key !== NO_HEADER) {
-      hostByHeaderKey.set(key, only)
-      continue
-    }
+  for (const members of projects.values()) {
+    const spread = new Set(members.map((member) => member.hostId)).size > 1
     for (const member of members) {
-      hostByWorkspaceId.set(member.workspaceId, member.hostId)
+      if (spread || member.hostId !== LOCAL_EXECUTION_HOST_ID) {
+        hostByWorkspaceId.set(member.workspaceId, member.hostId)
+      }
     }
   }
-  return { hostByHeaderKey, hostByWorkspaceId }
+  return { hostByWorkspaceId }
 }
 
 function samePlan(a: OrcaPitMachinePlan, b: OrcaPitMachinePlan): boolean {
-  const sameMap = (x: ReadonlyMap<string, string>, y: ReadonlyMap<string, string>): boolean =>
-    x.size === y.size && [...x].every(([key, value]) => y.get(key) === value)
-  return (
-    sameMap(a.hostByHeaderKey, b.hostByHeaderKey) &&
-    sameMap(a.hostByWorkspaceId, b.hostByWorkspaceId)
-  )
+  const x = a.hostByWorkspaceId
+  const y = b.hostByWorkspaceId
+  return x.size === y.size && [...x].every(([key, value]) => y.get(key) === value)
 }
 
 const planStore = createStore<{ plan: OrcaPitMachinePlan }>(() => ({
   plan: EMPTY_ORCA_PIT_MACHINE_PLAN
 }))
 
-/** The sidebar list publishes its plan; rows and headers read their own entry. */
+/** The sidebar list publishes its plan; rows read their own entry. */
 export function publishOrcaPitMachinePlan(plan: OrcaPitMachinePlan): void {
   if (!samePlan(plan, planStore.getState().plan)) {
     planStore.setState({ plan })
   }
 }
 
-function useMachineFrom(pick: (plan: OrcaPitMachinePlan) => ExecutionHostId | null) {
-  const read = (): ExecutionHostId | null => pick(planStore.getState().plan)
+export function useOrcaPitRowMachine(workspaceId: string | null | undefined) {
+  const read = (): ExecutionHostId | null =>
+    workspaceId ? (planStore.getState().plan.hostByWorkspaceId.get(workspaceId) ?? null) : null
   return useSyncExternalStore(planStore.subscribe, read, read)
 }
 
-export function useOrcaPitRowMachine(workspaceId: string | null | undefined) {
-  return useMachineFrom((plan) =>
-    workspaceId ? (plan.hostByWorkspaceId.get(workspaceId) ?? null) : null
-  )
-}
-
-export function useOrcaPitHeaderMachine(headerKey: string) {
-  return useMachineFrom((plan) => plan.hostByHeaderKey.get(headerKey) ?? null)
-}
-
-const NOTHING_COLLAPSED = new Set<string>()
-
-/** Publishes the "Agents" view's plan from its uncollapsed rows; empty in every other view. */
+/** Publishes the "Agents" view's plan from its organized, uncollapsed rows; empty elsewhere. */
 export function usePublishOrcaPitMachinePlan(
-  agentsOnly: boolean,
-  rowPlan: { render: (collapsed: Set<string>) => Row[] },
+  agentsViewRows: readonly Row[] | null,
   defaultHostId: ExecutionHostId
 ): void {
   useEffect(() => {
     publishOrcaPitMachinePlan(
-      agentsOnly
-        ? planOrcaPitMachineChips(
-            flattenAgentsOnlyRows(rowPlan.render(NOTHING_COLLAPSED), NOTHING_COLLAPSED),
-            defaultHostId
-          )
+      agentsViewRows
+        ? planOrcaPitMachineChips(agentsViewRows, defaultHostId)
         : EMPTY_ORCA_PIT_MACHINE_PLAN
     )
-  }, [agentsOnly, rowPlan, defaultHostId])
+  }, [agentsViewRows, defaultHostId])
 }
 
 // Why: a browser pairing that was never named gets this; the machine's own name says more.

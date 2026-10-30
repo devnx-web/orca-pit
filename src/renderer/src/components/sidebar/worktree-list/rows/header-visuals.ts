@@ -1,4 +1,4 @@
-import { CircleX, FolderTree, List, Moon, Pin, Zap } from 'lucide-react'
+import { CircleX, FolderTree, List, Moon, MoonStar, Pin, Zap } from 'lucide-react'
 import type React from 'react'
 import { translate } from '@/i18n/i18n'
 import type { PRGroupKey } from '../../../../../../shared/workspace-view/workspace-pr-groups'
@@ -103,6 +103,12 @@ export function getSidebarHeaderVisual(
             tone: 'text-muted-foreground',
             label: translate('devnx.activity.inactive', 'Inactive')
           }
+    case 'orca-pit-idle':
+      return {
+        icon: MoonStar,
+        tone: 'text-muted-foreground',
+        label: translate('devnx.activity.idle', 'No agent right now')
+      }
     case 'workspace-status': {
       const { icon: statusIcon, tone } = getWorkspaceStatusVisualMeta(
         workspaceStatuses.find((status) => status.id === icon.status) ?? icon.status

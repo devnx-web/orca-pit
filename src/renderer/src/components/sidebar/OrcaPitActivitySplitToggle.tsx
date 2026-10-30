@@ -3,9 +3,15 @@ import { Zap } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 import { FilterToggleRow } from './FilterToggleRow'
 import { useSplitProjectsByActivity } from './orca-pit-project-activity'
+import { useAgentsOnlyView } from './orca-pit-agents-view'
 
-export function OrcaPitActivitySplitToggle(): React.JSX.Element {
+export function OrcaPitActivitySplitToggle(): React.JSX.Element | null {
   const [enabled, setEnabled] = useSplitProjectsByActivity()
+  const agentsView = useAgentsOnlyView()
+  // The "Agents" view orders projects by their newest agent; the split serves the Project view.
+  if (agentsView) {
+    return null
+  }
   return (
     <FilterToggleRow
       icon={<Zap className="size-3.5" />}

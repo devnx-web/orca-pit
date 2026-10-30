@@ -1,10 +1,9 @@
-// Orca-Pit: the row inputs and rows of the sidebar's "Agents" view; see orca-pit-agents-view.
+// Orca-Pit: the row inputs of the sidebar's "Agents" view; see orca-pit-agents-view. The rows
+// themselves are organized in orca-pit-project-rows.
 import type { FolderWorkspace } from '../../../../../../shared/folder-workspace-types'
 import type { ProjectGroup } from '../../../../../../shared/project-group-types'
 import type { Worktree } from '../../../../../../shared/worktree/types'
 import { folderWorkspaceKey } from '../../../../../../shared/workspace-scope'
-import { isProjectActivitySectionKey } from '../../../../../../shared/sidebar-list/orca-pit-activity-sections'
-import type { GroupHeaderRow, Row } from '../../../../../../shared/sidebar-list/row-types'
 
 export type AgentsOnlyRowInputs<Imported, Inbox> = {
   worktrees: Worktree[]
@@ -35,51 +34,4 @@ export function scopeRowInputsToAgents<Imported, Inbox>(
     importedWorktreesByRepo: new Map() as Imported,
     newExternalWorktreesInboxByRepo: new Map() as Inbox
   }
-}
-
-/**
- * Keeps one header per top-level project: the headers of the projects and groups nested in it
- * go, and their agents read as the top project's. A group header takes over the first nested
- * project's "+" (`orcaPitCreateRepo`), since the nested header that carried it is gone.
- *
- * `rows` must be built with nothing collapsed: collapse is applied here, to the headers that
- * remain, so a nested header collapsed in the Project view cannot hide agents behind it.
- */
-export function flattenAgentsOnlyRows(
-  rows: readonly Row[],
-  collapsedGroups: ReadonlySet<string>
-): Row[] {
-  const result: Row[] = []
-  let topHeaderIndex = -1
-  let skipSection = false
-  let skipProject = false
-  for (const row of rows) {
-    if (row.type !== 'header') {
-      if (!skipSection && !skipProject) {
-        result.push(row)
-      }
-      continue
-    }
-    if (isProjectActivitySectionKey(row.key)) {
-      result.push(row)
-      skipSection = collapsedGroups.has(row.key)
-      skipProject = false
-      topHeaderIndex = -1
-      continue
-    }
-    if (skipSection) {
-      continue
-    }
-    if ((row.projectGroupDepth ?? 0) === 0) {
-      topHeaderIndex = result.length
-      result.push(row)
-      skipProject = collapsedGroups.has(row.key)
-      continue
-    }
-    const top = result[topHeaderIndex] as GroupHeaderRow | undefined
-    if (top && row.repo && !top.repo && !top.orcaPitCreateRepo) {
-      result[topHeaderIndex] = { ...top, orcaPitCreateRepo: row.repo }
-    }
-  }
-  return result
 }

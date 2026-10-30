@@ -6,6 +6,28 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit13 — 30/10/2026
+
+A barra lateral no agrupamento **Agentes** passa a ser organizada 100% por projeto:
+
+- **Um projeto, um cabeçalho**, mesmo rodando em várias máquinas. "Momento" no
+  ftgkNote e no Nitro5 vira um "Momento" só. Projetos ligados ao mesmo projeto
+  do DevNX Control também se juntam, e nomes iguais (sem contar maiúsculas e
+  acentos) idem.
+- A **máquina** sai do cabeçalho e vai para cada agente: aparece quando o agente
+  roda em outra máquina, e em todos os agentes de um projeto espalhado por
+  mais de uma.
+- O **+** de um projeto em várias máquinas pergunta em qual criar o workspace.
+- **Projetos com agente ficam no topo**, do agente mais recente para o mais
+  antigo, valendo o agente de qualquer pessoa e de qualquer máquina. Antes só
+  contava a mensagem enviada deste aparelho, e projetos com agente rodando
+  apareciam em "Inativos".
+- **Projetos sem agente** descem para "Sem agente agora", recolhido no fim da
+  lista; um clique abre. Grupos de projetos vazios somem.
+- Num grupo com agentes em dois ou mais projetos, cada projeto aparece embaixo
+  do grupo; com um só, os agentes ficam direto no grupo, como antes.
+- "Separar ativos e inativos" continua só no agrupamento **Projeto**.
+
 ## 1.4.214-pit12 — 30/10/2026
 
 **Cada pessoa entra com o próprio login**

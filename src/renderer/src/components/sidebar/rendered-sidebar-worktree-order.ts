@@ -34,10 +34,14 @@ import { selectFolderWorkspaces } from '@/store/workspace-record-selectors'
 import { selectWorkspaceBoardStatuses } from '@/store/host-workspace-status-columns'
 import { getProjectActivity } from './orca-pit-project-activity'
 import {
-  flattenAgentsOnlyRows,
   getWorkspaceAgentPanes,
+  getWorkspaceAgentRecency,
   isAgentsOnlyView
 } from './orca-pit-agents-view'
+import {
+  collapseAgentsViewRows,
+  organizeAgentsViewRows
+} from './worktree-list/grouping/orca-pit-project-rows'
 import { getOrcaPitAgentFilters, orcaPitAgentFilterCount } from './orca-pit-agent-filters'
 import { getOrcaPitHostPresences } from './orca-pit-sidebar-presence'
 import { scopeOrcaPitRowInputs } from './orca-pit-row-scope'
@@ -134,11 +138,14 @@ export function computeRenderedSidebarRows(
     pinnedDisplayPolicy,
     filterRepoIds: state.filterRepoIds,
     hideEmptyProjectGroupRepos: state.hideDefaultBranchWorkspace && !agentsOnly,
-    projectActivity: getProjectActivity()
+    projectActivity: agentsOnly ? undefined : getProjectActivity()
   })
-  // Orca-Pit: same flattening as the rendered "Agents" view, collapse included.
+  // Orca-Pit: same organizing as the rendered "Agents" view, collapse included.
   const rows = agentsOnly
-    ? flattenAgentsOnlyRows(plan.render(new Set<string>()), state.collapsedGroups)
+    ? collapseAgentsViewRows(
+        organizeAgentsViewRows(plan.render(new Set<string>()), getWorkspaceAgentRecency(state)),
+        state.collapsedGroups
+      )
     : plan.render(state.collapsedGroups)
 
   // Build the host registry only when sections may affect order; zero/one-host cases still safely no-op.
