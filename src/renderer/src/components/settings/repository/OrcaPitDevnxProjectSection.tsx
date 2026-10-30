@@ -20,6 +20,7 @@ import { Button } from '../../ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui/popover'
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '../../ui/command'
 import { SearchableSetting } from '../SearchableSetting'
+import { getRepositoryDevnxProjectSectionId } from './repository-settings-targets'
 import { translate } from '@/i18n/i18n'
 
 type ProjectsState =
@@ -110,6 +111,7 @@ export function OrcaPitDevnxProjectSection({
     'Tasks of this Control project appear under Tasks, and workspaces created from them are linked to the task.'
   )
   const keywords = ['devnx', 'control', 'project', 'task', repo.displayName]
+  const sectionId = getRepositoryDevnxProjectSectionId(repo.id)
   if (!connection.canLink) {
     // A member sees the link; the Control's admins decide where the team's work is counted.
     return (
@@ -119,6 +121,7 @@ export function OrcaPitDevnxProjectSection({
         keywords={keywords}
         forceVisible={forceVisible}
         className="space-y-2"
+        id={sectionId}
       >
         <p className="text-sm font-semibold">{label}</p>
         <p className="text-sm">{value ? value.name : noneLabel}</p>
@@ -142,6 +145,7 @@ export function OrcaPitDevnxProjectSection({
       keywords={keywords}
       forceVisible={forceVisible}
       className="space-y-2"
+      id={sectionId}
     >
       <p className="text-sm font-semibold">{label}</p>
       <Popover open={open} onOpenChange={setOpen}>

@@ -23130,7 +23130,12 @@
       "useSuggestion": "Usar sugestão",
       "adminOnly": "Só um administrador da empresa no DevNX Control pode trocar este vínculo.",
       "keywordControl": "devnx control",
-      "keywordTasks": "tarefas do projeto"
+      "keywordTasks": "tarefas do projeto",
+      "openInControl": "Abrir {{name}} no DevNX Control",
+      "unlinkedMember": "Sem projeto do DevNX Control. Peça a um administrador para vincular.",
+      "unlinkedShort": "Sem projeto no Control",
+      "unlinkedAdmin": "Sem projeto do DevNX Control: o trabalho feito aqui não conta para nenhum projeto. Clique para vincular.",
+      "linkAction": "Vincular"
     },
     "tasks": {
       "back": "Tarefas do DevNX Control",

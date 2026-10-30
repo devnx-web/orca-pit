@@ -6,6 +6,15 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit11 — 30/10/2026
+
+- O cabeçalho de cada projeto na barra lateral mostra o **projeto do DevNX
+  Control** a que ele está ligado. Um clique abre esse projeto no Control.
+- Projeto sem vínculo ganha o aviso **Vincular**, em amarelo: o trabalho feito
+  nele não conta para nenhum projeto na Carga. Para o admin, o clique leva
+  direto ao campo do vínculo nas configurações do projeto; para os demais,
+  o aviso pede que um administrador faça o vínculo.
+
 ## 1.4.214-pit10 — 29/10/2026
 
 - Sincronizado com o Orca de 29/10/2026 (duas semanas de novidades do Orca).

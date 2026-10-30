@@ -23128,7 +23128,12 @@
       "useSuggestion": "Use suggestion",
       "adminOnly": "Only an administrator of the company in DevNX Control can change this link.",
       "keywordControl": "devnx control",
-      "keywordTasks": "project tasks"
+      "keywordTasks": "project tasks",
+      "openInControl": "Open {{name}} in DevNX Control",
+      "unlinkedMember": "Not linked to a DevNX Control project. Ask an administrator to link it.",
+      "unlinkedShort": "No Control project",
+      "unlinkedAdmin": "Not linked to a DevNX Control project: work done here is not counted toward any project. Click to link it.",
+      "linkAction": "Link"
     },
     "tasks": {
       "back": "DevNX Control tasks",

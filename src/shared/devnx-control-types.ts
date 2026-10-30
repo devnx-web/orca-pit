@@ -5,6 +5,8 @@ export const DEVNX_CONTROL_PROVIDERS = ['claude', 'openai', 'gemini'] as const
 export type DevnxControlProvider = (typeof DEVNX_CONTROL_PROVIDERS)[number]
 
 export const DEVNX_CONTROL_DEFAULT_BASE_URL = 'https://bcontrol.devnx.com.br'
+// The Control's own screens (the front), where a linked project opens.
+export const DEVNX_CONTROL_WEB_URL = 'https://control.devnx.com.br'
 
 export type DevnxControlUsageWindow = {
   percent: number | null
