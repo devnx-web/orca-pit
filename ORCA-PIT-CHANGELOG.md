@@ -6,6 +6,24 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit14 — 30/10/2026
+
+**Máquinas da empresa num endereço só**
+
+- Ao entrar com o login do DevNX Control, o computador se cadastra sozinho
+  como máquina da empresa. Depois que um administrador aprova em
+  control.devnx.com.br/maquinas, ele fica acessível em
+  `orca.devnx.com.br/<nome-da-máquina>`, sem túnel nem subdomínio criado à mão:
+  o Orca-Pit baixa e liga sozinho o túnel do Cloudflare.
+- Configurações → Servidores mostra as **Máquinas da empresa**: quem é o dono
+  (com a foto), se está online, a versão e o botão **Conectar**, que entra com
+  o seu login, sem link nem senha.
+- O "Endereço deste computador" se preenche sozinho com o endereço da máquina.
+- Se a internet cair, a conexão com uma máquina da mesma rede passa a usar o
+  endereço local e volta sozinha quando a internet volta.
+- O acesso pelo endereço escondido de cada máquina só funciona passando pelo
+  `orca.devnx.com.br`: quem tentar entrar direto é recusado.
+
 ## 1.4.214-pit13 — 30/10/2026
 
 A barra lateral no agrupamento **Agentes** passa a ser organizada 100% por projeto:
