@@ -34,7 +34,9 @@ function sameUser(a: OrcaPitUser, b: OrcaPitUser): boolean {
     a.email === b.email &&
     a.tenantId === b.tenantId &&
     a.tenantIds.join() === b.tenantIds.join() &&
-    a.orcaRole === b.orcaRole
+    a.orcaRole === b.orcaRole &&
+    // A new profile photo reaches the sidebar on the next check.
+    (a.avatarUrl ?? null) === (b.avatarUrl ?? null)
   )
 }
 

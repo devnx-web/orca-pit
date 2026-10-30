@@ -12,6 +12,7 @@ import type { OrcaPitMe } from './orca-pit-memberships'
 import { performOrcaPitLogin } from './orca-pit-login'
 import { OrcaPitLoginRateLimit, setOrcaPitLoginHandler } from './orca-pit-login-route'
 import { mintOrcaPitUserDevice } from './orca-pit-user-devices'
+import { loginToOrcaPitServer } from './orca-pit-server-login'
 
 // The central's owner works for DevNX (1, default) and Ailiv (2) in "Todas as empresas".
 const OWNER: OrcaPitMe = {
@@ -136,7 +137,9 @@ describe('POST /orca-pit/login', () => {
   it('answers a wrong password with a generic 401 and mints nothing', async () => {
     const response = await login({ email: 'f@x', password: 'errada' })
     expect(response.status).toBe(401)
-    expect(await response.json()).toEqual({ message: 'E-mail ou senha inválidos.' })
+    expect(await response.json()).toEqual({
+      message: 'E-mail ou senha inválidos, ou sessão do Control expirada.'
+    })
     expect(registry.listDevices()).toHaveLength(0)
   })
 
@@ -189,6 +192,70 @@ describe('POST /orca-pit/login', () => {
     )
     const response = await login({ email: 'f@x', password: 'certa' })
     expect(response.status).toBe(503)
+  })
+})
+
+describe('POST /orca-pit/login from the app', () => {
+  it("takes the person's own Control session and names the device after the app", async () => {
+    const response = await login({ controlToken: 'jwt-fulano', client: 'app', endpoint: 'wss://h' })
+    expect(response.status).toBe(200)
+    const [device] = registry.listDevices()
+    expect(device).toMatchObject({ name: 'Fulano · app', orcaPitControlToken: 'jwt-fulano' })
+    expect(device.orcaPitUser).toMatchObject({ id: 7, orcaRole: 'member' })
+    expect(calls.login).not.toHaveBeenCalled()
+  })
+
+  it('refuses a Control session the panel no longer honors', async () => {
+    expect((await login({ controlToken: 'jwt-velho', client: 'app' })).status).toBe(401)
+    expect(registry.listDevices()).toHaveLength(0)
+  })
+
+  it('counts attempts per client behind the tunnel, not per tunnel', async () => {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      await login({ email: 'f@x', password: 'errada' }, { 'CF-Connecting-IP': '203.0.113.1' })
+    }
+    const other = await login(
+      { email: 'f@x', password: 'certa' },
+      { 'CF-Connecting-IP': '203.0.113.2' }
+    )
+    expect(other.status).toBe(200)
+  })
+
+  it('adds a server end to end: probe, sign-in with the session, pairing link back', async () => {
+    const result = await loginToOrcaPitServer(
+      { controlToken: () => 'jwt-fulano' },
+      { address: base.replace('http://', '') }
+    )
+    expect(result).toMatchObject({ ok: true, suggestedName: '127.0.0.1' })
+    const [, deviceId, endpoint] = result.ok ? result.pairingUrl.split('|') : []
+    expect(endpoint).toBe(base.replace('http://', 'ws://'))
+    // The diary signs this server's work with the person behind the new device.
+    expect(registry.getDevice(deviceId)?.orcaPitUser?.id).toBe(7)
+  })
+
+  it('falls back to e-mail and password and reports a wrong one', async () => {
+    const address = base.replace('http://', '')
+    const wrong = await loginToOrcaPitServer(
+      { controlToken: () => null },
+      { address, email: 'f@x', password: 'errada' }
+    )
+    expect(wrong).toEqual({ ok: false, reason: 'bad-credentials' })
+    expect(await loginToOrcaPitServer({ controlToken: () => null }, { address })).toEqual({
+      ok: false,
+      reason: 'needs-credentials'
+    })
+  })
+
+  it('tells a server without the login apart from one that is down', async () => {
+    session = null
+    const address = base.replace('http://', '')
+    expect(await loginToOrcaPitServer({ controlToken: () => 'jwt-fulano' }, { address })).toEqual({
+      ok: false,
+      reason: 'no-login'
+    })
+    expect(
+      await loginToOrcaPitServer({ controlToken: () => 'jwt-fulano' }, { address: '127.0.0.1:1' })
+    ).toEqual({ ok: false, reason: 'unreachable' })
   })
 })
 

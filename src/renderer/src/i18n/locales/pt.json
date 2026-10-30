@@ -23201,6 +23201,39 @@
       "everyone": "Todas",
       "machine": "Máquina",
       "allMachines": "Todas"
+    },
+    "appLogin": {
+      "badCredentials": "E-mail ou senha inválidos.",
+      "description": "Entre com o e-mail e a senha do DevNX Control. O que você fizer aqui fica assinado com o seu nome.",
+      "offline": "offline",
+      "offlineHelp": "O DevNX Control estava fora do ar na entrada; você entrou como a última pessoa que usou esta máquina.",
+      "signOut": "Sair",
+      "signOutHelp": "Sair para outra pessoa entrar",
+      "title": "Quem está usando o Orca-Pit?",
+      "unavailable": "Não foi possível falar com o DevNX Control. Fora do ar, só entra a última pessoa que usou esta máquina nas últimas 12 horas.",
+      "wrongTenant": "Este usuário não divide nenhuma empresa com o DevNX Control deste computador."
+    },
+    "publicAddress": {
+      "description": "Onde os outros aparelhos encontram este computador, como wss://orca.devnx.com.br. O Compartilhar este computador já abre com ele.",
+      "save": "Salvar",
+      "saved": "Endereço salvo.",
+      "title": "Endereço deste computador"
+    },
+    "serverLogin": {
+      "address": "Endereço do servidor",
+      "badCredentials": "O servidor não aceitou este login. Saia e entre de novo, ou confira o e-mail e a senha.",
+      "description": "Entre no outro Orca-Pit com o seu login do DevNX Control.",
+      "invalidAddress": "Digite o endereço do servidor, como orca.devnx.com.br.",
+      "needsCredentials": "Digite o seu e-mail e a sua senha.",
+      "noLogin": "Este servidor não tem o login do DevNX Control. Atualize o Orca-Pit lá ou use um link de acesso.",
+      "signedInAs": "Você entra como {{name}}",
+      "submit": "Entrar e adicionar",
+      "tooMany": "Muitas tentativas. Aguarde alguns minutos.",
+      "tooManyWait": "Muitas tentativas. Tente de novo em {{minutes}} min.",
+      "unavailable": "O servidor não conseguiu falar com o DevNX Control. Tente de novo.",
+      "unreachable": "Não foi possível alcançar este servidor. Confira o endereço e se o Orca-Pit está aberto lá.",
+      "useLink": "Usar um link de acesso",
+      "wrongTenant": "Você não divide nenhuma empresa com o DevNX Control deste servidor."
     }
   }
 }

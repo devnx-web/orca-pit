@@ -1,12 +1,20 @@
-// Orca-Pit: the runtime rows a browser login mints, one per sign-in, carrying the person.
+// Orca-Pit: the runtime rows a Control login mints, one per sign-in, carrying the person.
 import type { DeviceRegistry, TokenDeviceEntry } from '../runtime/device-registry'
-import type { OrcaPitDeviceIdentity } from './orca-pit-identity'
+import type { OrcaPitDeviceIdentity, OrcaPitLoginClient } from './orca-pit-identity'
 import type { OrcaPitUser } from './orca-pit-identity-types'
 
 const DEVICE_NAME_MAX_CHARS = 120
 
-export function orcaPitBrowserDeviceName(user: OrcaPitUser): string {
-  return `${user.name.trim() || user.email} · navegador`.slice(0, DEVICE_NAME_MAX_CHARS)
+const CLIENT_LABEL: Record<OrcaPitLoginClient, string> = { browser: 'navegador', app: 'app' }
+
+export function orcaPitUserDeviceName(
+  user: OrcaPitUser,
+  client: OrcaPitLoginClient = 'browser'
+): string {
+  return `${user.name.trim() || user.email} · ${CLIENT_LABEL[client]}`.slice(
+    0,
+    DEVICE_NAME_MAX_CHARS
+  )
 }
 
 /**
@@ -17,7 +25,11 @@ export function mintOrcaPitUserDevice(
   registry: DeviceRegistry,
   identity: OrcaPitDeviceIdentity
 ): TokenDeviceEntry {
-  const minted = registry.addDevice(orcaPitBrowserDeviceName(identity.user), 'runtime', 'network')
+  const minted = registry.addDevice(
+    orcaPitUserDeviceName(identity.user, identity.client),
+    'runtime',
+    'network'
+  )
   const stamped: TokenDeviceEntry = {
     ...minted,
     lastSeenAt: Date.now(),

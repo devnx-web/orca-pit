@@ -32,6 +32,8 @@ import { installOsFileDropCancellationGuard } from './lib/os-file-drop-cancellat
 import { installProjectActivityTracking } from './components/sidebar/orca-pit-project-activity'
 import { installOrcaPitOpenUpdatesBridge } from './lib/orca-pit-open-updates'
 import { installBodyOverlayAttributes } from './lib/body-overlay-attributes'
+import { OrcaPitAppLoginGate } from './components/orca-pit-login/OrcaPitAppLoginGate'
+import { installOrcaPitLoginKeyGuard } from './components/orca-pit-login/orca-pit-app-session-store'
 
 const disposeOsFileDropGuard = installOsFileDropCancellationGuard()
 import.meta.hot?.dispose(disposeOsFileDropGuard)
@@ -40,6 +42,9 @@ import.meta.hot?.dispose(disposeBodyOverlayAttributes)
 recordRendererCrashBreadcrumb('renderer_bootstrap_started', { dev: import.meta.env.DEV })
 installRendererCrashDiagnostics()
 installTypingLatencyDiagnostic()
+// Orca-Pit: ahead of the keyboard router, so no shortcut runs behind the sign-in screen.
+const disposeLoginKeyGuard = installOrcaPitLoginKeyGuard()
+import.meta.hot?.dispose(disposeLoginKeyGuard)
 installAppKeyboardRouter()
 installAutomationHostDiagnostic()
 // Orca-Pit: feeds the sidebar's Active/Inactive project sections.
@@ -86,8 +91,11 @@ function RendererRoot(): React.JSX.Element {
         'The app shell could not finish rendering. Retry to remount it, or relaunch Orca if the error persists.'
       )}
     >
-      <App />
-      <SkillWarningPreviewLauncher />
+      {/* Orca-Pit: on a machine paired with the DevNX Control, the person signs in first. */}
+      <OrcaPitAppLoginGate>
+        <App />
+        <SkillWarningPreviewLauncher />
+      </OrcaPitAppLoginGate>
     </RecoverableRenderErrorBoundary>
   )
 }

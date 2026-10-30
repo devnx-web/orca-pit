@@ -11,6 +11,7 @@ import {
   orcaPitUserForDevice,
   publicOrcaPitUser,
   resolveOrcaPitUser,
+  knownOrcaPitAvatars,
   setOrcaPitIdentitySource
 } from './orca-pit-identity'
 import type { OrcaPitUser } from './orca-pit-identity-types'
@@ -168,5 +169,28 @@ describe('roles narrow a paired runtime client', () => {
       }
       expect(denyRpcMethodForCaller(callerScopeOf(row), 'm', 'pairing-admin')).not.toBeNull()
     }
+  })
+})
+
+describe('knownOrcaPitAvatars', () => {
+  it('maps every known person with a photo, the app user included', () => {
+    const user = (id: number, avatarUrl?: string): OrcaPitUser => ({
+      id,
+      name: `P${id}`,
+      email: `${id}@x`,
+      tenantId: 1,
+      tenantIds: [1],
+      orcaRole: 'member',
+      ...(avatarUrl ? { avatarUrl } : {})
+    })
+    setOrcaPitIdentitySource({
+      getDevice: () => null,
+      centralUser: () => user(1, 'https://s3.test/1.png'),
+      deviceUsers: () => [user(7, 'https://s3.test/7.png'), user(8)]
+    })
+    expect(knownOrcaPitAvatars()).toEqual({
+      'u:1': 'https://s3.test/1.png',
+      'u:7': 'https://s3.test/7.png'
+    })
   })
 })

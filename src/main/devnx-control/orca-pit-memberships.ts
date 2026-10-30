@@ -3,7 +3,7 @@
 // `tenants`; older panels send only the default `tenant` and `orca_role`. A person may use the
 // central Orca when they share at least one company with the owner of its Control session.
 import { DevnxControlError, isRecord } from './devnx-control-http'
-import type { OrcaPitUser } from './orca-pit-identity-types'
+import { parseOrcaPitAvatarUrl, type OrcaPitUser } from './orca-pit-identity-types'
 
 export type OrcaPitMembership = { id: number; orcaRole: OrcaPitUser['orcaRole'] }
 
@@ -12,6 +12,8 @@ export type OrcaPitMe = {
   id: number
   name: string
   email: string
+  /** The Control profile photo; absent from panels before pit12's back. */
+  avatarUrl?: string | null
   defaultTenantId: number
   tenants: OrcaPitMembership[]
 }
@@ -24,6 +26,11 @@ function positiveInteger(value: unknown): number | null {
 function membershipOf(tenant: unknown, orcaRole: unknown): OrcaPitMembership | null {
   const id = isRecord(tenant) ? positiveInteger(tenant.id) : null
   return id === null ? null : { id, orcaRole: orcaRole === 'admin' ? 'admin' : 'member' }
+}
+
+// Why only when set: a person without a photo keeps the exact shape stored before pit12.
+function photoOf(avatarUrl: string | null | undefined): { avatarUrl?: string } {
+  return avatarUrl ? { avatarUrl } : {}
 }
 
 function invalid(): DevnxControlError {
@@ -59,6 +66,7 @@ export function parseOrcaPitMe(payload: unknown): OrcaPitMe {
     id,
     name: typeof payload.user.name === 'string' ? payload.user.name.slice(0, 120) : '',
     email: typeof payload.user.email === 'string' ? payload.user.email.slice(0, 254) : '',
+    ...photoOf(parseOrcaPitAvatarUrl(payload.user.avatar_url)),
     defaultTenantId,
     tenants: [...tenants.values()]
   }
@@ -72,7 +80,8 @@ function userOf(me: OrcaPitMe, memberships: OrcaPitMembership[], tenantId: numbe
     email: me.email,
     tenantId,
     tenantIds,
-    orcaRole: memberships.some((m) => m.orcaRole === 'admin') ? 'admin' : 'member'
+    orcaRole: memberships.some((m) => m.orcaRole === 'admin') ? 'admin' : 'member',
+    ...photoOf(me.avatarUrl)
   }
 }
 

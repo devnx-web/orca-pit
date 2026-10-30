@@ -16,6 +16,7 @@ import {
   getDevnxControlService,
   type DevnxControlService
 } from '../devnx-control/devnx-control-service'
+import { registerOrcaPitAppHandlers } from './orca-pit-app'
 
 const DISCONNECTED_STATUS: DevnxControlStatus = {
   connected: false,
@@ -50,6 +51,8 @@ async function guard<T>(action: () => Promise<T>): Promise<DevnxControlResult<T>
 }
 
 export function registerDevnxControlHandlers(): void {
+  // Orca-Pit: the app's sign-in, "Add server" by login and the share address.
+  registerOrcaPitAppHandlers()
   ipcMain.handle(
     'devnxControl:getStatus',
     () => getDevnxControlService()?.status() ?? DISCONNECTED_STATUS

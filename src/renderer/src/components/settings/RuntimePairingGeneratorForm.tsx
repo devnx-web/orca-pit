@@ -11,6 +11,7 @@ import { GeneratedUrlRow, UnavailableUrlRow } from './RuntimePairingGeneratedUrl
 import type { RuntimePairingIntent } from './runtime-pairing-link-state'
 import { translate } from '@/i18n/i18n'
 
+import { useOrcaPitShareAddress } from './orca-pit-share-address'
 export type { RuntimePairingIntent } from './runtime-pairing-link-state'
 
 type RuntimePairingGeneratorFormProps = {
@@ -48,6 +49,8 @@ export function RuntimePairingGeneratorForm({
   onGenerate,
   onCopy
 }: RuntimePairingGeneratorFormProps): React.JSX.Element {
+  // Orca-Pit: opens on this machine's remembered address; a link made for a custom one updates it.
+  useOrcaPitShareAddress({ intent, generatedAddress, onIntentChange })
   const options: AddressOption[] = networkInterfaces.map((networkInterface) => ({
     value: networkInterface.address,
     label: describeNetworkAddress(networkInterface.name, networkInterface.address)

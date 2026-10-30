@@ -15,6 +15,7 @@ import {
   RuntimeEnvironmentSwitchDialog
 } from './runtime-environment-dialogs'
 import { RuntimeAddServerDialog } from './runtime-add-server-dialog'
+import { OrcaPitPublicAddressSetting } from './OrcaPitPublicAddressSetting'
 import { RuntimeDefaultHostRow } from './runtime-default-host-row'
 import { RuntimeInstallServerDialog } from './runtime-install-server-dialog'
 import { RuntimeServerList } from './runtime-server-list'
@@ -243,6 +244,9 @@ export function RuntimeEnvironmentsPane({
         onChanged={reloadAll}
       />
 
+      {/* Orca-Pit: the address "Share this computer" opens on. */}
+      {canGeneratePairingUrl ? <OrcaPitPublicAddressSetting /> : null}
+
       {managedCatalog.loadFailed ? (
         <p className="text-xs text-destructive">
           {translate(
@@ -270,6 +274,9 @@ export function RuntimeEnvironmentsPane({
         }}
         onClose={closeAddServerForm}
         onSubmit={(allowLoopback) => void addEnvironment(allowLoopback)}
+        onSubmitPairingUrl={(pairingUrl, suggestedName) =>
+          void addEnvironment(false, { pairingCode: pairingUrl, suggestedName })
+        }
       />
 
       {managedCatalog.api ? (

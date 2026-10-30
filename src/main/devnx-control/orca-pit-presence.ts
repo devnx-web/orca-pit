@@ -15,7 +15,7 @@ import type { OrcaRuntimeService } from '../runtime/orca-runtime'
 import type { RpcCallerIdentity } from '../runtime/rpc/rpc-caller-identity'
 import { mainProcessState as state } from '../startup/main-process-state'
 import { pairedDeviceName } from './orca-pit-activity-control'
-import { orcaPitUserForDevice } from './orca-pit-identity'
+import { knownOrcaPitAvatars, orcaPitUserForDevice } from './orca-pit-identity'
 import { liveOrcaPitConnections, viewedOrcaPitPtys } from './orca-pit-presence-registry'
 
 export type OrcaPitPresence = Omit<OrcaPitAgentAuthorsResult, 'authors' | 'starters'>
@@ -64,6 +64,8 @@ export function buildOrcaPitPresence(inputs: OrcaPitPresenceInputs): OrcaPitPres
   }
 }
 
+const ANONYMOUS_DEVICE_NAME = 'Acesso por link'
+
 // Why a hash: every client receives these keys; the device id is an auth subject, not for show.
 function deviceKey(deviceId: string): string {
   return `d:${createHash('sha256').update(deviceId).digest('hex').slice(0, 12)}`
@@ -80,7 +82,8 @@ function devicePerson(deviceId: string): OrcaPitPerson {
   const user = orcaPitUserForDevice(deviceId)
   return user
     ? { key: `u:${user.id}`, name: user.name || user.email, userId: user.id }
-    : { key: deviceKey(deviceId), name: pairedDeviceName(deviceId) ?? 'Aparelho', userId: null }
+    : // Paired with a link, not a login: nobody to name, so say how it got in.
+      { key: deviceKey(deviceId), name: ANONYMOUS_DEVICE_NAME, userId: null }
 }
 
 export function orcaPitPersonForCaller(caller: RpcCallerIdentity | undefined): OrcaPitPerson {
@@ -146,12 +149,15 @@ export function orcaPitPresence(
     device: pairedDeviceName(deviceId) ?? 'Aparelho',
     since
   }))
-  return buildOrcaPitPresence({
-    self: orcaPitPersonForCaller(caller),
-    viewed,
-    connections,
-    owner: ownerPresence(now),
-    machineName: runtime.readMachineName(),
-    now
-  })
+  return {
+    ...buildOrcaPitPresence({
+      self: orcaPitPersonForCaller(caller),
+      viewed,
+      connections,
+      owner: ownerPresence(now),
+      machineName: runtime.readMachineName(),
+      now
+    }),
+    avatars: knownOrcaPitAvatars()
+  }
 }

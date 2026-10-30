@@ -24,6 +24,16 @@ function me(tenants: OrcaPitMe['tenants'], defaultTenantId = tenants[0].id): Orc
 }
 
 describe('parseOrcaPitMe', () => {
+  it('keeps an http(s) profile photo and drops anything else', () => {
+    const base = { tenant: { id: 1 }, orca_role: 'member' }
+    expect(
+      parseOrcaPitMe({ ...base, user: { ...PERSON, avatar_url: 'https://s3.test/a.png' } })
+    ).toMatchObject({ avatarUrl: 'https://s3.test/a.png' })
+    expect(
+      parseOrcaPitMe({ ...base, user: { ...PERSON, avatar_url: 'javascript:alert(1)' } })
+    ).not.toHaveProperty('avatarUrl')
+  })
+
   it('reads every membership from tenants', () => {
     const parsed = parseOrcaPitMe({
       user: PERSON,

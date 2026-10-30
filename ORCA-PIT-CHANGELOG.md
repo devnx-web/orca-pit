@@ -6,6 +6,30 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit12 — 30/10/2026
+
+**Cada pessoa entra com o próprio login**
+
+- **Login ao abrir o app:** num computador ligado ao DevNX Control, o Orca-Pit
+  abre numa tela de login (e-mail e senha do Control; o e-mail fica lembrado).
+  Por baixo, tudo segue rodando: agentes, terminais e o servidor que os outros
+  acessam. O que a pessoa faz no app sai assinado com o nome dela. **Sair**, na
+  barra lateral, troca de pessoa. Com o Control fora do ar, entra só a última
+  pessoa que usou a máquina nas últimas 12 horas (marcada como offline).
+- **Adicionar servidor com login:** em Configurações → Servidores → Adicionar
+  servidor, basta digitar o endereço (como `orca.devnx.com.br`). Quem já entrou
+  no app não digita senha de novo; sem login, o diálogo pede e-mail e senha. O
+  aparelho aparece no servidor como "Nome · app". O link de acesso continua
+  como segunda opção.
+- **Foto da pessoa:** a foto do perfil do Control aparece em "Online agora", em
+  quem está olhando cada agente e em quem mandou o último comando. Quem não tem
+  foto segue com as iniciais.
+- Acesso feito por link (sem login) aparece como **Acesso por link**, e não mais
+  como "Runtime 30/10/2026".
+- **Endereço deste computador:** o endereço usado em "Compartilhar este
+  computador" fica gravado por máquina e já vem preenchido na próxima vez. Dá
+  para editar em Configurações → Servidores → Endereço deste computador.
+
 ## 1.4.214-pit11 — 30/10/2026
 
 - O cabeçalho de cada projeto na barra lateral mostra o **projeto do DevNX

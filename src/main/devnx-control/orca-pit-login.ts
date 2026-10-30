@@ -1,7 +1,8 @@
-// Orca-Pit: the browser login on the central machine. A person signs in with their DevNX Control
-// e-mail and password; the central checks the company, mints a runtime row for that person and
-// answers with the same pairing offer a `#pairing=` link carries, so the web client goes on as
-// if it had been handed a link.
+// Orca-Pit: the Control login on the central machine. A person signs in with their DevNX Control
+// e-mail and password (the browser), or hands over the Control session they already opened in
+// their own app; the central checks the company, mints a runtime row for that person and answers
+// with the same pairing offer a `#pairing=` link carries, so the client goes on as if it had been
+// handed a link.
 import { DevnxControlError, publicErrorMessage } from './devnx-control-http'
 import {
   isOrcaPitAuthRejection,
@@ -9,11 +10,19 @@ import {
   type OrcaPitCentral,
   type OrcaPitControlCalls
 } from './orca-pit-control-me'
-import type { OrcaPitDeviceIdentity } from './orca-pit-identity'
+import type { OrcaPitDeviceIdentity, OrcaPitLoginClient } from './orca-pit-identity'
 import type { OrcaPitUser } from './orca-pit-identity-types'
 import { sharedOrcaPitUser, type OrcaPitMe } from './orca-pit-memberships'
 
-export type OrcaPitLoginInput = { email: string; password: string; endpoint: string | null }
+export type OrcaPitLoginCredentials =
+  | { email: string; password: string }
+  /** The JWT of a Control session the person opened elsewhere (their own Orca-Pit app). */
+  | { controlToken: string }
+
+export type OrcaPitLoginInput = OrcaPitLoginCredentials & {
+  endpoint: string | null
+  client?: OrcaPitLoginClient
+}
 
 export type OrcaPitLoginOutcome =
   | { kind: 'ok'; pairingUrl: string; user: OrcaPitUser }
@@ -64,12 +73,17 @@ export async function performOrcaPitLogin(
   }
 
   let controlToken: string
-  try {
-    controlToken = await calls.login(session.baseUrl, input.email, input.password)
-  } catch (error) {
-    return isCredentialRejection(error)
-      ? { kind: 'bad-credentials' }
-      : unavailable('/api/login', error)
+  if ('controlToken' in input) {
+    // Checked below: /api/orca/me answers 401 for a token the Control no longer honors.
+    controlToken = input.controlToken
+  } else {
+    try {
+      controlToken = await calls.login(session.baseUrl, input.email, input.password)
+    } catch (error) {
+      return isCredentialRejection(error)
+        ? { kind: 'bad-credentials' }
+        : unavailable('/api/login', error)
+    }
   }
 
   let me: OrcaPitMe
@@ -91,13 +105,15 @@ export async function performOrcaPitLogin(
 
   let pairingUrl: string | null
   try {
-    pairingUrl = deps.createOffer({ user, controlToken }, input.endpoint)
+    pairingUrl = deps.createOffer({ user, controlToken, client: input.client }, input.endpoint)
   } catch (error) {
     return unavailable('pairing offer', error)
   }
   if (!pairingUrl) {
     return { kind: 'unavailable' }
   }
-  console.info(`[orca-pit] browser login for Control user #${user.id} (${user.orcaRole})`)
+  console.info(
+    `[orca-pit] ${input.client ?? 'browser'} login for Control user #${user.id} (${user.orcaRole})`
+  )
   return { kind: 'ok', pairingUrl, user }
 }

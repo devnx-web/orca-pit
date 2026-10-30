@@ -48,10 +48,15 @@ export function useRuntimeEnvironmentMutationActions({
     setAddServerFailure(null)
   }
 
-  const addEnvironment = async (allowLoopback: boolean): Promise<void> => {
-    const trimmedPairingCode = pairingCode.trim()
+  const addEnvironment = async (
+    allowLoopback: boolean,
+    // Orca-Pit: a link from the DevNX Control login, never typed into the link field.
+    fromLogin?: { pairingCode: string; suggestedName: string }
+  ): Promise<void> => {
+    const trimmedPairingCode = (fromLogin?.pairingCode ?? pairingCode).trim()
     const trimmedName =
       name.trim() ||
+      fromLogin?.suggestedName.trim() ||
       defaultServerNameForAccessLink(trimmedPairingCode, useAppStore.getState().runtimeEnvironments)
     if (!trimmedName || !trimmedPairingCode) {
       toast.error(

@@ -23199,6 +23199,39 @@
       "everyone": "Everyone",
       "machine": "Machine",
       "allMachines": "All"
+    },
+    "appLogin": {
+      "badCredentials": "Wrong e-mail or password.",
+      "description": "Sign in with your DevNX Control e-mail and password. What you do here is signed with your name.",
+      "offline": "offline",
+      "offlineHelp": "DevNX Control was unreachable at sign-in; you entered as the last person who signed in here.",
+      "signOut": "Sign out",
+      "signOutHelp": "Sign out so another person can sign in",
+      "title": "Who is using Orca-Pit?",
+      "unavailable": "Couldn't reach DevNX Control. Offline, only the last person who signed in here in the past 12 hours can enter.",
+      "wrongTenant": "This user does not share a company with this computer's DevNX Control."
+    },
+    "publicAddress": {
+      "description": "Where other devices reach this computer, such as wss://orca.devnx.com.br. Share this computer opens on it.",
+      "save": "Save",
+      "saved": "Address saved.",
+      "title": "This computer's address"
+    },
+    "serverLogin": {
+      "address": "Server address",
+      "badCredentials": "The server did not accept this login. Sign out and in again, or check e-mail and password.",
+      "description": "Sign in to the other Orca-Pit with your DevNX Control login.",
+      "invalidAddress": "Enter the server address, like orca.devnx.com.br.",
+      "needsCredentials": "Enter your e-mail and password.",
+      "noLogin": "This server has no DevNX Control login. Update Orca-Pit there, or use an access link.",
+      "signedInAs": "You enter as {{name}}",
+      "submit": "Sign in and add",
+      "tooMany": "Too many attempts. Wait a few minutes.",
+      "tooManyWait": "Too many attempts. Try again in {{minutes}} min.",
+      "unavailable": "The server couldn't reach DevNX Control. Try again.",
+      "unreachable": "Couldn't reach this server. Check the address and that Orca-Pit is open there.",
+      "useLink": "Use an access link instead",
+      "wrongTenant": "You do not share a company with this server's DevNX Control."
     }
   }
 }

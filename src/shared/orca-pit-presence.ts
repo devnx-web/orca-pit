@@ -26,6 +26,8 @@ export type OrcaPitAgentAuthorsResult = {
   machineName?: string
   /** The central's clock, so ages survive a skewed client clock. */
   now?: number
+  /** `u:<Control user id>` → profile photo URL, for every person the central knows. */
+  avatars?: Record<string, string>
 }
 
 export type OrcaPitHostPresence = Required<Omit<OrcaPitAgentAuthorsResult, 'now' | 'self'>> & {
@@ -38,7 +40,8 @@ export const EMPTY_ORCA_PIT_HOST_PRESENCE: OrcaPitHostPresence = Object.freeze({
   viewers: {},
   online: [],
   self: null,
-  machineName: ''
+  machineName: '',
+  avatars: {}
 })
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -122,8 +125,30 @@ export function parseOrcaPitHostPresence(value: unknown, receivedAt: number): Or
     viewers: parsePeopleByPane(value.viewers),
     online,
     self: parseOrcaPitPerson(value.self),
-    machineName: typeof value.machineName === 'string' ? value.machineName.slice(0, 120) : ''
+    machineName: typeof value.machineName === 'string' ? value.machineName.slice(0, 120) : '',
+    avatars: parseAvatars(value.avatars)
   }
+}
+
+const MAX_AVATARS = 500
+
+/** Only `u:<id>` keys and http(s) URLs; a central can name a photo, never run a script. */
+function parseAvatars(value: unknown): Record<string, string> {
+  const out: Record<string, string> = {}
+  if (!isRecord(value)) {
+    return out
+  }
+  for (const [key, url] of Object.entries(value).slice(0, MAX_AVATARS)) {
+    if (
+      /^u:\d+$/.test(key) &&
+      typeof url === 'string' &&
+      /^https?:\/\//i.test(url) &&
+      url.length <= 2048
+    ) {
+      out[key] = url
+    }
+  }
+  return out
 }
 
 /** Viewers of a pane minus the people in `exclude` (the one looking at this sidebar). */

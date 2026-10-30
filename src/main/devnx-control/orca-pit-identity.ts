@@ -2,15 +2,27 @@
 // The user and that user's Control JWT live on the device row in orca-devices.json; no client
 // ever receives a row, only the projections below.
 import type { DeviceEntry } from '../runtime/device-entry'
-import type { OrcaPitUser } from './orca-pit-identity-types'
+import { parseOrcaPitAvatarUrl, type OrcaPitUser } from './orca-pit-identity-types'
 
-/** What a browser login stamps on the row it mints. */
-export type OrcaPitDeviceIdentity = { user: OrcaPitUser; controlToken: string }
+/** Where a person signed in from; it names the row ("Ana · app", "Ana · navegador"). */
+export type OrcaPitLoginClient = 'browser' | 'app'
+
+/** What a Control login stamps on the row it mints. */
+export type OrcaPitDeviceIdentity = {
+  user: OrcaPitUser
+  controlToken: string
+  client?: OrcaPitLoginClient
+}
 
 type OrcaPitIdentitySource = {
   getDevice: (deviceId: string) => DeviceEntry | null
-  /** The owner of this machine's own Control session, once /api/orca/me answered for it. */
+  /**
+   * Who a local caller is: the person signed in to this machine's app, else the owner of its
+   * own Control session once /api/orca/me answered for it.
+   */
   centralUser: () => OrcaPitUser | null
+  /** Every person with a signed-in device row, for the photos the sidebar shows. */
+  deviceUsers?: () => OrcaPitUser[]
 }
 
 // Why a bound: parent links come from a file an admin can edit; a cycle must not hang a request.
@@ -99,14 +111,31 @@ export function parseOrcaPitUser(value: unknown): OrcaPitUser | null {
   // Rows stored before "Todas as empresas" have only tenantId.
   const listed = Array.isArray(value.tenantIds) ? value.tenantIds.map(positiveInteger) : []
   const others = listed.filter((other): other is number => other !== null && other !== tenantId)
+  const avatarUrl = parseOrcaPitAvatarUrl(value.avatarUrl)
   return {
     id,
     name: typeof value.name === 'string' ? value.name.slice(0, 120) : '',
     email: typeof value.email === 'string' ? value.email.slice(0, 254) : '',
     tenantId,
     tenantIds: [tenantId, ...new Set(others)],
-    orcaRole: value.orcaRole === 'admin' ? 'admin' : 'member'
+    orcaRole: value.orcaRole === 'admin' ? 'admin' : 'member',
+    ...(avatarUrl ? { avatarUrl } : {})
   }
+}
+
+/** `u:<id>` → photo URL for every person this central knows, local or signed in remotely. */
+export function knownOrcaPitAvatars(): Record<string, string> {
+  const out: Record<string, string> = {}
+  if (!source) {
+    return out
+  }
+  const local = source.centralUser()
+  for (const user of [...(source.deviceUsers?.() ?? []), ...(local ? [local] : [])]) {
+    if (user.id > 0 && user.avatarUrl) {
+      out[`u:${user.id}`] = user.avatarUrl
+    }
+  }
+  return out
 }
 
 // Why: a damaged user on a row that had one must not turn into "no user", which keeps every

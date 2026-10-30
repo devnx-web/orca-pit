@@ -9,6 +9,7 @@ import type {
 } from './api/agent-account-api'
 import type { HooksApi } from './api/agent-hook-api'
 import type { DevnxControlApi } from '../shared/devnx-control-types'
+import type { OrcaPitAppApi } from '../shared/orca-pit-app-session'
 import type { SkillsApi } from './api/agent-skill-api'
 import type { AgentAwakeApi, AgentStatusApi } from './api/agent-status-api'
 import type {
@@ -156,6 +157,8 @@ export type PreloadApi = {
   zcodePlanCredentials: ZcodePlanCredentialsApi
   grokAccounts: GrokAccountsApi
   devnxControl: DevnxControlApi
+  /** Orca-Pit: the person signed in to this app, server login and share address. */
+  orcaPit: OrcaPitAppApi
   cursorAccounts: CursorAccountsApi
   ssh: SshApi
   /** Desktop only: an unmanaged ssh login to a host whose move is blocked. */

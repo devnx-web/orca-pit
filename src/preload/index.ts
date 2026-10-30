@@ -81,6 +81,7 @@ import { minimaxCredentialsApi } from './api/minimax-credentials-bridge'
 import { zcodePlanCredentialsApi } from './api/zcode-plan-credentials-bridge'
 import { grokAccountsApi } from './api/grok-accounts-bridge'
 import { devnxControlApi } from './api/devnx-control-bridge'
+import { orcaPitAppApi } from './api/orca-pit-app-bridge'
 import { cursorAccountsApi } from './api/cursor-accounts-bridge'
 import { sshApi } from './api/ssh-bridge'
 import { plainSshTerminalApi } from './api/plain-ssh-terminal-bridge'
@@ -185,6 +186,7 @@ const api = {
   zcodePlanCredentials: zcodePlanCredentialsApi,
   grokAccounts: grokAccountsApi,
   devnxControl: devnxControlApi,
+  orcaPit: orcaPitAppApi,
   cursorAccounts: cursorAccountsApi,
   ssh: sshApi,
   plainSsh: plainSshTerminalApi,

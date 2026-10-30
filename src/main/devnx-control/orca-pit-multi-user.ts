@@ -1,9 +1,8 @@
 // Orca-Pit: wires the multi-user pieces to the desktop's runtime server: who a device belongs
-// to, the browser login on the web client's server, and the periodic revalidation. Headless
+// to, the Control login on the web client's server (browser and app), and the revalidation. Headless
 // orcad never calls this, so there the login answers 404 and no device has a person.
 import type { OrcaRuntimeRpcServer } from '../runtime/runtime-rpc'
-import { getDevnxControlService } from './devnx-control-service'
-import { OrcaPitCentral } from './orca-pit-control-me'
+import { getOrcaPitAppSession, getOrcaPitCentral } from './orca-pit-app'
 import { setOrcaPitIdentitySource } from './orca-pit-identity'
 import { setOrcaPitControlDeviceLookup } from './orca-pit-control-reader'
 import { performOrcaPitLogin } from './orca-pit-login'
@@ -15,9 +14,17 @@ import { recordOrcaPitLogin } from './orca-pit-activity-hooks'
 let revalidator: OrcaPitRevalidator | null = null
 
 export function installOrcaPitMultiUser(rpc: OrcaRuntimeRpcServer): void {
-  const central = new OrcaPitCentral(() => getDevnxControlService()?.client.session() ?? null)
+  const central = getOrcaPitCentral()
   const getDevice = (deviceId: string) => rpc.getDeviceRegistry()?.getDevice(deviceId) ?? null
-  setOrcaPitIdentitySource({ getDevice, centralUser: () => central.cachedUser() })
+  setOrcaPitIdentitySource({
+    getDevice,
+    // The person signed in to this app signs what this window does; else the session's owner.
+    centralUser: () => getOrcaPitAppSession().currentUser() ?? central.cachedUser(),
+    deviceUsers: () =>
+      (rpc.getDeviceRegistry()?.listDevices() ?? []).flatMap((device) =>
+        device.orcaPitUser ? [device.orcaPitUser] : []
+      )
+  })
   // Control reads (projects, tasks) go out with the person's own JWT when the device has one.
   setOrcaPitControlDeviceLookup(getDevice)
   setOrcaPitLoginHandler({

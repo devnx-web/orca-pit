@@ -24,6 +24,7 @@ import { SeveredTerminalDaemonBanner } from './SeveredTerminalDaemonBanner'
 import { StalledTerminalDaemonBanner } from './StalledTerminalDaemonBanner'
 import { StartupWorktreeRefreshStatus } from './StartupWorktreeRefreshStatus'
 import { OrcaPitOnlineNow } from './OrcaPitOnlineNow'
+import { OrcaPitAppPersonBar } from '../orca-pit-login/OrcaPitAppPersonBar'
 
 // Keep the Agents activity pipeline out of the workspace view’s initial bundle.
 const SidebarAgentsList = lazyWithRetry(() => import('./SidebarAgentsList'))
@@ -196,7 +197,8 @@ function Sidebar({
               <>
                 <LocalGitToolchainScanBanner />
                 <StartupWorktreeRefreshStatus />
-                {/* Orca-Pit: who is connected to the central right now. */}
+                {/* Orca-Pit: who uses this app, and who is connected to the central right now. */}
+                <OrcaPitAppPersonBar />
                 <OrcaPitOnlineNow />
                 <WorktreeList
                   scrollOffsetRef={worktreeScrollOffsetRef}

@@ -135,6 +135,22 @@ export function useOrcaPitPresenceRevision(enabled: boolean): number {
   )
 }
 
+function readAvatarUrl(personKey: string): string | null {
+  for (const poll of polls.values()) {
+    const url = poll.presence.avatars[personKey]
+    if (url) {
+      return url
+    }
+  }
+  return null
+}
+
+/** A person's Control photo from any host that knows them (`u:<id>` keys are global). */
+export function useOrcaPitAvatarUrl(personKey: string): string | null {
+  const read = useCallback(() => readAvatarUrl(personKey), [personKey])
+  return useSyncExternalStore(subscribeAnyChange, read, read)
+}
+
 function targetFromKey(key: string): RuntimeClientTarget {
   return key.startsWith('env:')
     ? { kind: 'environment', environmentId: key.slice(4) }

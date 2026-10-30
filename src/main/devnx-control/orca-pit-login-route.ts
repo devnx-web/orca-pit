@@ -11,7 +11,9 @@ export type OrcaPitLoginHandler = {
 }
 
 const LOGIN_PATH = '/orca-pit/login'
-const MAX_BODY_BYTES = 4096
+// Why 8 KiB: a Control JWT handed over by the app is about 1 KiB; the cap only stops abuse.
+const MAX_BODY_BYTES = 8192
+const MAX_CONTROL_TOKEN_CHARS = 4096
 // Why 5 per 15 min: a person who forgot the password retries a few times; a guesser gets nowhere.
 const MAX_ATTEMPTS = 5
 const WINDOW_MS = 15 * 60_000
@@ -107,7 +109,8 @@ function readBody(request: IncomingMessage): Promise<string | null> {
   })
 }
 
-// The web client sends the endpoint it sees (scheme and proxy prefix included); Host is the fallback.
+// The client sends the endpoint it reached (scheme and proxy prefix included); Host is the fallback.
+// The browser signs in with e-mail and password; the app may hand over its Control session instead.
 function parseInput(text: string | null, host: string | undefined): OrcaPitLoginInput | null {
   let value: unknown
   try {
@@ -118,15 +121,33 @@ function parseInput(text: string | null, host: string | undefined): OrcaPitLogin
   if (typeof value !== 'object' || value === null) {
     return null
   }
-  const { email, password, endpoint } = value as Record<string, unknown>
+  const { email, password, controlToken, endpoint, client } = value as Record<string, unknown>
+  const common = {
+    endpoint: typeof endpoint === 'string' && endpoint ? endpoint.slice(0, 512) : (host ?? null),
+    client: client === 'app' ? ('app' as const) : ('browser' as const)
+  }
+  if (
+    typeof controlToken === 'string' &&
+    controlToken.length > 0 &&
+    controlToken.length <= MAX_CONTROL_TOKEN_CHARS
+  ) {
+    return { controlToken, ...common }
+  }
   if (typeof email !== 'string' || !email.trim() || typeof password !== 'string' || !password) {
     return null
   }
-  return {
-    email: email.trim().slice(0, 254),
-    password,
-    endpoint: typeof endpoint === 'string' && endpoint ? endpoint.slice(0, 512) : (host ?? null)
-  }
+  return { email: email.trim().slice(0, 254), password, ...common }
+}
+
+// Why: behind the tunnel every request arrives from loopback; Cloudflare names the real client.
+// The header is trusted only from loopback, where nobody but the tunnel can set it.
+function clientAddress(request: IncomingMessage): string {
+  const remote = request.socket.remoteAddress ?? 'unknown'
+  const forwarded = request.headers['cf-connecting-ip']
+  const isLoopback = remote === '127.0.0.1' || remote === '::1' || remote === '::ffff:127.0.0.1'
+  return isLoopback && typeof forwarded === 'string' && forwarded.trim()
+    ? forwarded.trim().slice(0, 64)
+    : remote
 }
 
 // Why: JSON forces a CORS preflight this server never grants, and Sec-Fetch-Site names a
@@ -141,7 +162,7 @@ function isSameOriginJson(request: IncomingMessage): boolean {
 }
 
 const FAILURE_STATUS: Record<Exclude<OrcaPitLoginOutcome['kind'], 'ok'>, [number, string]> = {
-  'bad-credentials': [401, 'E-mail ou senha inválidos.'],
+  'bad-credentials': [401, 'E-mail ou senha inválidos, ou sessão do Control expirada.'],
   'wrong-tenant': [403, 'Este usuário não pertence à empresa deste Orca.'],
   inactive: [404, 'Not found'],
   unavailable: [503, 'Não foi possível falar com o DevNX Control. Tente de novo.']
@@ -169,7 +190,7 @@ export async function handleOrcaPitLoginRequest(
     reply(response, 403, { message: 'Origem não permitida.' })
     return
   }
-  const address = request.socket.remoteAddress ?? 'unknown'
+  const address = clientAddress(request)
   const retryAfter = active.rateLimit.take(address)
   if (retryAfter !== null) {
     response.setHeader('Retry-After', String(retryAfter))
