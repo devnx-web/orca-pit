@@ -11,6 +11,7 @@ import {
 } from '../../../../../../shared/execution-host'
 import { getHostDisplayLabelOverrides } from '../../../../../../shared/host-setting-overrides'
 import { planSidebarRows } from '../../../../../../shared/sidebar-list/sidebar-row-plan'
+import { createHostScopedRepoOf } from '../../../../../../shared/sidebar-list/sidebar-feed-index'
 import { createSidebarPRGroupReader } from '../grouping/pr-group-key'
 import { useEffectiveCollapsedGroups } from './use-collapsed-groups'
 import type { Row } from '../../../../../../shared/sidebar-list/row-types'
@@ -156,12 +157,15 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
     },
     args.visibleReposForRows
   )
+  // Same-id registrations on two hosts: each row and project header needs its own host's.
+  const repoOfWorktree = useMemo(() => createHostScopedRepoOf(repos, repoMap), [repos, repoMap])
   const rowPlan = useMemo(
     () =>
       planSidebarRows({
         groupBy: args.groupBy,
         worktrees: rowInputs.worktrees,
         repoMap,
+        repoOfWorktree,
         prGroupOf: createSidebarPRGroupReader(repoMap, args.prCache),
         repoOrder,
         workspaceStatuses: args.workspaceStatuses,
@@ -192,6 +196,7 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
       hideDefaultBranchWorkspace,
       projectActivity,
       repoMap,
+      repoOfWorktree,
       args.prCache,
       defaultHostId,
       repoOrder,

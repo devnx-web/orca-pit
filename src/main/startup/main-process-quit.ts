@@ -1,4 +1,5 @@
 import { killWslChannelsInCloseGrace } from '../wsl/wsl-command-channel'
+import { markHostShuttingDown } from '../host-shutdown-state'
 import { app, type Event } from 'electron'
 import { stopDevnxControlService } from '../devnx-control/devnx-control-service'
 import { stopOrcaPitActivity } from '../devnx-control/orca-pit-activity'
@@ -113,6 +114,7 @@ function installWillQuitHandler(): void {
     // Include pane grids still inside their write burst in final save.
     const paneGridFlush = state.runtime?.flushPaneGrids() ?? null
     // A renderer can veto before-quit; push must survive until quit is committed.
+    markHostShuttingDown()
     state.desktopPushService?.stop()
     state.unsubscribeSystemResumeBroadcast?.()
     state.unsubscribeSystemResumeBroadcast = null
@@ -143,6 +145,7 @@ function installWillQuitHandler(): void {
     state.pluginMarketplaceInstaller = null
     state.pluginAutoUpdater?.dispose()
     state.pluginAutoUpdater = null
+    state.pluginUpdateReviewNotices = null
     const pluginHostShutdown = state.pluginService?.dispose() ?? Promise.resolve()
     const codexBackfillRecoveryShutdown = stopCodexStateDbBackfillRecoveries()
     stopCodexAccountSessionBridges()
