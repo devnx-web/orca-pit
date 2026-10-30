@@ -54,6 +54,7 @@ import { RUNTIME_CLIENT_CAPABILITY_METHODS } from './runtime-client-capabilities
 import { ORCA_PIT_ACTIVITY_METHODS } from '../../../devnx-control/orca-pit-activity-rpc'
 // Orca-Pit: DevNX Control projects and tasks, read with the caller's own Control login.
 import { ORCA_PIT_DEVNX_RPC_METHODS } from '../../../devnx-control/orca-pit-devnx-rpc'
+import { ORCA_PIT_SERVER_LOCATION_METHODS } from '../../../devnx-control/orca-pit-server-locations-rpc'
 import { EMULATOR_METHODS } from './emulator'
 import { PAIRING_METHODS } from './pairing'
 import { MOBILE_RELAY_HOSTS_METHODS } from './mobile-relay-hosts'
@@ -156,5 +157,6 @@ export const ALL_RPC_METHODS = [
   // Orca-Pit: who sent the last command to each agent pane, for the sidebar rows.
   ...ORCA_PIT_ACTIVITY_METHODS,
   // Orca-Pit: DevNX Control projects and tasks for every client, not only this window.
-  ...ORCA_PIT_DEVNX_RPC_METHODS
+  ...ORCA_PIT_DEVNX_RPC_METHODS,
+  ...ORCA_PIT_SERVER_LOCATION_METHODS
 ]

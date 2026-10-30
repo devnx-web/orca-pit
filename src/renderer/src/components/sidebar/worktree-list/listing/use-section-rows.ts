@@ -38,12 +38,10 @@ import {
 import { selectPendingWorktreeCreationKeys } from './pending-worktree-creation-keys'
 import { selectWorktreesByRepo } from '@/store/workspace-record-selectors'
 import { useProjectActivity } from '../../orca-pit-project-activity'
-import { useAgentsViewRowInputs, useWorkspaceAgentRecency } from '../../orca-pit-agents-view'
-import { collapseAgentsViewRows, organizeAgentsViewRows } from '../grouping/orca-pit-project-rows'
+import { useAgentsViewRowInputs } from '../../orca-pit-agents-view'
+import { collapseAgentsViewRows } from '../grouping/orca-pit-project-rows'
+import { useOrcaPitAgentsViewRows } from './orca-pit-agents-view-rows'
 import { usePublishOrcaPitMachinePlan } from '../../orca-pit-machine-chips'
-
-// Why a Set nobody writes to: render takes a mutable Set.
-const NOTHING_COLLAPSED = new Set<string>()
 
 function createSidebarHostOptionsSelector() {
   let inputs: readonly unknown[] = []
@@ -239,12 +237,7 @@ export function useSidebarSectionRows(args: SectionRowsArgs) {
     [effectiveCollapsedGroups, hostScopedGroups]
   )
   // Orca-Pit: the "Agents" view is organized by project first, then collapsed.
-  const agentRecency = useWorkspaceAgentRecency(agentsOnly)
-  const agentsViewRows = useMemo(
-    () =>
-      agentsOnly ? organizeAgentsViewRows(rowPlan.render(NOTHING_COLLAPSED), agentRecency) : null,
-    [agentsOnly, rowPlan, agentRecency]
-  )
+  const agentsViewRows = useOrcaPitAgentsViewRows(agentsOnly, rowPlan)
   const rows: Row[] = useMemo(
     () =>
       agentsViewRows

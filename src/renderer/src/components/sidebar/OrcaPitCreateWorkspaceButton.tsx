@@ -14,7 +14,10 @@ import { translate } from '@/i18n/i18n'
 import type { Repo } from '../../../../shared/repo-types'
 import { getRepoExecutionHostId } from '../../../../shared/execution-host'
 import { REPO_HEADER_ACTION_BUTTON_CLASS } from './repo-header-action-button-class'
-import { RepoHeaderCreateWorkspaceButton } from './worktree-list/rows/repo-header-project-actions'
+import {
+  RepoHeaderCreateWorkspaceButton,
+  type RepoHeaderProjectActions
+} from './worktree-list/rows/repo-header-project-actions'
 import {
   handleRepoHeaderActionPointerDown,
   stopRepoHeaderKeyboardToggle
@@ -26,10 +29,11 @@ function MachineItem({
   onCreateForRepo
 }: {
   repo: Repo
-  onCreateForRepo: (projectId: string) => void
+  onCreateForRepo: RepoHeaderProjectActions['onCreateForRepo']
 }): React.JSX.Element {
+  // Each entry is one machine's own registration, so the new workspace stays on that machine.
   return (
-    <DropdownMenuItem onSelect={() => onCreateForRepo(repo.id)} className="gap-2">
+    <DropdownMenuItem onSelect={() => onCreateForRepo(repo, { pinHost: true })} className="gap-2">
       <span className="min-w-0 flex-1 truncate">{repo.displayName}</span>
       <OrcaPitMachineChip hostId={getRepoExecutionHostId(repo)} />
     </DropdownMenuItem>
@@ -40,18 +44,21 @@ export function OrcaPitCreateWorkspaceButton({
   repo,
   repos,
   label,
+  pinHost = false,
   onCreateForRepo
 }: {
   repo: Repo
   repos: readonly Repo[] | undefined
   label: string
-  onCreateForRepo: (projectId: string) => void
+  pinHost?: boolean
+  onCreateForRepo: RepoHeaderProjectActions['onCreateForRepo']
 }): React.JSX.Element {
   if (!repos || repos.length < 2) {
     return (
       <RepoHeaderCreateWorkspaceButton
         repo={repo}
         label={label}
+        pinHost={pinHost}
         onCreateForRepo={onCreateForRepo}
       />
     )

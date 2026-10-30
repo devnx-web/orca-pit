@@ -21,7 +21,7 @@ import {
   type WorktreeGroupBy
 } from '../../../../../../shared/sidebar-list/row-types'
 import { PINNED_GROUP_KEY } from '../../../../../../shared/sidebar-list/group-keys'
-import { isProjectActivitySectionKey } from '../../../../../../shared/sidebar-list/orca-pit-activity-sections'
+import * as orcaPit from './orca-pit-section-header'
 import { getWorkspaceStatusFromGroupKey } from '../../workspace-status'
 import { getVirtualRowTransform } from '../viewport/virtual-rows'
 import { getSidebarHeaderVisual } from './header-visuals'
@@ -48,7 +48,6 @@ import {
 import type { WorktreeSidebarHeaderDrag } from '../drag/use-header-drag'
 import { getWorktreeOptionId } from './option-dom'
 import { OrcaPitCreateWorkspaceButton } from '../../OrcaPitCreateWorkspaceButton'
-import { OrcaPitControlProjectChip } from '../../OrcaPitControlProjectChip'
 
 export type SectionHeaderRowContext = {
   groupBy: WorktreeGroupBy
@@ -180,16 +179,12 @@ export function renderWorktreeSectionHeaderRow(args: {
     : null
   const collapseKey = row.collapseKey ?? row.key
   // Orca-Pit: the idle fold starts closed, so its key in the set means open.
-  const isHeaderCollapsed =
-    ctx.collapsedGroups.has(collapseKey) !== (row.orcaPitOpenWhenSet === true)
+  const isHeaderCollapsed = orcaPit.isHeaderCollapsed(ctx.collapsedGroups, collapseKey, row)
   // Why: repo/project/status/pinned share compact section chrome; flat "All" stays a simple label.
-  const showHeaderCollapseAffordance =
-    row.count > 0 &&
-    (isRepoHeader ||
-      isProjectGroupHeader ||
-      headerWorkspaceStatus !== null ||
-      isPinnedHeader ||
-      isProjectActivitySectionKey(row.key))
+  const showHeaderCollapseAffordance = orcaPit.withFold(
+    row,
+    isRepoHeader || isProjectGroupHeader || headerWorkspaceStatus !== null || isPinnedHeader
+  )
   return (
     <div
       key={vItem.key}
@@ -347,10 +342,7 @@ export function renderWorktreeSectionHeaderRow(args: {
                 <div className="min-w-0 truncate text-[13px] font-semibold leading-4">{label}</div>
                 {hostContext ? <ProjectHeaderHostLabel context={hostContext} /> : null}
                 {/* Orca-Pit: the DevNX Control project this project counts toward. */}
-                <OrcaPitControlProjectChip
-                  repo={ctx.groupBy === 'repo' ? createRepo : undefined}
-                  onOpenRepoSettings={ctx.projectActions.onOpenRepoSettings}
-                />
+                <orcaPit.ControlChip row={row} ctx={ctx} />
                 <RepoForkIndicator upstream={row.repo?.upstream} />
                 <FolderPathStatusIndicator status={projectGroupPathStatus} />
                 {isRepoHeader ? <RepoScanUnavailableIndicator repo={row.repo!} /> : null}
