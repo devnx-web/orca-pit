@@ -8,5 +8,7 @@ export const orcaPitAppApi = {
   logout: () => ipcRenderer.invoke('orcaPit:logout'),
   loginToServer: (input) => ipcRenderer.invoke('orcaPit:loginToServer', input),
   getPublicAddress: () => ipcRenderer.invoke('orcaPit:getPublicAddress'),
-  setPublicAddress: (address) => ipcRenderer.invoke('orcaPit:setPublicAddress', address)
+  setPublicAddress: (address) => ipcRenderer.invoke('orcaPit:setPublicAddress', address),
+  listMachines: (force) => ipcRenderer.invoke('orcaPit:listMachines', force === true),
+  getMachineState: () => ipcRenderer.invoke('orcaPit:getMachineState')
 } satisfies PreloadApi['orcaPit']

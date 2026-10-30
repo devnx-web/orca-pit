@@ -16,6 +16,7 @@ import {
 } from './runtime-environment-dialogs'
 import { RuntimeAddServerDialog } from './runtime-add-server-dialog'
 import { OrcaPitPublicAddressSetting } from './OrcaPitPublicAddressSetting'
+import { OrcaPitCompanyMachines } from './OrcaPitCompanyMachines'
 import { RuntimeDefaultHostRow } from './runtime-default-host-row'
 import { RuntimeInstallServerDialog } from './runtime-install-server-dialog'
 import { RuntimeServerList } from './runtime-server-list'
@@ -242,6 +243,17 @@ export function RuntimeEnvironmentsPane({
         onRecheck={() => void loadEnvironments()}
         rechecking={isLoading}
         onChanged={reloadAll}
+      />
+
+      {/* Orca-Pit: the company's machines; Connect saves one like the login in "Add server". */}
+      <OrcaPitCompanyMachines
+        servers={environments}
+        busy={isBusy}
+        onPairingUrl={(pairingUrl, suggestedName) => {
+          // Why the dialog: it shows the verification and any failure, then closes on success.
+          setDialog('add')
+          void addEnvironment(false, { pairingCode: pairingUrl, suggestedName })
+        }}
       />
 
       {/* Orca-Pit: the address "Share this computer" opens on. */}

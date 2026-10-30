@@ -23239,6 +23239,30 @@
     "projectMerge": {
       "createWhere": "Criar workspace de {{name}} em…",
       "createWhereTitle": "Criar o workspace em"
+    },
+    "machines": {
+      "tunnelRunning": "No ar em {{address}}",
+      "tunnelInstalling": "Baixando o túnel…",
+      "tunnelStarting": "Ligando o túnel…",
+      "tunnelOff": "Túnel desligado",
+      "selfPending": "Aguardando um administrador aprovar",
+      "disabled": "Desativada no DevNX Control",
+      "loadFailed": "Não foi possível carregar as máquinas do DevNX Control.",
+      "title": "Máquinas da empresa",
+      "description": "Todos os Orca-Pit da empresa, em orca.devnx.com.br. Conectar entra com o seu login.",
+      "refresh": "Atualizar",
+      "loading": "Carregando máquinas…",
+      "empty": "Nenhuma máquina ainda. Cada Orca-Pit entra na lista quando alguém faz login nele.",
+      "online": "Online",
+      "offline": "Offline",
+      "thisComputer": "Este computador",
+      "outdated": "precisa atualizar",
+      "connect": "Conectar",
+      "saved": "Adicionada",
+      "approve": "Aprovar no Control",
+      "openInControl": "Abrir no Control",
+      "pending": "Aguardando aprovação",
+      "disabledShort": "Desativada"
     }
   }
 }

@@ -9,6 +9,16 @@ export class RuntimeRpcNetworkExposure extends RuntimeRpcLifecycle {
     return this.pinnedBindHost ?? WS_BIND_HOST_ALL_INTERFACES
   }
 
+  // Orca-Pit: where the WebSocket listens now, for the machine directory (tunnel origin, LAN addresses).
+  getOrcaPitWebSocketBinding(): { host: string; port: number } | null {
+    const transport = this.activeTransports.find(
+      (entry): entry is WebSocketTransport => entry instanceof WebSocketTransport
+    )
+    return transport && this.wsBoundHost
+      ? { host: this.wsBoundHost, port: transport.resolvedPort }
+      : null
+  }
+
   // LAN opt-in rebinds loopback and disconnects local clients; reuse their already-issued port so all endpoints can reconnect (STA-2370).
   async ensureNetworkExposure(): Promise<void> {
     if (this.pinnedBindHost && this.pinnedBindHost !== WS_BIND_HOST_ALL_INTERFACES) {

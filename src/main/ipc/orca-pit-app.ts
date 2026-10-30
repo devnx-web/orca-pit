@@ -1,5 +1,5 @@
 // Orca-Pit: IPC for window.api.orcaPit (shared/orca-pit-app-session): the app's sign-in screen,
-// "Add server" by Control login and the share address.
+// "Add server" by Control login, the share address and the company's machine directory.
 import { ipcMain } from 'electron'
 import { isRecord } from '../devnx-control/devnx-control-http'
 import { getOrcaPitAppSession, orcaPitPublicAddressFile } from '../devnx-control/orca-pit-app'
@@ -8,6 +8,11 @@ import {
   writeOrcaPitPublicAddress
 } from '../devnx-control/orca-pit-public-address'
 import { loginToOrcaPitServer } from '../devnx-control/orca-pit-server-login'
+import {
+  getOrcaPitMachineDirectory,
+  getOrcaPitMachineState,
+  kickOrcaPitMachineAgent
+} from '../devnx-control/orca-pit-machines-runtime'
 
 function text(value: unknown, max: number): string {
   return typeof value === 'string' ? value.slice(0, max) : ''
@@ -15,9 +20,14 @@ function text(value: unknown, max: number): string {
 
 export function registerOrcaPitAppHandlers(): void {
   ipcMain.handle('orcaPit:getSession', () => getOrcaPitAppSession().state())
-  ipcMain.handle('orcaPit:login', (_event, email: unknown, password: unknown) =>
-    getOrcaPitAppSession().login(text(email, 254), text(password, 1024))
-  )
+  ipcMain.handle('orcaPit:login', async (_event, email: unknown, password: unknown) => {
+    const result = await getOrcaPitAppSession().login(text(email, 254), text(password, 1024))
+    if (result.ok) {
+      // The first sign-in on a machine registers it in the company directory right away.
+      kickOrcaPitMachineAgent()
+    }
+    return result
+  })
   ipcMain.handle('orcaPit:logout', () => getOrcaPitAppSession().logout())
   ipcMain.handle('orcaPit:loginToServer', (_event, input: unknown) => {
     const raw = isRecord(input) ? input : {}
@@ -30,6 +40,10 @@ export function registerOrcaPitAppHandlers(): void {
       }
     )
   })
+  ipcMain.handle('orcaPit:listMachines', (_event, force: unknown) =>
+    getOrcaPitMachineDirectory().list(force === true)
+  )
+  ipcMain.handle('orcaPit:getMachineState', () => getOrcaPitMachineState())
   ipcMain.handle('orcaPit:getPublicAddress', () =>
     readOrcaPitPublicAddress(orcaPitPublicAddressFile())
   )
