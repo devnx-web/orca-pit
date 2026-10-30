@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { parseRouterAnswer } from './machines'
 import { routePath } from './routing'
 
 describe('routePath', () => {
@@ -34,5 +35,18 @@ describe('routePath', () => {
       expect(routePath(path)).toEqual({ kind: 'not-found' })
     }
     expect(routePath('/')).toEqual({ kind: 'root' })
+  })
+})
+
+describe('parseRouterAnswer', () => {
+  it('accepts the Control’s base-36 origin suffix', () => {
+    // The Control names origins `orca-<slug>-<6 base-36 chars>`, not hex (ftgknote got "ggv0gl").
+    const answer = parseRouterAnswer(200, {
+      status: 'approved',
+      origin_host: 'orca-ftgknote-ggv0gl.devnx.com.br',
+      origin_secret: 's',
+      online: true
+    })
+    expect(answer).toMatchObject({ kind: 'found', originHost: 'orca-ftgknote-ggv0gl.devnx.com.br' })
   })
 })

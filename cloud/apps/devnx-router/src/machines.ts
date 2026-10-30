@@ -20,7 +20,7 @@ const CACHE_ORIGIN = 'https://orca-router.cache'
 const USER_AGENT = 'orca-devnx-router/1'
 // One label under the zone (`orca-<slug>-<6 hex>`): the free universal certificate covers only
 // `*.devnx.com.br`. Anything else is not a managed tunnel, whatever the Control says.
-const ORIGIN_HOST = /^orca-[a-z0-9-]+-[0-9a-f]{6}\.devnx\.com\.br$/
+const ORIGIN_HOST = /^orca-[a-z0-9-]+-[a-z0-9]{6}\.devnx\.com\.br$/
 
 type CachedEntry = { status: number; body: unknown }
 
