@@ -1,25 +1,14 @@
-// Orca-Pit: the people and the machine on an agent's sidebar row: who is looking at it right
-// now, who sent the last command ("Fabio · 3m") and, when machines are mixed, where it runs.
+// Orca-Pit: the people and the machine on an agent's sidebar row: the photos of whoever is on it
+// (looking at it now, or the last to send it a command), yourself included, then where it runs.
 import React, { useMemo } from 'react'
-import { Eye } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 import { useNow } from '@/hooks/use-now'
-import { cn } from '@/lib/utils'
-import {
-  orcaPitAuthorKey,
-  orcaPitAuthorLine,
-  orcaPitFirstName
-} from '../../../../shared/orca-pit-agent-authors'
-import { otherViewers } from '../../../../shared/orca-pit-presence'
+import { orcaPitRowPeople, orcaPitRowPeopleTitle } from '../../../../shared/orca-pit-row-people'
 import { OrcaPitPersonAvatar } from './OrcaPitPersonAvatar'
 import { OrcaPitRowMachineChip } from './OrcaPitMachineChip'
-import {
-  useOrcaPitPaneAuthor,
-  useOrcaPitPaneViewers,
-  useOrcaPitSelfKey
-} from './orca-pit-sidebar-presence'
+import { useOrcaPitPaneAuthor, useOrcaPitPaneViewers } from './orca-pit-sidebar-presence'
 
-const MAX_VIEWER_AVATARS = 3
+const MAX_AVATARS = 3
 const AGE_TICK_MS = 30_000
 
 type Props = {
@@ -28,31 +17,42 @@ type Props = {
   highlighted?: boolean
 }
 
-function PaneViewers({ paneKey, worktreeId }: Props): React.JSX.Element | null {
+const WORDS = {
+  viewing: (name: string) => translate('devnx.people.viewing', '{{name}} (looking now)', { name }),
+  lastCommand: (name: string, age: string) =>
+    translate('devnx.people.lastCommand', '{{name}} (last command {{age}} ago)', { name, age }),
+  lastCommandNow: (name: string) =>
+    translate('devnx.people.lastCommandNow', '{{name}} (last command just now)', { name }),
+  both: (name: string, age: string) =>
+    translate('devnx.people.both', '{{name}} (looking now, last command {{age}} ago)', {
+      name,
+      age
+    }),
+  bothNow: (name: string) =>
+    translate('devnx.people.bothNow', '{{name}} (looking now, last command just now)', { name })
+}
+
+function RowPeople({ paneKey, worktreeId }: Props): React.JSX.Element | null {
   const viewers = useOrcaPitPaneViewers(worktreeId, paneKey)
-  const selfKey = useOrcaPitSelfKey(worktreeId)
-  // Why leave yourself out: your own initials on the row you are looking at say nothing.
-  const others = useMemo(
-    () => otherViewers(viewers, new Set(selfKey ? [selfKey] : [])),
-    [viewers, selfKey]
-  )
-  if (others.length === 0) {
+  const author = useOrcaPitPaneAuthor(worktreeId, paneKey)
+  const people = useMemo(() => orcaPitRowPeople(viewers, author), [viewers, author])
+  const now = useNow(AGE_TICK_MS, author !== null)
+  if (people.length === 0) {
     return null
   }
-  const names = others.map((viewer) => orcaPitFirstName(viewer.name) ?? viewer.name).join(', ')
-  const extra = others.length - MAX_VIEWER_AVATARS
+  const title = orcaPitRowPeopleTitle(people, now, {
+    ...WORDS,
+    nowWord: translate('devnx.activity.justNow', 'now')
+  })
+  const extra = people.length - MAX_AVATARS
   return (
-    <span
-      className="flex shrink-0 items-center"
-      title={translate('devnx.presence.viewing', 'Looking at it now: {{names}}', { names })}
-    >
-      <Eye className="mr-0.5 size-3 text-muted-foreground/70" aria-hidden />
+    <span className="flex shrink-0 items-center" title={title}>
       <span className="flex items-center -space-x-1">
-        {others.slice(0, MAX_VIEWER_AVATARS).map((viewer) => (
+        {people.slice(0, MAX_AVATARS).map((person) => (
           <OrcaPitPersonAvatar
-            key={viewer.key}
-            personKey={viewer.key}
-            name={viewer.name}
+            key={person.key}
+            personKey={person.key}
+            name={person.name}
             className="ring-1 ring-worktree-sidebar"
           />
         ))}
@@ -64,42 +64,10 @@ function PaneViewers({ paneKey, worktreeId }: Props): React.JSX.Element | null {
   )
 }
 
-function AuthorLine({ paneKey, worktreeId, highlighted = false }: Props): React.JSX.Element | null {
-  const author = useOrcaPitPaneAuthor(worktreeId, paneKey)
-  const now = useNow(AGE_TICK_MS, author !== null)
-  const line = author
-    ? orcaPitAuthorLine(author, now, translate('devnx.activity.justNow', 'now'))
-    : null
-  if (!author || !line) {
-    return null
-  }
-  const title = translate(
-    'devnx.activity.lastCommandByAt',
-    'Last command by {{name}} at {{time}}',
-    {
-      name: author.name,
-      time: new Date(author.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }
-  )
-  return (
-    <span
-      className={cn(
-        'flex max-w-24 shrink-0 items-center gap-0.5 text-[10px]',
-        highlighted ? 'text-foreground/70' : 'text-muted-foreground/70'
-      )}
-      title={title}
-    >
-      <OrcaPitPersonAvatar personKey={orcaPitAuthorKey(author)} name={author.name} />
-      <span className="min-w-0 truncate tabular-nums">{line}</span>
-    </span>
-  )
-}
-
 export function OrcaPitAgentAuthor(props: Props): React.JSX.Element {
   return (
     <>
-      <PaneViewers {...props} />
-      <AuthorLine {...props} />
+      <RowPeople {...props} />
       <OrcaPitRowMachineChip worktreeId={props.worktreeId} />
     </>
   )

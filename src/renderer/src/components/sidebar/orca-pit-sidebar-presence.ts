@@ -224,11 +224,6 @@ export function useOrcaPitPaneViewers(
   )
 }
 
-/** Who this sidebar's reader is on the pane's host; their own initials are left out. */
-export function useOrcaPitSelfKey(worktreeId: string | null | undefined): string | null {
-  return useOwnerHostSlice(worktreeId, (presence) => presence.self?.key ?? null)
-}
-
 /** The machine name a host reports for itself ("" until it answers, or for an upstream host). */
 export function useOrcaPitMachineName(hostId: ExecutionHostId): string {
   const target = useMemo(() => orcaPitTargetForHost(hostId), [hostId])
