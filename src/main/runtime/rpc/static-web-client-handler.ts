@@ -7,6 +7,7 @@ import {
   handleOrcaPitLoginRequest,
   isOrcaPitLoginUrl
 } from '../../devnx-control/orca-pit-login-route'
+import { checkManagedOrigin } from '../../devnx-control/orca-pit-managed-origin'
 
 const STATIC_WEB_ALLOWED_PATHS = new Set(['/web-index.html'])
 const STATIC_WEB_ALLOWED_PREFIXES = ['/assets/', '/cmaps/', '/standard_fonts/', '/wasm/']
@@ -52,6 +53,11 @@ async function handleStaticRequest(
   response: ServerResponse
 ): Promise<void> {
   if (response.destroyed) {
+    return
+  }
+  // Orca-Pit: the hidden router hostname answers only the router (its origin secret).
+  if (checkManagedOrigin(request.headers) === 'refused') {
+    writeHttpStatus(response, 403)
     return
   }
   // Orca-Pit: the DevNX Control login is the only POST here; it answers 404 without a session.

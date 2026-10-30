@@ -1,5 +1,9 @@
 // WebSocket transport letting mobile clients reach the Orca runtime over LAN (ws://); auth is per-device tokens, and E2EE runs above this layer.
-import { createServer as createHttpServer, type Server as HttpServer } from 'node:http'
+import {
+  createServer as createHttpServer,
+  type IncomingMessage,
+  type Server as HttpServer
+} from 'node:http'
 import { WebSocketServer, type WebSocket } from 'ws'
 import type { RpcTransport } from './transport'
 import { answerWithoutWebClient, createStaticWebClientHandler } from './static-web-client-handler'
@@ -13,6 +17,7 @@ import {
 } from './node-websocket-lifecycle'
 import { RemoteRuntimeServerHeartbeat } from './remote-runtime-server-heartbeat'
 import { assertPortNotShadowingListener } from './shadowed-port-probe'
+import { checkManagedOrigin } from '../../devnx-control/orca-pit-managed-origin'
 import { REMOTE_RUNTIME_MAX_INBOUND_FRAME_BYTES } from '../../../shared/remote-runtime/remote-runtime-memory-limits'
 
 export const WEBSOCKET_TRANSPORT_MAX_MESSAGE_BYTES = REMOTE_RUNTIME_MAX_INBOUND_FRAME_BYTES
@@ -211,7 +216,10 @@ export class WebSocketTransport implements RpcTransport {
 
     const wss = new WebSocketServer({
       server: httpServer,
-      maxPayload: WEBSOCKET_TRANSPORT_MAX_MESSAGE_BYTES
+      maxPayload: WEBSOCKET_TRANSPORT_MAX_MESSAGE_BYTES,
+      // Orca-Pit: the hidden router hostname upgrades only for the router (its origin secret).
+      verifyClient: ({ req }: { req: IncomingMessage }) =>
+        checkManagedOrigin(req.headers) !== 'refused'
     })
 
     wss.on('connection', (ws) => {

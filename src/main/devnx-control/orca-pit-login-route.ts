@@ -3,6 +3,7 @@
 // Without a DevNX Control session on this machine every method answers 404, as plain Orca would.
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { OrcaPitLoginInput, OrcaPitLoginOutcome } from './orca-pit-login'
+import { routedClientAddress } from './orca-pit-managed-origin'
 
 export type OrcaPitLoginHandler = {
   isActive: () => boolean
@@ -140,14 +141,21 @@ function parseInput(text: string | null, host: string | undefined): OrcaPitLogin
 }
 
 // Why: behind the tunnel every request arrives from loopback; Cloudflare names the real client.
-// The header is trusted only from loopback, where nobody but the tunnel can set it.
+// The header is trusted only from loopback, where nobody but the tunnel can set it. Behind the
+// orca.devnx.com.br router that header names the router, so its `X-Orca-Client-IP` wins when the
+// request carries this machine's origin secret.
 function clientAddress(request: IncomingMessage): string {
   const remote = request.socket.remoteAddress ?? 'unknown'
-  const forwarded = request.headers['cf-connecting-ip']
   const isLoopback = remote === '127.0.0.1' || remote === '::1' || remote === '::ffff:127.0.0.1'
-  return isLoopback && typeof forwarded === 'string' && forwarded.trim()
-    ? forwarded.trim().slice(0, 64)
-    : remote
+  if (!isLoopback) {
+    return remote
+  }
+  const routed = routedClientAddress(request.headers)
+  if (routed) {
+    return routed
+  }
+  const forwarded = request.headers['cf-connecting-ip']
+  return typeof forwarded === 'string' && forwarded.trim() ? forwarded.trim().slice(0, 64) : remote
 }
 
 // Why: JSON forces a CORS preflight this server never grants, and Sec-Fetch-Site names a

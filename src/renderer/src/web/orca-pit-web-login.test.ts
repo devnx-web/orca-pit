@@ -9,6 +9,10 @@ describe('the endpoint the web client asks the login offer for', () => {
     expect(webClientRuntimeEndpoint({ href: 'https://orca.empresa.com/pit/web-index.html' })).toBe(
       'wss://orca.empresa.com/pit'
     )
+    // The router's machine path: the page is the directory itself.
+    expect(webClientRuntimeEndpoint({ href: 'https://orca.devnx.com.br/nitro5/' })).toBe(
+      'wss://orca.devnx.com.br/nitro5'
+    )
   })
 
   it('follows the first browser language before any settings exist', () => {
