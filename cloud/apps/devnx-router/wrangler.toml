@@ -1,0 +1,10 @@
+# Orca-Pit: the router behind orca.devnx.com.br/<machine>. Deploy and secrets: README.md.
+name = "orca-devnx-router"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+workers_dev = false
+routes = [{ pattern = "orca.devnx.com.br/*", zone_name = "devnx.com.br" }]
+
+[vars]
+# Where the machine directory lives (infra, so a var). Secrets go through `wrangler secret put`.
+CONTROL_BASE_URL = "https://bcontrol.devnx.com.br"
