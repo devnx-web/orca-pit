@@ -23070,7 +23070,6 @@
       "inactive": "Inativos",
       "split": "Separar ativos e inativos",
       "splitDescription": "Mostra em Ativos os projetos com mensagem enviada nas últimas 12 horas e o resto em Inativos",
-      "lastCommandByAt": "Último comando de {{name}} às {{time}}",
       "justNow": "agora",
       "idle": "Sem agente agora"
     },
@@ -23188,7 +23187,6 @@
     "signInAgain": "Sua sessão do DevNX Control acabou. Entre de novo para ver os projetos e as tarefas.",
     "unavailable": "O DevNX Control não respondeu.",
     "presence": {
-      "viewing": "Olhando agora: {{names}}",
       "onlineNow": "Online agora",
       "deviceSince": "{{device}} · desde {{time}}",
       "centralComputer": "Computador central"
@@ -23263,6 +23261,17 @@
       "openInControl": "Abrir no Control",
       "pending": "Aguardando aprovação",
       "disabledShort": "Desativada"
+    },
+    "people": {
+      "viewing": "{{name}} (olhando agora)",
+      "lastCommand": "{{name}} (último comando há {{age}})",
+      "lastCommandNow": "{{name}} (último comando agora)",
+      "both": "{{name}} (olhando agora, último comando há {{age}})",
+      "bothNow": "{{name}} (olhando agora, último comando agora)"
+    },
+    "agentRename": {
+      "label": "Nome do agente",
+      "placeholder": "Vazio = nome automático"
     }
   }
 }

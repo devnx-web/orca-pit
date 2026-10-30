@@ -6,6 +6,20 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit15 — 30/10/2026
+
+- **Corrigido:** na barra lateral por projeto (pit13), agentes de vários
+  projetos apareciam juntos sob o projeto errado (por exemplo, PHD, Momento e
+  Avalion sob "griffinlog", e sigep sob "soulog"). Agora só se juntam
+  projetos que são de fato o mesmo.
+- **F2 renomeia o agente:** com o mouse sobre a linha do agente, aperte F2,
+  digite o nome e Enter (Esc cancela; vazio volta ao nome automático). O nome
+  fica na máquina dona do agente, então todo mundo que vê aquele agente lê o
+  mesmo nome.
+- **Fotos de quem está no agente:** antes do selo da máquina, cada linha
+  mostra as fotos de quem está olhando agora e de quem mandou o último
+  comando, você incluído, até três e "+N". Passe o mouse para ver quem é quem.
+
 ## 1.4.214-pit14 — 30/10/2026
 
 **Máquinas da empresa num endereço só**

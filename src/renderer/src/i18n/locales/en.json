@@ -23068,7 +23068,6 @@
       "inactive": "Inactive",
       "split": "Split active and inactive",
       "splitDescription": "Show projects with a message sent in the last 12 hours under Active and the rest under Inactive",
-      "lastCommandByAt": "Last command by {{name}} at {{time}}",
       "justNow": "now",
       "idle": "No agent right now"
     },
@@ -23186,7 +23185,6 @@
     "signInAgain": "Your DevNX Control sign-in has ended. Sign in again to see its projects and tasks.",
     "unavailable": "DevNX Control did not answer.",
     "presence": {
-      "viewing": "Looking at it now: {{names}}",
       "onlineNow": "Online now",
       "deviceSince": "{{device}} · since {{time}}",
       "centralComputer": "Central computer"
@@ -23261,6 +23259,17 @@
       "openInControl": "Open in Control",
       "pending": "Waiting for approval",
       "disabledShort": "Disabled"
+    },
+    "people": {
+      "viewing": "{{name}} (looking now)",
+      "lastCommand": "{{name}} (last command {{age}} ago)",
+      "lastCommandNow": "{{name}} (last command just now)",
+      "both": "{{name}} (looking now, last command {{age}} ago)",
+      "bothNow": "{{name}} (looking now, last command just now)"
+    },
+    "agentRename": {
+      "label": "Agent name",
+      "placeholder": "Empty = automatic name"
     }
   }
 }

@@ -62,15 +62,29 @@ export function normalizeProjectName(name: string): string {
     .toLowerCase()
 }
 
+// Why the whole id: durable project ids carry colons themselves (`repo:<uuid>`, `github:org/x`);
+// cutting at the first one made every folder project `repo` and every GitHub one `github`.
+function durableProjectId(key: string): string | null {
+  if (!key.startsWith('project:')) {
+    return null
+  }
+  const id = key.slice('project:'.length).split('::setup:')[0]
+  return id || null
+}
+
 /** What makes two headers one project; headers sharing any token merge. */
 export function projectIdentityTokens(header: GroupHeaderRow): string[] {
   const repo = header.repo ?? header.orcaPitCreateRepo
-  const tokens = [`name:${normalizeProjectName(header.label ?? header.key)}`]
+  const tokens: string[] = []
+  const name = normalizeProjectName(header.label ?? header.key)
+  if (name) {
+    tokens.push(`name:${name}`)
+  }
   const control = repo?.devnxControlProject?.id
   if (control) {
     tokens.push(`control:${control}`)
   }
-  const project = /^project:([^:]+)/.exec(header.key)?.[1]
+  const project = durableProjectId(header.key)
   if (project) {
     tokens.push(`project:${project}`)
   }

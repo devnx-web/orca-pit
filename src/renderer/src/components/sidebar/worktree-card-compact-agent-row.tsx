@@ -25,6 +25,7 @@ import {
 } from '../../../../shared/program-status/presentation'
 import { resolveRowProgramStatus } from '@/lib/program-status/agent-row-presentation'
 import { OrcaPitAgentAuthor } from './OrcaPitAgentAuthor'
+import { useOrcaPitAgentRowRename } from './orca-pit-agent-row-rename'
 
 function getCompactAgentPrimary(
   agent: DashboardAgentRowData,
@@ -132,6 +133,9 @@ export const CompactAgentRow = React.memo(function CompactAgentRow({
   const dotState = dotStateOverride ?? getAgentDotState(agent)
   const conversationName = useAgentRowConversationName(agent)
   const primary = getCompactAgentPrimary(agent, conversationName)
+  // Orca-Pit: F2 renames the agent; child rows do not own their tab's name.
+  const rename = useOrcaPitAgentRowRename(agent.tab.id, primary)
+  const renamable = agent.rowSource !== 'subagent' && !agent.childRow
   const isLineageChild = agent.lineage?.depth === 1
   // Hold assistant text per positive turn clock; commit in an effect so discarded renders cannot cache messages.
   const turn = agent.entry.stateStartedAt
@@ -235,18 +239,22 @@ export const CompactAgentRow = React.memo(function CompactAgentRow({
               <AgentTypeIcon agentType={agent.agentType} size={13} />
             </span>
           )}
-          <span
-            className="min-w-0 flex-1 truncate"
-            title={sendTargetDisabledReason ? undefined : rowTitle}
-          >
-            <span className={leadClassName}>{leadingText}</span>
-            {trailingText && (
-              <span className={highlighted ? 'text-foreground/70' : 'text-muted-foreground/65'}>
-                {' '}
-                - {trailingText}
-              </span>
-            )}
-          </span>
+          {renamable && rename.editor ? (
+            rename.editor
+          ) : (
+            <span
+              className="min-w-0 flex-1 truncate"
+              title={sendTargetDisabledReason ? undefined : rowTitle}
+            >
+              <span className={leadClassName}>{leadingText}</span>
+              {trailingText && (
+                <span className={highlighted ? 'text-foreground/70' : 'text-muted-foreground/65'}>
+                  {' '}
+                  - {trailingText}
+                </span>
+              )}
+            </span>
+          )}
         </>
       )}
       {/* Orca-Pit: who sent the last command to this agent. */}
@@ -316,6 +324,7 @@ export const CompactAgentRow = React.memo(function CompactAgentRow({
       aria-level={agent.lineage ? agent.lineage.depth + 1 : undefined}
       aria-expanded={hasChildDisclosure ? childAgentsExpanded : undefined}
       title={sendTargetDisabledReason}
+      {...(renamable ? rename.rowProps : {})}
     >
       {rowBody}
     </div>
