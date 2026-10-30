@@ -1,6 +1,7 @@
 // Orca-Pit: who is using this Orca-Pit app. On a machine paired with the DevNX Control the app
 // opens on a sign-in screen; the person's Control session lives only in the main process, and
 // their name and photo sign what they do here and on the servers they connect to.
+import type { OrcaPitMachineListResult, OrcaPitMachineSelfState } from './orca-pit-machines'
 
 export type OrcaPitAppPerson = {
   id: number
@@ -55,4 +56,8 @@ export type OrcaPitAppApi = {
   /** The address other devices reach this machine at (`wss://orca.devnx.com.br`), or null. */
   getPublicAddress: () => Promise<string | null>
   setPublicAddress: (address: string | null) => Promise<string | null>
+  /** The company's machines from the DevNX Control directory. */
+  listMachines: (force?: boolean) => Promise<OrcaPitMachineListResult>
+  /** This machine's own directory entry and tunnel. */
+  getMachineState: () => Promise<OrcaPitMachineSelfState>
 }
