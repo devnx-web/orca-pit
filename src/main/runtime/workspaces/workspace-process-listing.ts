@@ -38,8 +38,7 @@ import { createStructuredChatNamingHandler } from '../../native-chat/structured-
 import { structuredChatNamingDeps } from '../structured-chat-naming-runtime'
 import { getProfileUserDataPath } from '../../orca-profiles/profile-storage-paths'
 import { LOCAL_EXECUTION_HOST_ID } from '../../../shared/execution-host'
-import { escalateChatWorkerError } from '../orchestration/chat-worker-error-escalation'
-import type { StructuredAgentSessionRequestFailure } from '../../native-chat/agent-session-wire/structured-agent-session-request-failures'
+import { chatWorkerTurnStopReporter } from '../orchestration/chat-worker-turn-stops'
 import { buildWorktreeListingPage } from '../worktree-listing-host-scope'
 import {
   structuredWorkerOpenTaskTitle,
@@ -59,8 +58,13 @@ import {
   withoutHiddenHosts
 } from '../runtime-visible-catalog'
 import { isWorkspaceNotificationMuted } from '../workspace-notification-mute'
+import { WorkerAutoReleaseActivity } from '../orchestration/worker-auto-release-activity'
 
 export abstract class OrcaRuntimeWithGetWorktreePs extends OrcaRuntimeWithWorktreePsDependencies {
+  protected readonly workerAutoReleaseActivity = new WorkerAutoReleaseActivity(
+    () => this._orchestrationDb
+  )
+
   async getWorktreePs(
     limit = DEFAULT_WORKTREE_PS_LIMIT,
     sourceDefaultsSupported = true,
@@ -128,7 +132,8 @@ export abstract class OrcaRuntimeWithGetWorktreePs extends OrcaRuntimeWithWorktr
       terminalTitleEvidenceByWorktreeId,
       rowSources,
       orchestrationByPaneKey: this.agentOrchestrationProjection.buildByPaneKey(),
-      getSummary
+      getSummary,
+      conversationName: this.orchestrationSenderNames.agentRowNamer()
     })
 
     const sorted = [...summaries.values()].sort(compareWorktreePs)
@@ -204,6 +209,7 @@ export abstract class OrcaRuntimeWithGetWorktreePs extends OrcaRuntimeWithWorktr
   async openAgentSessionRecordStore(): Promise<AgentSessionRecordStore> {
     const { store } = await openAgentSessionRecordStoreOnce({
       stateDirectory: getProfileUserDataPath(),
+      legacySessionTabIds: this.legacyStructuredSessionTabIds,
       hostId: LOCAL_EXECUTION_HOST_ID,
       logger: neverThrowingStructuredAgentSessionLogger(createStructuredAgentSessionLogger())
     })
@@ -234,6 +240,7 @@ export abstract class OrcaRuntimeWithGetWorktreePs extends OrcaRuntimeWithWorktr
     )
     await installStructuredAgentSessionHost({
       stateDirectory: getProfileUserDataPath(),
+      legacySessionTabIds: this.legacyStructuredSessionTabIds,
       hostId: LOCAL_EXECUTION_HOST_ID,
       claimKeyId: this.agentSessionClaimSigner.keyId,
       logger,
@@ -273,6 +280,7 @@ export abstract class OrcaRuntimeWithGetWorktreePs extends OrcaRuntimeWithWorktr
       // Structured chat has no CLI hooks; this projection drives first-work renaming.
       onSessionStatusChanged: (summary, options) => {
         this.onStructuredSessionStatusForMail(summary)
+        this.workerAutoReleaseActivity.observeChat(summary)
         nameChat(summary, options)
         void maybeAutoRenameWorkspaceOnFirstStructuredTurn(
           summary,
@@ -293,18 +301,10 @@ export abstract class OrcaRuntimeWithGetWorktreePs extends OrcaRuntimeWithWorktr
         reconcile: (state) => this.mobileNotifications.reconcileStructuredPromptAttention(state),
         now: () => Date.now()
       }),
+      onTurnAttention: chatWorkerTurnStopReporter(this.workerTurnStopReportDeps),
       // Re-read dispatch ownership each sweep; absence of a database cannot keep the worker alive.
       hasOpenDispatch: (record) =>
         structuredWorkerOwesWork(this.getOrchestrationDbIfAvailable?.() ?? null, record)
-    })
-  }
-
-  /** A chat worker whose request settled failed tells the Run that dispatched it. */
-  onStructuredRequestFailureForErrorMail(failure: StructuredAgentSessionRequestFailure): void {
-    void escalateChatWorkerError(failure, {
-      enabled: () => this.isChatWorkerErrorEscalationEnabled(),
-      db: () => this.getOrchestrationDbIfAvailable(),
-      notify: (handle, messageType) => this.notifyMessageArrived(handle, messageType)
     })
   }
 }

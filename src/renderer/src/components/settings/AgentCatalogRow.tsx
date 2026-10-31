@@ -26,6 +26,9 @@ import {
   AgentPermissionMenu,
   type AgentPermissionChoiceRow
 } from './AgentPermissionChoiceControls'
+import { openAppHttpLinkFromAnchor } from '@/lib/app-http-link-open'
+import type { AgentOpensAs } from './native-chat-provider-choice'
+import { AgentOpensAsControl } from './AgentChatChoiceControls'
 
 type AgentAvailability = 'enabled' | 'disabled'
 
@@ -95,6 +98,11 @@ export type AgentCatalogRowProps = {
   /** The text a terminal launch gets, when it differs from the editable Arguments. */
   launchArgs?: string
   environmentEditor?: React.ReactNode
+  /** Whether new sessions open as a chat or the CLI; absent where this computer offers no choice. */
+  opensAs?: AgentOpensAs
+  /** The downloaded chat program's install and sign-in, shown in the row's details. */
+  chatRuntime?: React.ReactNode
+  launchChoiceEditor?: (permissionControlRef: React.Ref<HTMLDivElement>) => React.ReactNode
 }
 
 export function AgentCatalogRow({
@@ -119,9 +127,12 @@ export function AgentCatalogRow({
   sessionSourceHome,
   environmentNames,
   environmentEditor,
+  launchChoiceEditor,
   permission,
   permissionChoice,
-  launchArgs = argsOverride
+  launchArgs = argsOverride,
+  opensAs,
+  chatRuntime
 }: AgentCatalogRowProps): React.JSX.Element {
   const envSummary = environmentNames?.join(' ') ?? stringifyAgentDefaultEnvDraft(envOverride)
   const defaultEnvSummary = stringifyAgentDefaultEnvDraft(defaultEnv)
@@ -146,10 +157,15 @@ export function AgentCatalogRow({
       )?.focus()
     })
   }
-  const expandable = isDetected || permission !== undefined || permissionChoice !== undefined
+  const expandable =
+    isDetected ||
+    permission !== undefined ||
+    permissionChoice !== undefined ||
+    chatRuntime !== undefined ||
+    launchChoiceEditor !== undefined
 
   return (
-    <div className={cn('py-3', !isDetected && 'opacity-70')}>
+    <div className={cn('py-3', !isDetected && !opensAs?.cliMissing && 'opacity-70')}>
       <div className="flex flex-wrap items-start gap-3">
         <div className="flex size-7 shrink-0 items-center justify-center rounded-md border border-border/50 bg-background/50">
           <AgentIcon agent={agentId} size={16} />
@@ -200,6 +216,7 @@ export function AgentCatalogRow({
               />
             </div>
           )}
+          {opensAs && <AgentOpensAsControl label={label} opensAs={opensAs} />}
           <AgentAvailabilityControl
             label={label}
             isEnabled={isEnabled}
@@ -232,6 +249,7 @@ export function AgentCatalogRow({
             <a
               href={homepageUrl}
               target="_blank"
+              onClick={openAppHttpLinkFromAnchor}
               rel="noopener noreferrer"
               title={
                 isDetected
@@ -271,7 +289,8 @@ export function AgentCatalogRow({
 
       {expandable && cmdOpen && (
         <div className="mt-3 space-y-3 pl-10">
-          {permissionChoice && (
+          {chatRuntime}
+          {!launchChoiceEditor && permissionChoice && (
             <div ref={permissionRef}>
               <AgentPermissionMenu agentId={agentId} label={label} permission={permissionChoice} />
             </div>
@@ -283,6 +302,7 @@ export function AgentCatalogRow({
               controlRef={permissionRef}
             />
           )}
+          {!isDetected && launchChoiceEditor?.(permissionRef)}
           {isDetected && (
             <div>
               <AgentCommandOverrideInput
@@ -292,37 +312,39 @@ export function AgentCatalogRow({
                 onSaveOverride={onSaveOverride}
               />
               <div className="mt-2">
-                <AgentDefaultArgsInput
-                  key={agentId}
-                  defaultArgs={defaultArgs}
-                  argsOverride={argsOverride}
-                  onSaveArgs={onSaveArgs}
-                  choiceChips={
-                    permissionChoice?.flag && !permissionChoice.argsSetPermission
-                      ? [
-                          {
-                            key: 'permissionMode',
-                            label,
-                            flag: permissionChoice.flag,
-                            onRemove: (text) => {
-                              const lifted = liftAgentPermissionArgs(agentId, text)
-                              permissionChoice.onSelect('own')
-                              return lifted.choice !== null ? lifted.args : text
+                {launchChoiceEditor?.(permissionRef) ?? (
+                  <AgentDefaultArgsInput
+                    key={agentId}
+                    defaultArgs={defaultArgs}
+                    argsOverride={argsOverride}
+                    onSaveArgs={onSaveArgs}
+                    choiceChips={
+                      permissionChoice?.flag && !permissionChoice.argsSetPermission
+                        ? [
+                            {
+                              key: 'permissionMode',
+                              label,
+                              flag: permissionChoice.flag,
+                              onRemove: (text) => {
+                                const lifted = liftAgentPermissionArgs(agentId, text)
+                                permissionChoice.onSelect('own')
+                                return lifted.choice !== null ? lifted.args : text
+                              }
                             }
-                          }
-                        ]
-                      : undefined
-                  }
-                  note={
-                    permissionChoice?.argsSetPermission
-                      ? translate(
-                          'settings.agents.permissionArgsTerminalOnly',
-                          'These arguments may control {{agent}}’s terminal permissions, so Orca adds no flag. Chats use the Permissions choice above.',
-                          { agent: label }
-                        )
-                      : undefined
-                  }
-                />
+                          ]
+                        : undefined
+                    }
+                    note={
+                      permissionChoice?.argsSetPermission
+                        ? translate(
+                            'settings.agents.permissionArgsTerminalOnly',
+                            'These arguments may control {{agent}}’s terminal permissions, so Orca adds no flag. Chats use the Permissions choice above.',
+                            { agent: label }
+                          )
+                        : undefined
+                    }
+                  />
+                )}
               </div>
               {environmentEditor ?? (
                 <div className="mt-2">

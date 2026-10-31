@@ -3,7 +3,7 @@ import { isForkUpdaterOff } from './orca-pit-updater-gate'
 import type { BrowserWindow, IpcMainInvokeEvent } from 'electron'
 import type { ReleaseBuildListResult, UpdateCheckOptions } from '../../shared/update-status-types'
 import { RELEASE_CHANNELS, type ReleaseChannel } from '../../shared/release-channel'
-import { isTrustedUIRenderer } from '../ipc/ui'
+import { getTrustedUIRendererWindow, isTrustedUIRenderer } from '../ipc/ui'
 import type { Store } from '../persistence'
 import { logStartupMilestone } from '../startup/startup-diagnostics'
 import { applyProxyToElectronUpdaterSession } from '../updater/electron-updater-proxy-session'
@@ -42,6 +42,7 @@ type UpdaterSetupHooks = {
 
 function buildUpdaterSetupOptions(store: Store, options?: UpdaterSetupHooks): UpdaterSetupOptions {
   return {
+    getMainWindow: getTrustedUIRendererWindow,
     getLastUpdateCheckAt: () => store.getUI().lastUpdateCheckAt,
     onBeforeQuit: async () => {
       try {

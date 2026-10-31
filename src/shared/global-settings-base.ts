@@ -10,7 +10,7 @@ import type { PluginUpdatePolicySettings } from './plugins/catalog/plugin-update
 import type { PluginSystemSettings } from './plugins/plugin-system-settings'
 import type { WorktreeDeletionPreferences } from './worktree-deletion-preferences'
 import type { AgentPermissionGlobalSettings } from './tui-agent-permission-choice'
-import type { OrchestrationHeartbeatSettings } from './orchestration-heartbeat'
+import type { OrcaPitGlobalSettings } from './orca-pit-settings-types'
 
 /** Settings groups owned by their feature modules and composed into GlobalSettings. */
 export type GlobalSettingsBase = ClaudeAgentViewSettings &
@@ -20,9 +20,10 @@ export type GlobalSettingsBase = ClaudeAgentViewSettings &
   AgentPermissionGlobalSettings &
   ExternalConversationSettings &
   BrowserLinkOpeningSettings &
-  OrchestrationHeartbeatSettings &
   BrowserExtensionGlobalSettings &
   PluginAppearanceSettings &
   PluginFileTypeSuggestionSettings &
   PluginUpdatePolicySettings &
-  PluginSystemSettings
+  PluginSystemSettings &
+  // Orca-Pit: the fork's own settings group.
+  OrcaPitGlobalSettings
