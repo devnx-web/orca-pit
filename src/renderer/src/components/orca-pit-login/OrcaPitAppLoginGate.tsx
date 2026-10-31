@@ -10,12 +10,17 @@ import { Label } from '@/components/ui/label'
 import { translate } from '@/i18n/i18n'
 import type { OrcaPitAppLoginFailure } from '../../../../shared/orca-pit-app-session'
 import {
+  isOrcaPitAppAway,
+  listenOrcaPitAppSession,
   loadOrcaPitAppSession,
   orcaPitAppApi,
   ORCA_PIT_LOGIN_ATTRIBUTE,
+  resumeOrcaPitApp,
   setOrcaPitAppSession,
+  signOutOrcaPitApp,
   useOrcaPitAppSession
 } from './orca-pit-app-session-store'
+import { OrcaPitAwayScreen } from './OrcaPitAwayScreen'
 
 export function orcaPitAppLoginFailureText(reason: OrcaPitAppLoginFailure): string {
   switch (reason) {
@@ -38,11 +43,13 @@ export function OrcaPitAppLoginGate({ children }: { children: ReactNode }): Reac
   const state = useOrcaPitAppSession()
   useEffect(() => {
     void loadOrcaPitAppSession()
+    return listenOrcaPitAppSession()
   }, [])
+  const away = isOrcaPitAppAway(state)
   return (
     <>
       {/* Why inert and not unmounted: the app's own work (sessions, automations) keeps going. */}
-      <div className="contents" inert={state === null || state.kind === 'signed-out'}>
+      <div className="contents" inert={state === null || state.kind === 'signed-out' || away}>
         {children}
       </div>
       {state === null ? (
@@ -52,6 +59,15 @@ export function OrcaPitAppLoginGate({ children }: { children: ReactNode }): Reac
         />
       ) : state.kind === 'signed-out' ? (
         <OrcaPitAppLoginScreen rememberedEmail={state.rememberedEmail} />
+      ) : state.kind === 'signed-in' && away ? (
+        <OrcaPitAwayScreen
+          name={state.person.name}
+          avatarUrl={state.person.avatarUrl}
+          personKey={`u:${state.person.id}`}
+          since={state.away ?? null}
+          onContinue={resumeOrcaPitApp}
+          onSignOut={signOutOrcaPitApp}
+        />
       ) : null}
     </>
   )

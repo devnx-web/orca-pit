@@ -5,6 +5,10 @@ import type { OrcaRuntimeService } from '../runtime/orca-runtime'
 import type { RpcCallerIdentity } from '../runtime/rpc/rpc-caller-identity'
 import type { OrcaPitAgentAuthors } from '../../shared/orca-pit-agent-authors'
 import type { OrcaPitAgentAuthorsResult, OrcaPitPerson } from '../../shared/orca-pit-presence'
+import type {
+  OrcaPitPresenceEvent,
+  OrcaPitPresenceResult
+} from '../../shared/rpc-contract/orca-pit-presence-params'
 import { trackOrcaPitMultiplex, type OrcaPitMultiplexView } from './orca-pit-presence-registry'
 
 export type OrcaPitRpcContext = { runtime: OrcaRuntimeService; caller?: RpcCallerIdentity }
@@ -28,6 +32,12 @@ export type OrcaPitActivityCapture = {
   desktopInput(runtime: OrcaRuntimeService, ptyId: string, data: string): void
   workspaceCreated(worktreeId: string): void
   login(deviceId: string): void
+  /** A browser's idle screen; returns who it is signed in as (null: nobody to clock). */
+  clock(
+    caller: RpcCallerIdentity | undefined,
+    event: OrcaPitPresenceEvent,
+    atMs: number
+  ): OrcaPitPresenceResult
   authors(): OrcaPitAgentAuthors
   /** paneKey → who started the agent running there. */
   starters(): Record<string, OrcaPitPerson>
@@ -109,6 +119,28 @@ export function recordOrcaPitDesktopWorkspaceCreated(worktreeId: string): void {
 /** A person signed in on this central Orca and got the paired device `deviceId`. */
 export function recordOrcaPitLogin(deviceId: string): void {
   guarded((active) => active.login(deviceId))
+}
+
+/** The browser told this computer that its person started, stopped, came back or left. */
+export function recordOrcaPitPresence(
+  caller: RpcCallerIdentity | undefined,
+  params: { event: OrcaPitPresenceEvent; since?: number }
+): OrcaPitPresenceResult {
+  if (!capture) {
+    return { person: null }
+  }
+  // Why clamp: an idle moment from the future or far past would bend the hours of the day.
+  const now = Date.now()
+  const atMs =
+    params.event === 'idle' && params.since !== undefined
+      ? Math.min(now, Math.max(now - 24 * 60 * 60_000, params.since))
+      : now
+  try {
+    return capture.clock(caller, params.event, atMs)
+  } catch (error) {
+    console.warn('[orca-pit] presence failed:', error)
+    return { person: null }
+  }
 }
 
 /**

@@ -21,16 +21,24 @@ import { installWebPreloadApi } from './web-preload-api'
 import { initWebDeviceKeySupport } from './web-device-key-support'
 import { WebPairingSecurityNotice } from './WebPairingSecurityNotice'
 import { OrcaPitWebLogin } from './OrcaPitWebLogin'
+import { OrcaPitWebPresenceGate } from './OrcaPitWebPresenceGate'
 import { I18nProvider } from '../i18n/I18nProvider'
 import { translate } from '../i18n/i18n'
 import { installOsFileDropCancellationGuard } from '../lib/os-file-drop-cancellation-guard'
 import { installBodyOverlayAttributes } from '../lib/body-overlay-attributes'
 import { installAppKeyboardRouter } from '../lib/app-keyboard-router'
+import {
+  installOrcaPitLoginKeyGuard,
+  isOrcaPitWebAway
+} from '../components/orca-pit-login/orca-pit-app-session-store'
 
 const disposeOsFileDropGuard = installOsFileDropCancellationGuard()
 import.meta.hot?.dispose(disposeOsFileDropGuard)
 const disposeBodyOverlayAttributes = installBodyOverlayAttributes()
 import.meta.hot?.dispose(disposeBodyOverlayAttributes)
+// Orca-Pit: while "Are you still there?" covers the page, app shortcuts wait (before the router).
+const disposeAwayKeyGuard = installOrcaPitLoginKeyGuard(window, isOrcaPitWebAway)
+import.meta.hot?.dispose(disposeAwayKeyGuard)
 installAppKeyboardRouter()
 const App = lazy(() => import('../App'))
 
@@ -94,9 +102,12 @@ function WebRoot(): React.JSX.Element {
   installWebPreloadApi()
   return (
     <>
-      <Suspense fallback={<div className="min-h-dvh bg-background" />}>
-        <App />
-      </Suspense>
+      {/* Orca-Pit: "Are you still there?" after 10 idle minutes, for a browser with a login. */}
+      <OrcaPitWebPresenceGate>
+        <Suspense fallback={<div className="min-h-dvh bg-background" />}>
+          <App />
+        </Suspense>
+      </OrcaPitWebPresenceGate>
       <WebPairingSecurityNotice />
     </>
   )

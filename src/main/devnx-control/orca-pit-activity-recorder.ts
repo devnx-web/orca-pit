@@ -9,7 +9,11 @@ import {
   type OrcaPitActor
 } from './orca-pit-activity-context'
 import type { OrcaPitActivityDb } from './orca-pit-activity-db'
-import { clipDetail, type OrcaPitActivityDraft } from './orca-pit-activity-types'
+import {
+  clipDetail,
+  type OrcaPitActivityDraft,
+  type OrcaPitPresenceAction
+} from './orca-pit-activity-types'
 import { OrcaPitLineBuffer } from './orca-pit-terminal-lines'
 import type { OrcaPitAgentAuthors, OrcaPitPaneAuthor } from '../../shared/orca-pit-agent-authors'
 
@@ -181,6 +185,27 @@ export class OrcaPitActivityRecorder {
       detail: clipDetail(detail),
       atMs: this.now()
     })
+  }
+
+  /** Presence keeps its own moment: an idle event is stamped when the person stopped, not now. */
+  recordPresence(action: OrcaPitPresenceAction, actor: OrcaPitActor, atMs: number): void {
+    this.record({
+      ...workspaceContext(null),
+      action,
+      user_id: actor.userId,
+      device_label: actor.deviceLabel,
+      localActor: actor.localActor,
+      session_id: null,
+      agent: null,
+      tokens_in: null,
+      tokens_out: null,
+      detail: null,
+      atMs
+    })
+    // Leaving or quitting may end the process before the next tick writes the queue.
+    if (action === 'presence_end') {
+      this.flush()
+    }
   }
 
   private scheduleFlush(): void {

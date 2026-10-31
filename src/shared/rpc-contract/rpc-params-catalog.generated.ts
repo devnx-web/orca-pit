@@ -441,6 +441,7 @@ import {
   OrcaPitDevnxTaskParams,
   OrcaPitDevnxTasksParams
 } from './orca-pit-devnx-params'
+import { OrcaPitPresenceParams } from './orca-pit-presence-params'
 import {
   OrcadMigrationCatalogParams,
   OrcadMigrationCatalogReferenceParams,
@@ -1240,6 +1241,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'orcaPit.devnxStatus': null,
   'orcaPit.devnxTask': OrcaPitDevnxTaskParams,
   'orcaPit.devnxTasks': OrcaPitDevnxTasksParams,
+  'orcaPit.presence': OrcaPitPresenceParams,
   'orcad.migration.abortCatalog': OrcadMigrationCatalogParams,
   'orcad.migration.abortCatalogByReference': OrcadMigrationCatalogReferenceParams,
   'orcad.migration.catalogState': OrcadMigrationCatalogParams,

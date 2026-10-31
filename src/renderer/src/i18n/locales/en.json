@@ -23270,6 +23270,13 @@
     "agentRename": {
       "label": "Agent name",
       "placeholder": "Empty = automatic name"
+    },
+    "away": {
+      "title": "Are you still there?",
+      "since": "No activity on this computer since {{time}}.",
+      "noActivity": "No activity on this computer for 10 minutes.",
+      "continue": "Continue as {{name}}",
+      "notMe": "Not me / Sign out"
     }
   }
 }

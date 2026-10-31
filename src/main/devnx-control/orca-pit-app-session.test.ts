@@ -79,6 +79,7 @@ describe('OrcaPitAppSession', () => {
       state: {
         kind: 'signed-in',
         offline: false,
+        away: null,
         person: {
           id: 7,
           name: 'Ana',
@@ -134,5 +135,32 @@ describe('orca-pit public address', () => {
     expect(() => writeOrcaPitPublicAddress(file, 'https://x')).toThrow()
     expect(writeOrcaPitPublicAddress(file, '')).toBeNull()
     expect(readOrcaPitPublicAddress(file)).toBeNull()
+  })
+})
+
+describe('OrcaPitAppSession idle screen', () => {
+  it('marks the person away from the moment they stopped and lets them back without a password', async () => {
+    const app = make()
+    app.markAway(500)
+    expect(app.isAway()).toBe(false)
+
+    await app.login('ana@x', 'certa')
+    app.markAway(900_000)
+    expect(app.state()).toMatchObject({ kind: 'signed-in', away: 900_000 })
+    // A second idle check while the screen is up keeps the first moment.
+    app.markAway(950_000)
+    expect(app.state()).toMatchObject({ away: 900_000 })
+
+    expect(app.resume()).toMatchObject({ kind: 'signed-in', away: null })
+    expect(app.currentUser()?.name).toBe('Ana')
+  })
+
+  it('drops the idle screen on sign-out and on a new sign-in', async () => {
+    const app = make()
+    await app.login('ana@x', 'certa')
+    app.markAway(900_000)
+    expect(app.logout()).toMatchObject({ kind: 'signed-out' })
+    await app.login('ana@x', 'certa')
+    expect(app.isAway()).toBe(false)
   })
 })

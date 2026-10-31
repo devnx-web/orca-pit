@@ -16,7 +16,16 @@ export type OrcaPitAppSessionState =
   | { kind: 'not-required' }
   | { kind: 'signed-out'; rememberedEmail: string | null }
   /** `offline`: the Control was unreachable and the last person here was let back in. */
-  | { kind: 'signed-in'; person: OrcaPitAppPerson; offline: boolean }
+  | {
+      kind: 'signed-in'
+      person: OrcaPitAppPerson
+      offline: boolean
+      /**
+       * When the computer has gone 10 minutes untouched: the moment the person stopped (epoch ms).
+       * The app covers the screen with "Are you still there?" until they continue.
+       */
+      away?: number | null
+    }
 
 export type OrcaPitAppLoginFailure = 'bad-credentials' | 'wrong-tenant' | 'unavailable'
 
@@ -51,6 +60,10 @@ export type OrcaPitAppApi = {
   getSession: () => Promise<OrcaPitAppSessionState>
   login: (email: string, password: string) => Promise<OrcaPitAppLoginResult>
   logout: () => Promise<OrcaPitAppSessionState>
+  /** "Continue as <name>" after the idle screen: no password, the session is still in memory. */
+  resume: () => Promise<OrcaPitAppSessionState>
+  /** Main pushes the state when the idle screen comes up; returns the unsubscribe. */
+  onSessionChanged: (listener: (state: OrcaPitAppSessionState) => void) => () => void
   /** Signs in on another Orca-Pit and returns its pairing link, for "Add server". */
   loginToServer: (input: OrcaPitServerLoginInput) => Promise<OrcaPitServerLoginResult>
   /** The address other devices reach this machine at (`wss://orca.devnx.com.br`), or null. */

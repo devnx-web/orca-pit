@@ -6,6 +6,24 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit16 — 31/10/2026
+
+**Ponto: "Você ainda está aí?"**
+
+- Depois de 10 minutos sem ninguém mexer no computador, o Orca-Pit cobre a
+  tela com **"Você ainda está aí?"** e a foto de quem está logado. Para voltar
+  basta clicar em **Continuar como <nome>**, sem senha; "Não sou eu / Sair"
+  volta à tela de login. Agentes, terminais e o acesso remoto continuam
+  rodando por baixo.
+- A tela também aparece ao voltar de uma suspensão ou da tela bloqueada que
+  durou 10 minutos ou mais.
+- No navegador (`orca.devnx.com.br/<máquina>`) acontece o mesmo, medindo o uso
+  da própria página; "Sair" volta ao e-mail e senha.
+- Cada entrada, parada (com a hora em que a pessoa parou de mexer), volta e
+  saída vai ao diário e ao DevNX Control. Na tela **Carga** aparecem a
+  entrada, a saída e o tempo ativo de cada pessoa, e no detalhe a linha do
+  tempo de cada dia, com tempo parado e pausas.
+
 ## 1.4.214-pit15 — 30/10/2026
 
 - **Corrigido:** na barra lateral por projeto (pit13), agentes de vários

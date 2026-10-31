@@ -9,6 +9,8 @@ import type { OrcaRuntimeService } from '../runtime/orca-runtime'
 import type { RpcCallerIdentity } from '../runtime/rpc/rpc-caller-identity'
 import { isRecord } from './devnx-control-http'
 import { actorForCaller } from './orca-pit-activity-context'
+import { orcaPitUserForDevice } from './orca-pit-identity'
+import type { OrcaPitPresenceAction } from './orca-pit-activity-types'
 import type { OrcaPitActivityCapture, OrcaPitRpcContext } from './orca-pit-activity-hooks'
 import { orcaPitActivity, type OrcaPitTerminalTarget } from './orca-pit-activity-recorder'
 
@@ -166,6 +168,13 @@ function desktopInput(runtime: OrcaRuntimeService, ptyId: string, data: string):
 }
 
 /** The capture minus what needs the agent tracker and Electron; orca-pit-activity adds those. */
+const PRESENCE_ACTION = {
+  start: 'presence_start',
+  idle: 'presence_idle',
+  resume: 'presence_resume',
+  end: 'presence_end'
+} as const satisfies Record<string, OrcaPitPresenceAction>
+
 export const orcaPitActivityCapture: Omit<OrcaPitActivityCapture, 'starters' | 'presence'> = {
   recordsRpc: (method) => Object.hasOwn(RPC_RECORDERS, method),
   rpc: (method, params, context, result) => RPC_RECORDERS[method]?.(params, context, result),
@@ -185,5 +194,16 @@ export const orcaPitActivityCapture: Omit<OrcaPitActivityCapture, 'starters' | '
       null,
       null
     ),
+  // Only a browser that signed in with the Control has a person to clock; a link-paired device
+  // gets no idle screen.
+  clock: (caller, event, atMs) => {
+    const user = caller?.kind === 'paired-device' ? orcaPitUserForDevice(caller.deviceId) : null
+    if (!caller || !user) {
+      return { person: null }
+    }
+    orcaPitActivity.recordPresence(PRESENCE_ACTION[event], actorForCaller(caller), atMs)
+    // The photo comes from the sidebar's presence (key `u:<id>`), already safe for the page.
+    return { person: { id: user.id, name: user.name, avatarUrl: null } }
+  },
   authors: () => orcaPitActivity.authorsByPane()
 }

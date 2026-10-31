@@ -72,6 +72,8 @@ function isCredentialRejection(error: unknown): boolean {
 
 export class OrcaPitAppSession {
   private signedIn: { user: OrcaPitUser; token: string | null } | null = null
+  /** Set while the idle screen is up: when the person stopped touching the computer. */
+  private awaySince: number | null = null
   private readonly calls: OrcaPitControlCalls
   private readonly now: () => number
 
@@ -88,7 +90,8 @@ export class OrcaPitAppSession {
       return {
         kind: 'signed-in',
         person: personOf(this.signedIn.user),
-        offline: this.signedIn.token === null
+        offline: this.signedIn.token === null,
+        away: this.awaySince
       }
     }
     return { kind: 'signed-out', rememberedEmail: this.readStored()?.email ?? null }
@@ -106,6 +109,28 @@ export class OrcaPitAppSession {
 
   logout(): OrcaPitAppSessionState {
     this.signedIn = null
+    this.awaySince = null
+    return this.state()
+  }
+
+  isSignedIn(): boolean {
+    return this.currentUser() !== null
+  }
+
+  isAway(): boolean {
+    return this.awaySince !== null
+  }
+
+  /** The idle screen comes up; `since` is when the person stopped. Ignored when nobody is in. */
+  markAway(since: number): void {
+    if (this.isSignedIn() && this.awaySince === null) {
+      this.awaySince = since
+    }
+  }
+
+  /** "Continue as <name>": the same session, no password asked. */
+  resume(): OrcaPitAppSessionState {
+    this.awaySince = null
     return this.state()
   }
 
@@ -142,6 +167,7 @@ export class OrcaPitAppSession {
       return { ok: false, reason: 'wrong-tenant' }
     }
     this.signedIn = { user, token }
+    this.awaySince = null
     this.writeStored(cleanEmail, user, password)
     return { ok: true, state: this.state() }
   }
@@ -158,6 +184,7 @@ export class OrcaPitAppSession {
       return { ok: false, reason: 'unavailable' }
     }
     this.signedIn = { user: stored.user, token: null }
+    this.awaySince = null
     return { ok: true, state: this.state() }
   }
 

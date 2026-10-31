@@ -2,7 +2,12 @@
 // "Add server" by Control login, the share address and the company's machine directory.
 import { ipcMain } from 'electron'
 import { isRecord } from '../devnx-control/devnx-control-http'
-import { getOrcaPitAppSession, orcaPitPublicAddressFile } from '../devnx-control/orca-pit-app'
+import {
+  getOrcaPitAppSession,
+  getOrcaPitPresenceWatch,
+  orcaPitPublicAddressFile,
+  startOrcaPitPresenceWatch
+} from '../devnx-control/orca-pit-app'
 import {
   readOrcaPitPublicAddress,
   writeOrcaPitPublicAddress
@@ -19,16 +24,29 @@ function text(value: unknown, max: number): string {
 }
 
 export function registerOrcaPitAppHandlers(): void {
+  startOrcaPitPresenceWatch()
   ipcMain.handle('orcaPit:getSession', () => getOrcaPitAppSession().state())
   ipcMain.handle('orcaPit:login', async (_event, email: unknown, password: unknown) => {
     const result = await getOrcaPitAppSession().login(text(email, 254), text(password, 1024))
     if (result.ok) {
       // The first sign-in on a machine registers it in the company directory right away.
       kickOrcaPitMachineAgent()
+      getOrcaPitPresenceWatch().onLogin()
     }
     return result
   })
-  ipcMain.handle('orcaPit:logout', () => getOrcaPitAppSession().logout())
+  ipcMain.handle('orcaPit:logout', () => {
+    getOrcaPitPresenceWatch().onLeave()
+    return getOrcaPitAppSession().logout()
+  })
+  ipcMain.handle('orcaPit:resume', () => {
+    const session = getOrcaPitAppSession()
+    if (!session.isAway()) {
+      return session.state()
+    }
+    getOrcaPitPresenceWatch().onResume()
+    return session.resume()
+  })
   ipcMain.handle('orcaPit:loginToServer', (_event, input: unknown) => {
     const raw = isRecord(input) ? input : {}
     return loginToOrcaPitServer(

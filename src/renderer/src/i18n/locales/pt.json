@@ -23272,6 +23272,13 @@
     "agentRename": {
       "label": "Nome do agente",
       "placeholder": "Vazio = nome automático"
+    },
+    "away": {
+      "title": "Você ainda está aí?",
+      "since": "Ninguém mexe neste computador desde {{time}}.",
+      "noActivity": "Ninguém mexe neste computador há 10 minutos.",
+      "continue": "Continuar como {{name}}",
+      "notMe": "Não sou eu / Sair"
     }
   }
 }

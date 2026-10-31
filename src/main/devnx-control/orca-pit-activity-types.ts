@@ -9,8 +9,18 @@ export const ORCA_PIT_ACTIVITY_ACTIONS = [
   'agent_started',
   'agent_stopped',
   'settings_changed',
-  'login'
+  'login',
+  // Presence: signed in, stopped touching the computer (at the moment they stopped), back, left.
+  'presence_start',
+  'presence_idle',
+  'presence_resume',
+  'presence_end'
 ] as const
+
+export type OrcaPitPresenceAction = Extract<
+  OrcaPitActivityAction,
+  'presence_start' | 'presence_idle' | 'presence_resume' | 'presence_end'
+>
 
 export type OrcaPitActivityAction = (typeof ORCA_PIT_ACTIVITY_ACTIONS)[number]
 

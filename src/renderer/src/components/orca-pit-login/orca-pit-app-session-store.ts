@@ -68,9 +68,44 @@ function subscribe(listener: () => void): () => void {
 
 const read = (): OrcaPitAppSessionState | null => current
 
-/** While nobody is signed in (or before the first answer) the app stays behind the login. */
+// The web client's own idle screen (OrcaPitWebPresenceGate); the desktop's comes from main.
+let webAway = false
+
+export function setOrcaPitWebAway(away: boolean): void {
+  webAway = away
+}
+
+export function isOrcaPitWebAway(): boolean {
+  return webAway
+}
+
+/** True while the "Are you still there?" screen covers the desktop app. */
+export function isOrcaPitAppAway(state: OrcaPitAppSessionState | null): boolean {
+  return state?.kind === 'signed-in' && typeof state.away === 'number'
+}
+
+/**
+ * While nobody is signed in (or before the first answer), and while the idle screen is up, the
+ * app stays behind the login.
+ */
 export function isOrcaPitAppLocked(): boolean {
-  return current === null || current.kind === 'signed-out'
+  return current === null || current.kind === 'signed-out' || isOrcaPitAppAway(current) || webAway
+}
+
+/** "Continue as <name>" after the idle screen. */
+export async function resumeOrcaPitApp(): Promise<void> {
+  const api = orcaPitAppApi()
+  if (api) {
+    setOrcaPitAppSession(await api.resume())
+  }
+}
+
+/** Main pushes the state when the idle screen comes up; the gate listens from mount. */
+export function listenOrcaPitAppSession(): () => void {
+  const api = orcaPitAppApi()
+  return typeof api?.onSessionChanged === 'function'
+    ? api.onSessionChanged((state) => setOrcaPitAppSession(state))
+    : () => {}
 }
 
 /** Marks the login screen, the only place keys may reach while the app is locked. */
@@ -80,9 +115,12 @@ export const ORCA_PIT_LOGIN_ATTRIBUTE = 'data-orca-pit-login'
  * Keys aimed anywhere but the login screen stop here while locked, ahead of every app shortcut:
  * install before the app keyboard router so this capture listener runs first.
  */
-export function installOrcaPitLoginKeyGuard(target: Window = window): () => void {
+export function installOrcaPitLoginKeyGuard(
+  target: Window = window,
+  isLocked: () => boolean = isOrcaPitAppLocked
+): () => void {
   const guard = (event: KeyboardEvent): void => {
-    if (!isOrcaPitAppLocked()) {
+    if (!isLocked()) {
       return
     }
     const node = event.target instanceof Element ? event.target : null
@@ -109,6 +147,7 @@ export function useOrcaPitAppSession(): OrcaPitAppSessionState | null {
 /** Test seam. */
 export function resetOrcaPitAppSessionForTests(): void {
   current = null
+  webAway = false
   loading = null
   listeners.clear()
 }
