@@ -6,6 +6,26 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit17 — 31/10/2026
+
+- Sincronizado com o Orca de 30/10/2026 (390 mudanças desde a pit10).
+- **Navegador dos agentes:** os agentes passam a conseguir fazer login e pagamento
+  em janelas que abrem por cima (pop-ups), enviar arquivos em qualquer botão de
+  upload, responder a alertas e confirmações da página, e cada ação diz o que
+  provocou. As capturas de tela viram arquivos, e os downloads vão para a pasta
+  pedida.
+- **Abas do navegador lado a lado:** um atalho abre uma aba do navegador dividida
+  à direita, e as abas reabertas depois de reiniciar o Orca voltam a carregar.
+- **Comentários na página:** dá para colar imagens nos comentários que vão para o
+  agente, e o envio fica mais enxuto por padrão.
+- **Chat:** links da web mostram uma prévia, e links de PR e issue do GitHub abrem
+  um cartão ao passar o mouse.
+- **Conflitos de merge:** agora se resolvem e se concluem pelo painel de
+  controle de versão, inclusive quando um lado apagou o arquivo.
+- **Terminal:** o texto não fica mais em negrito depois de reiniciar o Orca.
+- Muitas correções de git (submódulos, renomeações, branches com nome igual a
+  tag), do editor de diferenças e do WSL no Windows.
+
 ## 1.4.214-pit16 — 31/10/2026
 
 **Ponto: "Você ainda está aí?"**
