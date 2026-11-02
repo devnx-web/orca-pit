@@ -6,6 +6,12 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit19 — 02/11/2026
+
+- **WhatsApp:** a primeira mensagem de um chat novo não se perde mais quando o
+  agente demora a abrir (por exemplo, quando ele se atualiza sozinho ao iniciar):
+  o pedido é reenviado, e o grupo é avisado se o agente não responder.
+
 ## 1.4.214-pit18 — 02/11/2026
 
 - **WhatsApp da empresa:** conecte o número da empresa (uazapi) em
