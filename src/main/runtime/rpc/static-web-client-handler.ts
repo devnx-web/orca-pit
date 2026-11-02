@@ -8,6 +8,10 @@ import {
   isOrcaPitLoginUrl
 } from '../../devnx-control/orca-pit-login-route'
 import { checkManagedOrigin } from '../../devnx-control/orca-pit-managed-origin'
+import {
+  handleOrcaPitWhatsappWake,
+  isOrcaPitWhatsappWakeUrl
+} from '../../devnx-control/orca-pit-whatsapp-route'
 
 const STATIC_WEB_ALLOWED_PATHS = new Set(['/web-index.html'])
 const STATIC_WEB_ALLOWED_PREFIXES = ['/assets/', '/cmaps/', '/standard_fonts/', '/wasm/']
@@ -63,6 +67,11 @@ async function handleStaticRequest(
   // Orca-Pit: the DevNX Control login is the only POST here; it answers 404 without a session.
   if (isOrcaPitLoginUrl(request.url)) {
     await handleOrcaPitLoginRequest(request, response)
+    return
+  }
+  // Orca-Pit: the router's nudge that a WhatsApp group of this machine has news.
+  if (isOrcaPitWhatsappWakeUrl(request.url)) {
+    handleOrcaPitWhatsappWake(request, response)
     return
   }
   if (request.method !== 'GET' && request.method !== 'HEAD') {

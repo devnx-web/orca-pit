@@ -2,7 +2,15 @@ import type { AgentProviderSessionMetadata } from './agent-session-resume'
 import type { ExecutionHostId } from './execution-host'
 
 /** Where a connector conversation comes from; `dev` is the CLI that drives one without a service. */
-export const CONNECTOR_SOURCES = ['slack', 'github', 'linear', 'discord', 'dev'] as const
+// Orca-Pit: `whatsapp` is a company group answered through the DevNX Control (orca-pit-whatsapp-*).
+export const CONNECTOR_SOURCES = [
+  'slack',
+  'github',
+  'linear',
+  'discord',
+  'dev',
+  'whatsapp'
+] as const
 export type ConnectorSource = (typeof CONNECTOR_SOURCES)[number]
 
 /** How agent-facing text names where a conversation comes from. */
@@ -11,7 +19,8 @@ export const CONNECTOR_SOURCE_NAMES: Record<ConnectorSource, string> = {
   github: 'GitHub',
   linear: 'Linear',
   discord: 'Discord',
-  dev: 'Orca'
+  dev: 'Orca',
+  whatsapp: 'WhatsApp'
 }
 
 /** Terminal agents a connector may start; see `CONNECTOR_AGENTS` for why only these. */

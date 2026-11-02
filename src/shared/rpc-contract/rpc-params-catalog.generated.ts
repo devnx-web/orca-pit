@@ -445,6 +445,10 @@ import {
 } from './orca-pit-devnx-params'
 import { OrcaPitPresenceParams } from './orca-pit-presence-params'
 import {
+  OrcaPitWhatsappConnectParams,
+  OrcaPitWhatsappLinkRepoParams
+} from './orca-pit-whatsapp-params'
+import {
   OrcadMigrationCatalogParams,
   OrcadMigrationCatalogReferenceParams,
   OrcadMigrationCommitCatalogParams
@@ -1257,6 +1261,11 @@ export const RPC_PARAMS_BY_METHOD = {
   'orcaPit.devnxTask': OrcaPitDevnxTaskParams,
   'orcaPit.devnxTasks': OrcaPitDevnxTasksParams,
   'orcaPit.presence': OrcaPitPresenceParams,
+  'orcaPit.whatsappConnect': OrcaPitWhatsappConnectParams,
+  'orcaPit.whatsappDisconnect': null,
+  'orcaPit.whatsappLinkRepo': OrcaPitWhatsappLinkRepoParams,
+  'orcaPit.whatsappOverview': null,
+  'orcaPit.whatsappSync': null,
   'orcad.migration.abortCatalog': OrcadMigrationCatalogParams,
   'orcad.migration.abortCatalogByReference': OrcadMigrationCatalogReferenceParams,
   'orcad.migration.catalogState': OrcadMigrationCatalogParams,

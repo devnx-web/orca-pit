@@ -23443,6 +23443,41 @@
       "noActivity": "Ninguém mexe neste computador há 10 minutos.",
       "continue": "Continuar como {{name}}",
       "notMe": "Não sou eu / Sair"
+    },
+    "whatsapp": {
+      "url": "URL da uazapi",
+      "token": "Token da instância",
+      "tokenSaved": "Token salvo",
+      "connect": "Conectar",
+      "offline": "O número não está conectado na uazapi ({{status}}).",
+      "connected": "Conectado: {{who}}",
+      "description": "O número da empresa. Cada grupo ligado a um projeto vira um chat do agente lá; mencione @orca no grupo para chamá-lo.",
+      "sync": "Sincronizar",
+      "change": "Trocar",
+      "disconnect": "Desconectar",
+      "loading": "Carregando WhatsApp…",
+      "notConnectedMember": "Ainda não conectado. Um administrador da empresa conecta o número aqui.",
+      "disconnectTitle": "Desconectar o WhatsApp?",
+      "disconnectDescription": "Os grupos deixam de chegar aos agentes e os vínculos são apagados. O número continua na uazapi.",
+      "cancel": "Cancelar",
+      "noGroups": "Nenhum grupo ainda. Sincronize para trazer os grupos em que este número está.",
+      "notLinked": "Não vinculado",
+      "photo": "Foto",
+      "group": "Grupo",
+      "project": "Projeto",
+      "machine": "Máquina",
+      "title": "WhatsApp",
+      "urlPlaceholder": "https://sua-instancia.uazapi.com"
+    },
+    "whatsappProject": {
+      "title": "Grupo do WhatsApp",
+      "description": "O agente deste projeto atende este grupo, nesta máquina, quando alguém da equipe menciona @orca.",
+      "noNumber": "O WhatsApp da empresa ainda não foi conectado (Configurações → Servidores → WhatsApp).",
+      "needsProject": "Vincule antes este projeto a um projeto do DevNX Control (acima).",
+      "needsMachine": "Esta máquina precisa estar aprovada em Máquinas da empresa para atender um grupo.",
+      "adminOnly": "Só um administrador da empresa no DevNX Control pode trocar o grupo.",
+      "search": "Buscar grupos",
+      "empty": "Nenhum grupo. Sincronize em Configurações → Servidores."
     }
   }
 }

@@ -41,6 +41,11 @@ export function getOrcaPitMachineState(): OrcaPitMachineSelfState {
   return agent?.current() ?? { kind: 'idle' }
 }
 
+/** This install's uid, once the machine agent runs; null in headless orcad. */
+export function getOrcaPitMachineUid(): string | null {
+  return agent?.machineUid() ?? null
+}
+
 /** After a sign-in in the app: register now instead of at the next heartbeat. */
 export function kickOrcaPitMachineAgent(): void {
   void agent?.tick()

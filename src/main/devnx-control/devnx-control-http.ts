@@ -144,9 +144,11 @@ async function readLimitedText(response: Response): Promise<string> {
 }
 
 export type DevnxRequestOptions = {
-  method?: 'GET' | 'POST' | 'DELETE'
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
   body?: unknown
   token?: string | null
+  /** Extra non-secret headers (the WhatsApp bridge names its machine in X-Orca-Machine-Uid). */
+  headers?: Record<string, string>
   timeoutMs?: number
 }
 
@@ -165,6 +167,7 @@ export async function requestDevnxControl(
         Accept: 'application/json',
         'Cache-Control': 'no-store',
         ...(options.body === undefined ? {} : { 'Content-Type': 'application/json' }),
+        ...options.headers,
         ...(options.token ? { Authorization: `Bearer ${options.token}` } : {})
       },
       ...(options.body === undefined ? {} : { body: JSON.stringify(options.body) }),

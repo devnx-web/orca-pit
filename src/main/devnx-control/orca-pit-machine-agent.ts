@@ -73,6 +73,11 @@ export class OrcaPitMachineAgent {
     return this.state
   }
 
+  /** The install's secret uid, which names this machine to the Control's machine routes. */
+  machineUid(): string {
+    return this.readStored().uid
+  }
+
   /** The tunnel process reports here (wired by the caller). */
   setTunnelState(tunnel: OrcaPitTunnelState): void {
     this.tunnelState = tunnel

@@ -17,6 +17,7 @@ import {
 import { RuntimeAddServerDialog } from './runtime-add-server-dialog'
 import { OrcaPitPublicAddressSetting } from './OrcaPitPublicAddressSetting'
 import { OrcaPitCompanyMachines } from './OrcaPitCompanyMachines'
+import { OrcaPitWhatsappSettings } from './OrcaPitWhatsappSettings'
 import { RuntimeDefaultHostRow } from './runtime-default-host-row'
 import { RuntimeInstallServerDialog } from './runtime-install-server-dialog'
 import { RuntimeServerList } from './runtime-server-list'
@@ -255,6 +256,9 @@ export function RuntimeEnvironmentsPane({
           void addEnvironment(false, { pairingCode: pairingUrl, suggestedName })
         }}
       />
+
+      {/* Orca-Pit: the company's WhatsApp number and its groups. */}
+      <OrcaPitWhatsappSettings />
 
       {/* Orca-Pit: the address "Share this computer" opens on. */}
       {canGeneratePairingUrl ? <OrcaPitPublicAddressSetting /> : null}

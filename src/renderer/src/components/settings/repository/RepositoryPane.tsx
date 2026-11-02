@@ -32,6 +32,7 @@ import { RepositoryWorktreeDefaultsSection } from './execution/RepositoryWorktre
 import { RepositoryJiraProjectSection } from './RepositoryJiraProjectSection'
 // Orca-Pit: DevNX Control project link.
 import { OrcaPitDevnxProjectSection } from './OrcaPitDevnxProjectSection'
+import { OrcaPitWhatsappProjectSection } from './OrcaPitWhatsappProjectSection'
 import { getProjectRuntimeSessionSummary } from './execution/repository-runtime-session-summary'
 import { getRepoOwnerWorktreeVisibilityDefaults } from '../../../store/worktree-visibility-defaults-by-host'
 
@@ -313,6 +314,13 @@ export function RepositoryPane({
           key={`devnx:${selectedHostId}:${repo.id}`}
           repo={repo}
           updateRepo={updateSelectedRepo}
+          forceVisible={forceFullPaneForRepoMatch}
+        />
+
+        {/* Orca-Pit: the WhatsApp group this project answers on this machine. */}
+        <OrcaPitWhatsappProjectSection
+          key={`whatsapp:${selectedHostId}:${repo.id}`}
+          repo={repo}
           forceVisible={forceFullPaneForRepoMatch}
         />
 

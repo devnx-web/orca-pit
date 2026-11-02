@@ -65,6 +65,31 @@ para os atalhos de teclado. O código está em
 `src/main/devnx-control/orca-pit-presence*.ts` e
 `src/renderer/src/components/sidebar/orca-pit-*` / `OrcaPit*`.
 
+## WhatsApp da empresa
+
+Um número da empresa numa instância da **uazapi**, guardado no DevNX Control (o
+token nunca sai de lá). Configurações → Servidores → **WhatsApp**: o admin cola
+URL e token, clica **Conectar** e **Sincronizar**; a tabela mostra os grupos com
+o projeto e a máquina de cada um. Em Configurações do projeto → **Grupo do
+WhatsApp**, o admin escolhe o grupo daquele projeto (precisa do projeto do
+Control vinculado e da máquina aprovada).
+
+| No grupo                            | O que acontece                                                                                   |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Alguém da equipe escreve `@orca …`  | Turno do chat do grupo (agente `claude` numa worktree própria, aba com o nome do grupo, à vista) |
+| `@orca nova [pedido]`               | Começa outro chat                                                                                |
+| Mensagem sem menção, ou de cliente  | Fica como contexto do próximo turno; nunca vira ordem                                            |
+| O agente termina o turno            | A última resposta vai para o grupo                                                               |
+| O agente pergunta ou pede permissão | Vai ao grupo com opções numeradas; a equipe responde só com o número                             |
+
+A máquina busca a caixa de entrada ao iniciar, a cada 60 s e quando o roteador
+chama `POST /orca-pit/whatsapp/wake` (só com o origin secret). O que já foi
+tratado, o contexto e as respostas pendentes ficam em
+`<userData>/devnx-control/orca-pit-whatsapp.json`; a mensagem só é confirmada
+ao Control depois disso. O código está em
+`src/main/devnx-control/orca-pit-whatsapp-*.ts`, sobre o mecanismo de conversas
+externas do Orca (fonte `whatsapp`).
+
 ## Sem a conta e a nuvem do Orca original
 
 Quem identifica a pessoa é o login do DevNX Control, então o app instalado não

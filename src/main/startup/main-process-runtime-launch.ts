@@ -56,6 +56,7 @@ import { emitServeBrowserIdentityActionLine } from '../server/serve-stdout-bound
 import { getBrowserIdentityModeStatus } from '../browser/browser-identity-mode-store'
 import { installOrcaPitMultiUser } from '../devnx-control/orca-pit-multi-user'
 import { installOrcaPitMachines } from '../devnx-control/orca-pit-machines-runtime'
+import { installOrcaPitWhatsapp } from '../devnx-control/orca-pit-whatsapp-runtime'
 
 type RuntimeService = NonNullable<typeof state.runtime>
 
@@ -124,6 +125,10 @@ function installRuntimeRpc(
   installOrcaPitMultiUser(runtimeRpc)
   // Orca-Pit: this machine in the company directory, its managed tunnel and the LAN fallback.
   installOrcaPitMachines(runtimeRpc)
+  // Orca-Pit: the company's WhatsApp groups linked to this machine, each one a chat in its project.
+  if (state.store) {
+    installOrcaPitWhatsapp(runtime, state.store)
+  }
   runtimeRpc.setMobileDesktopRelayHosts(createRuntimeEnvironmentMobileRelayHosts())
   registerMobileHandlers(runtimeRpc, {
     getRelayStatus: getDesktopRelayStatus,

@@ -23426,6 +23426,41 @@
       "noActivity": "No activity on this computer for 10 minutes.",
       "continue": "Continue as {{name}}",
       "notMe": "Not me / Sign out"
+    },
+    "whatsapp": {
+      "url": "uazapi URL",
+      "token": "Instance token",
+      "tokenSaved": "Token saved",
+      "connect": "Connect",
+      "offline": "The number is not connected in uazapi ({{status}}).",
+      "connected": "Connected: {{who}}",
+      "description": "The company's number. Each group linked to a project becomes a chat of the agent there; mention @orca in the group to call it.",
+      "sync": "Sync",
+      "change": "Change",
+      "disconnect": "Disconnect",
+      "loading": "Loading WhatsApp…",
+      "notConnectedMember": "Not connected yet. An administrator of the company connects the number here.",
+      "disconnectTitle": "Disconnect WhatsApp?",
+      "disconnectDescription": "The groups stop reaching the agents and their links are removed. The number stays in uazapi.",
+      "cancel": "Cancel",
+      "noGroups": "No groups yet. Sync to bring the groups this number is in.",
+      "notLinked": "Not linked",
+      "photo": "Photo",
+      "group": "Group",
+      "project": "Project",
+      "machine": "Machine",
+      "title": "WhatsApp",
+      "urlPlaceholder": "https://your-instance.uazapi.com"
+    },
+    "whatsappProject": {
+      "title": "WhatsApp group",
+      "description": "The agent of this project answers this group, on this machine, when someone of the team mentions @orca.",
+      "noNumber": "The company's WhatsApp is not connected yet (Settings → Servers → WhatsApp).",
+      "needsProject": "Link this project to a DevNX Control project first (above).",
+      "needsMachine": "This machine must be approved under Company machines before it answers a group.",
+      "adminOnly": "Only an administrator of the company in DevNX Control can change the group.",
+      "search": "Search groups",
+      "empty": "No groups. Sync them in Settings → Servers."
     }
   }
 }
