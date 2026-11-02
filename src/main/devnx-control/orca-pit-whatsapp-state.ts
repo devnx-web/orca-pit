@@ -32,6 +32,11 @@ export type WhatsappChatState = {
    * answers of the turns ending meanwhile go to the group. Null when nothing is owed.
    */
   awaitingSince: number | null
+  /**
+   * A turn has begun since the chat started, so its opening rules reached the agent. Absent (a
+   * chat from before this was kept) counts as not yet: the rules go with its next message.
+   */
+  framed?: boolean
 }
 
 export type WhatsappOutboxItem = { groupId: number; text: string; attempts: number }
@@ -107,7 +112,8 @@ function parseState(value: unknown): WhatsappStateData {
                 key,
                 {
                   groupId: Number(raw.groupId),
-                  awaitingSince: typeof raw.awaitingSince === 'number' ? raw.awaitingSince : null
+                  awaitingSince: typeof raw.awaitingSince === 'number' ? raw.awaitingSince : null,
+                  ...(raw.framed === true ? { framed: true } : {})
                 }
               ]
             ]
