@@ -11,6 +11,7 @@ import { isConsentEnvOverridden, resolveConsent } from './consent'
 import * as postHogStart from './posthog-client-start'
 import { buildCommonProps, createPostHogClient, waitForCaptureEnqueue } from './posthog-transport'
 import { commonPropsSchema, validate } from './validator'
+import { isOrcaCloudOff } from '../devnx-control/orca-pit-orca-cloud'
 
 export { shouldOptOutSdkAtInit } from './posthog-transport'
 
@@ -27,7 +28,9 @@ const WRITE_KEY: string | null =
   typeof ORCA_POSTHOG_WRITE_KEY !== 'undefined'
     ? ORCA_POSTHOG_WRITE_KEY
     : ((globalThis as { ORCA_POSTHOG_WRITE_KEY?: string | null }).ORCA_POSTHOG_WRITE_KEY ?? null)
+// Orca-Pit: never PostHog (Stably's analytics), whatever the build carries; see orca-pit-orca-cloud.
 const IS_OFFICIAL_BUILD: boolean =
+  !isOrcaCloudOff() &&
   (BUILD_IDENTITY === 'stable' || BUILD_IDENTITY === 'rc') &&
   typeof WRITE_KEY === 'string' &&
   WRITE_KEY.length > 0

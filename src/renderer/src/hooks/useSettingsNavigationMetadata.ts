@@ -34,6 +34,7 @@ import { buildRemoteSettingsSections } from './settings-navigation-remote-sectio
 import { buildWorkflowSettingsSections } from './settings-navigation-workflow-sections'
 import { useWindowsTerminalCapabilityOwnerKey } from './useWindowsTerminalCapabilityOwnerKey'
 import { useUiLanguageRevision } from '@/i18n/use-ui-language-revision'
+import { isOrcaPitHiddenSettingsSection } from '@/lib/orca-pit-orca-cloud'
 
 export { isWebClientLocation } from '@/lib/web-client-location'
 
@@ -106,7 +107,8 @@ export function buildSettingsNavigationMetadata({
     ...buildWorkflowSettingsSections(options, terminalPaneSearchEntries),
     ...buildInterfaceSettingsSections(options),
     ...buildRemoteSettingsSections(options, runtimeEnvironmentsSearchEntry, reposById)
-  ]
+    // Orca-Pit: no Orca account, artifact links or shared skills; see orca-pit-orca-cloud.
+  ].filter((section) => !isOrcaPitHiddenSettingsSection(section.id))
 }
 
 export function useSettingsNavigationMetadata(): SettingsNavSection[] {

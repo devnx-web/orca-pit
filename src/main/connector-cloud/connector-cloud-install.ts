@@ -9,6 +9,7 @@ import { ConnectorCloud } from './connector-cloud'
 import { resolveConnectorOrigin } from './connector-origin'
 import { connectorProjects, type ConnectorPlacesStore } from './connector-places'
 import { connectorAccount, desktopConnectorTokenMint } from './connector-token-mint'
+import { orcaPitConnectorOrigin } from '../devnx-control/orca-pit-orca-cloud'
 
 export type ConnectorCloudStore = ConnectorPlacesStore &
   Pick<RuntimeStore, 'getSettings' | 'onSettingsChanged'>
@@ -21,13 +22,17 @@ export function createDesktopConnectorCloud(
   isFenced: () => boolean
 ): ConnectorCloud | null {
   const auth = getOrcaCloudAuthConfig()
-  if (!auth.configured) {
+  const environment = getAppEnvironment()
+  // Orca-Pit: never connector.onorca.dev; only our own server once set. See orca-pit-orca-cloud.
+  const origin = orcaPitConnectorOrigin(
+    resolveConnectorOrigin(process.env, environment.isPackaged())
+  )
+  if (!auth.configured || !origin) {
     return null
   }
-  const environment = getAppEnvironment()
   return new ConnectorCloud({
     userDataPath,
-    origin: resolveConnectorOrigin(process.env, environment.isPackaged()),
+    origin,
     isFenced,
     account: () => connectorAccount(userDataPath),
     mintFor: (account) => desktopConnectorTokenMint(auth.config, userDataPath, account),

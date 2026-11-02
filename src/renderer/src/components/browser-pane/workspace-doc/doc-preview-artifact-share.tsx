@@ -13,6 +13,7 @@ import { fileArtifactSourceKey, type FileArtifactOwner } from '@/lib/file-artifa
 import { basename } from '@/lib/path'
 import { readRuntimeFilePreview } from '@/runtime/runtime-file-read-client'
 import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
+import { ORCA_PIT_ORCA_CLOUD_OFF } from '@/lib/orca-pit-orca-cloud'
 import { relativePathInsideRoot } from '../../../../../shared/cross-platform-path'
 import type { RuntimeFilePreviewResult } from '../../../../../shared/runtime-types'
 
@@ -79,7 +80,8 @@ export function buildDocPreviewShareControl(
   filePath: string,
   location: DocPreviewGrantLocation | null
 ): ((control: BrowserChromeShareControl) => React.ReactNode) | undefined {
-  if (!location || !isShareableHtmlPath(filePath)) {
+  // Orca-Pit: artifact links need an Orca account; see orca-pit-orca-cloud.
+  if (ORCA_PIT_ORCA_CLOUD_OFF || !location || !isShareableHtmlPath(filePath)) {
     return undefined
   }
   const sourceKey = fileArtifactSourceKey(docPreviewGrantFileOwner(location.owner), filePath)

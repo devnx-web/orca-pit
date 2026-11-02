@@ -30,6 +30,7 @@ import type { ActiveOrcaProfileState } from '../orca-profiles/profile-index-stor
 import { artifactRequest, artifactWriteBody } from './artifact-cloud-request'
 import { ArtifactPublisher } from './artifact-publisher'
 import { OrcaCloudRequestError } from '../orca-profiles/profile-cloud-client'
+import { isOrcaCloudOff, ORCA_PIT_NO_ORCA_ACCOUNT } from '../devnx-control/orca-pit-orca-cloud'
 
 type ArtifactAuthContext = {
   profileId: string
@@ -289,6 +290,10 @@ export class ArtifactCloudService {
         status: 'ok',
         value
       }
+    }
+    // Orca-Pit: these links live on Stably's share.onorca.dev under an Orca account.
+    if (isOrcaCloudOff()) {
+      return { status: 'unconfigured', message: ORCA_PIT_NO_ORCA_ACCOUNT }
     }
     const config = getOrcaCloudAuthConfig()
     if (!config.configured) {

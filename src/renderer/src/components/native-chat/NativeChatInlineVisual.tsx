@@ -13,6 +13,7 @@ import { translate } from '@/i18n/i18n'
 import { fileArtifactSourceKey } from '@/lib/file-artifact-source-key'
 import { openFileInBrowserTab } from '@/lib/file-preview'
 import { basename } from '@/lib/path'
+import { ORCA_PIT_ORCA_CLOUD_OFF } from '@/lib/orca-pit-orca-cloud'
 import { getRuntimeTargetHostId, runtimeTargetEnvironmentId } from '@/runtime/runtime-client-target'
 import { NATIVE_CHAT_VISUAL_RESERVED_HEIGHT, NativeChatVisualFrame } from './NativeChatVisualFrame'
 import { observeTranscriptVisibility } from './NativeChatTranscriptChrome'
@@ -135,14 +136,17 @@ export function NativeChatInlineVisual({
                 {openLabel}
               </TooltipContent>
             </Tooltip>
-            <ArtifactPublishButton
-              variant="outline"
-              size="icon-xs"
-              sourceKey={nativeChatVisualShareKey(owner, state.document.path)}
-              createRequest={() => readNativeChatVisualShareRequest(owner, file)}
-              open={shareOpen}
-              onOpenChange={setShareOpen}
-            />
+            {/* Orca-Pit: artifact links need an Orca account; see orca-pit-orca-cloud. */}
+            {ORCA_PIT_ORCA_CLOUD_OFF ? null : (
+              <ArtifactPublishButton
+                variant="outline"
+                size="icon-xs"
+                sourceKey={nativeChatVisualShareKey(owner, state.document.path)}
+                createRequest={() => readNativeChatVisualShareRequest(owner, file)}
+                open={shareOpen}
+                onOpenChange={setShareOpen}
+              />
+            )}
           </div>
           <NativeChatVisualFrame
             document={state.document}

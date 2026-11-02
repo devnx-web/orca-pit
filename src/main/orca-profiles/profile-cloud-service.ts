@@ -39,6 +39,7 @@ import {
   startOrcaCloudSignInProgress
 } from './profile-cloud-sign-in-progress'
 import { clearRelayRegionPreferenceCache } from '../runtime/mobile-cloud-relay/relay-region-preference'
+import { isOrcaCloudOff } from '../devnx-control/orca-pit-orca-cloud'
 
 export { refreshCurrentOrcaProfileAuth } from './profile-cloud-capability-refresh'
 
@@ -66,6 +67,10 @@ export async function connectCurrentOrcaProfile(
   userDataPath: string
 ): Promise<ConnectCurrentOrcaProfileResult> {
   const active = ensureActiveOrcaProfile(userDataPath)
+  // Orca-Pit: no Orca account sign-in; see orca-pit-orca-cloud.
+  if (isOrcaCloudOff()) {
+    return { status: 'unconfigured', auth: activeAuth(active, userDataPath) }
+  }
   if (isOrcaCloudDevAuthEnabled()) {
     const list = connectDevOrcaCloudProfile(active, userDataPath)
     return {
@@ -190,6 +195,10 @@ export async function createCloudLinkedOrcaProfile(
   args: CreateCloudLinkedOrcaProfileArgs
 ): Promise<CreateCloudLinkedOrcaProfileResult> {
   const active = ensureActiveOrcaProfile(userDataPath)
+  // Orca-Pit: no Orca account sign-in; see orca-pit-orca-cloud.
+  if (isOrcaCloudOff()) {
+    return { status: 'unconfigured', auth: activeAuth(active, userDataPath) }
+  }
   if (isOrcaCloudDevAuthEnabled()) {
     const result = createDevCloudLinkedOrcaProfile(active, userDataPath, args)
     if (result.status !== 'created') {

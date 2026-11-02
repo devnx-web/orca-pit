@@ -17,6 +17,7 @@ import {
   type FeedbackSubmissionType,
   type FeedbackSubmitBody
 } from './feedback-request'
+import { isOrcaCloudOff, ORCA_PIT_NO_STABLY_REPORTS } from '../devnx-control/orca-pit-orca-cloud'
 
 export type {
   FeedbackDiagnosticBundleAttachment,
@@ -183,6 +184,10 @@ async function submitFeedbackWithDiagnosticBundle(
 export async function submitFeedback(
   args: InternalFeedbackSubmitArgs
 ): Promise<FeedbackSubmitResult> {
+  // Orca-Pit: feedback and crash reports would go to Stably; see orca-pit-orca-cloud.
+  if (isOrcaCloudOff()) {
+    return { ok: false, status: null, error: ORCA_PIT_NO_STABLY_REPORTS }
+  }
   // Ignore discarded crash-lane images instead of rejecting over unused attachments.
   if (args.submissionType !== 'crash' && args.images !== undefined) {
     const imageError = validateFeedbackImages(args.images)

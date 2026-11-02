@@ -31,6 +31,7 @@ import {
   returnAcrossBrowserPageConversion
 } from '@/lib/browser-page-conversion-history'
 import { convertBrowserPageToWorkspaceDoc } from '@/lib/file-preview'
+import { ORCA_PIT_ORCA_CLOUD_OFF } from '@/lib/orca-pit-orca-cloud'
 import type { GrabIntent } from '../describe-page/browser-page-types'
 
 /** Binds the shared browser chrome to a browsing page: an editable address bar and session tools. */
@@ -228,7 +229,8 @@ export function BrowserPageToolbar({
         canShowDiscoveryHint: isActive
       }}
       shareControl={
-        shareableArtifactFile
+        // Orca-Pit: artifact links need an Orca account; see orca-pit-orca-cloud.
+        shareableArtifactFile && !ORCA_PIT_ORCA_CLOUD_OFF
           ? (control) => {
               const props = {
                 sourceKey: shareableArtifactFile.filePath,

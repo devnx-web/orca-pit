@@ -3,11 +3,16 @@ import type { ActiveOrcaProfileState } from './profile-index-store'
 import { getOrcaCloudAuthConfig, isOrcaCloudDevAuthEnabled } from './profile-cloud-auth-config'
 import { readCloudSession } from './profile-cloud-session-owner'
 import { readOrcaPitRelayToken } from '../devnx-control/orca-pit-relay'
+import { isOrcaCloudOff, orcaPitProfileAuthStatus } from '../devnx-control/orca-pit-orca-cloud'
 
 export function getOrcaProfileAuthStatusFromProfile(
   active: ActiveOrcaProfileState,
   userDataPath: string
 ): OrcaProfileAuthStatus {
+  // Orca-Pit: never an Orca account, even one signed in before; see orca-pit-orca-cloud.
+  if (isOrcaCloudOff()) {
+    return orcaPitProfileAuthStatus(active.profile.id)
+  }
   const configState = getOrcaCloudAuthConfig()
   const devAuthEnabled = isOrcaCloudDevAuthEnabled()
   const configured = configState.configured || devAuthEnabled

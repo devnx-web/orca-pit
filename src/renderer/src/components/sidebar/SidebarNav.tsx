@@ -14,6 +14,7 @@ import { SidebarTaskNavButton } from './SidebarTaskNavButton'
 import { HideSidebarMenu } from './sidebar-nav-controls'
 import { translate } from '@/i18n/i18n'
 import { lazyWithRetry } from '@/lib/lazy-with-retry'
+import { ORCA_PIT_ORCA_CLOUD_OFF } from '@/lib/orca-pit-orca-cloud'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
 
 export function shouldShowMobileButton(
@@ -31,7 +32,8 @@ export function shouldShowAutomationsButton(
 export function shouldShowArtifactsButton(
   settings: Partial<Pick<GlobalSettings, 'showArtifactsButton'>> | null | undefined
 ): boolean {
-  return settings?.showArtifactsButton === true
+  // Orca-Pit: artifact links need an Orca account; see orca-pit-orca-cloud.
+  return !ORCA_PIT_ORCA_CLOUD_OFF && settings?.showArtifactsButton === true
 }
 
 export function shouldShowSkillsButton(

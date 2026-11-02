@@ -6,6 +6,7 @@ import {
   allowsArtifactCloudAuthOverride,
   resolveArtifactCloudApiUrl
 } from '../artifacts/artifact-cloud-config'
+import { isOrcaCloudOff, ORCA_PIT_NO_ORCA_ACCOUNT } from '../devnx-control/orca-pit-orca-cloud'
 
 export async function runSkillCloudOperation<T>(input: {
   userDataPath: string
@@ -39,6 +40,10 @@ export async function runSkillCloudOperation<T>(input: {
     const value = await input.operation(override, apiUrl)
     assertCurrent()
     return { status: 'ok', value }
+  }
+  // Orca-Pit: these links live on Stably's share.onorca.dev under an Orca account.
+  if (isOrcaCloudOff()) {
+    return { status: 'unconfigured', message: ORCA_PIT_NO_ORCA_ACCOUNT }
   }
   const config = getOrcaCloudAuthConfig()
   if (!config.configured) {

@@ -31,6 +31,7 @@ import {
 } from './editor-artifact-upload'
 import { useEditorPanelSave } from './useEditorPanelSave'
 import { isMarkdownReviewNotesEnabled } from '@/lib/markdown-review-notes-setting'
+import { ORCA_PIT_ORCA_CLOUD_OFF } from '@/lib/orca-pit-orca-cloud'
 import { useFileCustomEditors } from '@/store/plugin-custom-editors'
 import { applyCustomEditorToggle } from './custom-editor-toggle'
 
@@ -325,8 +326,9 @@ function EditorPanelInner({
   const isMarkdownTableOfContentsVisible =
     markdownTableOfContentsVisible[markdownDocumentStateFileId] ?? false
   const artifactContentType = editorArtifactContentType(activeFile.filePath, model.isMarkdown)
+  // Orca-Pit: artifact links need an Orca account; see orca-pit-orca-cloud.
   const createActiveArtifactRequest =
-    activeDocumentContent === null || artifactContentType === null
+    ORCA_PIT_ORCA_CLOUD_OFF || activeDocumentContent === null || artifactContentType === null
       ? undefined
       : () =>
           Promise.resolve(

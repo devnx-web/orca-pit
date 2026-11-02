@@ -65,6 +65,29 @@ para os atalhos de teclado. O código está em
 `src/main/devnx-control/orca-pit-presence*.ts` e
 `src/renderer/src/components/sidebar/orca-pit-*` / `OrcaPit*`.
 
+## Sem a conta e a nuvem do Orca original
+
+Quem identifica a pessoa é o login do DevNX Control, então o app instalado não
+entra na conta do Orca (onorca.dev) nem usa o que depende dela. O portão é
+`isOrcaCloudOff()` (`src/main/devnx-control/orca-pit-orca-cloud.ts`) no main e
+`ORCA_PIT_ORCA_CLOUD_OFF` (`src/renderer/src/lib/orca-pit-orca-cloud.ts`) nas
+telas. Os dois só valem no app instalado: `pnpm dev` e os testes do Orca seguem
+o código original.
+
+| Desligado                                                 | Onde                                                                           |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Entrar na conta Orca, criar perfil na nuvem               | `profile-cloud-service.ts`; o status vem de `orcaPitProfileAuthStatus`         |
+| Conectores (Slack/Discord/Linear via nuvem)               | `connector-cloud-install.ts`; `ORCA_PIT_CONNECTOR_ORIGIN` reaponta depois      |
+| Links de artifact e de skills (share.onorca.dev)          | `artifact-cloud-service.ts`, `skill-cloud-auth.ts` e os botões de compartilhar |
+| Feedback e relatório de falha para a Stably               | `ipc/feedback.ts` e o item "Send Feedback" do menu de ajuda                    |
+| Telemetria PostHog                                        | `IS_OFFICIAL_BUILD` em `telemetry/client.ts`                                   |
+| Configurações "Orca Account", "Artifacts", "Share Skills" | filtro em `useSettingsNavigationMetadata.ts`                                   |
+
+Ficam de propósito: o relay do celular (o nosso, com o token do aparelho em
+`~/.config/orca-pit/relay-token`; sem o token o Relay aparece como indisponível
+e o pareamento usa a rede local), o push do celular (`push.onorca.dev`, por
+chave da máquina) e a lista de plugins bloqueados (`onorca.dev/plugins/kill-list.json`).
+
 ## Regras de segurança
 
 - Refresh token nunca sai do painel. Uma resposta que traga um é recusada.
