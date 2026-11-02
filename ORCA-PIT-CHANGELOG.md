@@ -6,6 +6,13 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit20 — 02/11/2026
+
+- **WhatsApp:** as conversas dos grupos abrem como chat do Orca, não mais como
+  terminal. As que já existiam viram chat na próxima mensagem do grupo,
+  continuando a mesma conversa. Se o chat do Orca não estiver disponível na
+  máquina, o grupo é avisado em vez de o agente abrir num terminal.
+
 ## 1.4.214-pit19 — 02/11/2026
 
 - **WhatsApp:** a primeira mensagem de um chat novo não se perde mais quando o
