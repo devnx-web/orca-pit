@@ -10,7 +10,8 @@ const ORCA_ROOT_PATHS = new Set(['/web-index.html', '/index.html', '/orca-pit/lo
 const ORCA_ROOT_PREFIXES = ['/assets/', '/cmaps/', '/standard_fonts/', '/wasm/']
 // Never machine names: the paths above, and Cloudflare's own `/cdn-cgi/`. The Control must
 // refuse these as slugs too.
-export const RESERVED_SLUGS = new Set(['assets', 'cmaps', 'wasm', 'orca-pit', 'cdn-cgi', 'api'])
+// `whatsapp` é o webhook do Conector WhatsApp (whatsapp.ts).
+export const RESERVED_SLUGS = new Set(['assets', 'cmaps', 'wasm', 'orca-pit', 'cdn-cgi', 'api', 'whatsapp'])
 
 export type RoutedPath =
   | { kind: 'root' }

@@ -7,6 +7,7 @@ Cloudflare Worker do Orca-Pit. Lê o primeiro trecho do caminho (`/nitro5/…`),
 - Caminhos do Orca sem prefixo (`/web-index.html`, `/assets/…`, `/orca-pit/login` e o WebSocket em `/`) vão para o ftgkNote: são os aparelhos pareados com `wss://orca.devnx.com.br` antes do roteador.
 - A cada requisição à máquina o Worker manda `X-Orca-Origin-Secret` (o `origin_secret` que o Control devolve) e `X-Orca-Client-IP` (o IP de quem acessa). Ele apaga os dois se vierem do cliente.
 - A resposta do Control fica 60 s no cache (15 s quando a máquina não existe). Erros do Control não entram no cache.
+- `POST /whatsapp/<chave>` (e subcaminhos) é o webhook da uazapi do Conector WhatsApp: o Worker repassa o corpo a `<Control>/api/whatsapp/webhook/<chave>` com `X-Orca-Router-Key`, responde **200** à uazapi sempre (chave inválida, Control fora ou recusando: `{}` sem efeito) e, se o Control devolver `{wake: "<slug>"}`, chama `POST /orca-pit/whatsapp/wake` na máquina com o segredo de origem, em segundo plano e sem reclamar se falhar. `whatsapp` nunca é nome de máquina.
 - Até 30/11/2026, `ftgknote` e `nitro5` sem túnel gerenciado caem nos túneis feitos à mão (`orca.devnx.com.br`, `nitro5.devnx.com.br`).
 
 ## Deploy

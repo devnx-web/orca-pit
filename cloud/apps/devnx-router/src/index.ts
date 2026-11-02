@@ -11,6 +11,7 @@ import {
   offlineMachinePage
 } from './pages'
 import { isWebSocketUpgrade, routePath } from './routing'
+import { handleWhatsapp, isWhatsappPath } from './whatsapp'
 
 // Decision 5 (30/10/2026): the bare domain keeps opening the central for a month, so bookmarks
 // survive the move; after that it becomes the machine picker.
@@ -123,6 +124,10 @@ export async function handleRequest(
   deps: RouterDeps
 ): Promise<Response> {
   const url = new URL(request.url)
+  // O webhook da uazapi (Conector WhatsApp) nunca é uma máquina.
+  if (isWhatsappPath(url.pathname)) {
+    return handleWhatsapp(request, env, ctx, deps)
+  }
   const route = routePath(url.pathname)
   const now = deps.now()
   if (route.kind === 'root') {
