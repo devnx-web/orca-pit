@@ -5,17 +5,17 @@
 // is acknowledged only after its effect is saved here, and handled ids are remembered, so none is
 // lost or run twice. The agent's answer at the end of each turn goes back to the group.
 import type {
-  ConversationEvent,
-  ConversationSnapshot
-} from '../external-conversations/external-conversation-events'
-import type {
-  ConversationKey,
-  Delivery
-} from '../external-conversations/external-conversation-types'
-import type {
   OrcaPitWhatsappInboxMessage,
   OrcaPitWhatsappMachineCalls
 } from './orca-pit-whatsapp-api'
+import {
+  refusalText,
+  type WhatsappChatEvent,
+  type WhatsappChatKey,
+  type WhatsappChatRefusal,
+  type WhatsappDelivery,
+  type WhatsappInboxGroup
+} from './orca-pit-whatsapp-chat-types'
 import { WhatsappFraming } from './orca-pit-whatsapp-framing'
 import { WhatsappReplies, type WhatsappPromptPort } from './orca-pit-whatsapp-replies'
 import { MAX_CONTEXT_LINES, type WhatsappBridgeState } from './orca-pit-whatsapp-state'
@@ -30,20 +30,22 @@ import {
   turnText
 } from './orca-pit-whatsapp-text'
 
-export type WhatsappInboxGroup = OrcaPitWhatsappInboxMessage['group']
+export type { WhatsappInboxGroup }
 
-/** The group's chat on this machine, over the external-conversation seam. */
+/** The group's chat on this machine: a native Orca chat (`orca-pit-whatsapp-chats.ts`). */
 export type WhatsappConversations = WhatsappPromptPort & {
   /** Where the group's chat runs here; null when no Orca project here is linked to its project. */
   place: (group: WhatsappInboxGroup) => { projectName: string } | null
-  hasChat: (key: ConversationKey) => boolean
+  hasChat: (key: WhatsappChatKey) => boolean
   start: (
-    key: ConversationKey,
+    key: WhatsappChatKey,
     deliveryId: string,
     group: WhatsappInboxGroup,
     prompt: string
-  ) => Promise<Delivery>
-  send: (key: ConversationKey, deliveryId: string, text: string) => Promise<Delivery>
+  ) => Promise<WhatsappDelivery>
+  send: (key: WhatsappChatKey, deliveryId: string, text: string) => Promise<WhatsappDelivery>
+  /** The chat still holds its opening for an agent that has not taken it. */
+  openingHeld: (key: WhatsappChatKey) => Promise<boolean>
 }
 
 export type WhatsappBridgeDeps = {
@@ -60,9 +62,9 @@ export type WhatsappBridgeDeps = {
 // The Control answers at most this many per call; a full page means more are waiting.
 const INBOX_PAGE = 100
 // A chat that is gone for good: a new generation starts instead.
-const LOST_CHAT = new Set(['agent_not_reachable', 'no_session_to_reopen', 'reopen_refused'])
+const LOST_CHAT = new Set<WhatsappChatRefusal>(['chat_lost'])
 
-export function whatsappChatKey(jid: string, generation: number): ConversationKey {
+export function whatsappChatKey(jid: string, generation: number): WhatsappChatKey {
   return { source: 'whatsapp', externalId: `${jid}#${generation}` }
 }
 
@@ -71,8 +73,8 @@ const DELIVERY_WAIT_MS = 20_000
 const WAITING_TEXT =
   'O agente está esperando a resposta da pergunta acima. Responda com o número; esta mensagem fica como contexto.'
 
-function failureText(reason: string): string {
-  return `Não consegui passar a mensagem ao agente (${reason}). Veja o Orca-Pit nesta máquina.`
+function failureText(reason: WhatsappChatRefusal): string {
+  return `Não consegui passar a mensagem ao agente: ${refusalText(reason)}. Veja o Orca-Pit nesta máquina.`
 }
 
 export class WhatsappBridge {
@@ -85,11 +87,15 @@ export class WhatsappBridge {
   constructor(private readonly deps: WhatsappBridgeDeps) {
     this.log = deps.log ?? ((text, cause) => console.warn(`[orca-pit] whatsapp: ${text}`, cause))
     this.replies = new WhatsappReplies({ ...deps, log: this.log })
-    this.framing = new WhatsappFraming({ ...deps, log: this.log, flush: () => this.flush() })
+    this.framing = new WhatsappFraming({
+      ...deps,
+      log: this.log,
+      flush: () => this.flush()
+    })
   }
 
   /** The seam's watch: turns beginning, questions and finished turns of the WhatsApp chats. */
-  observe(event: ConversationSnapshot | ConversationEvent): void {
+  observe(event: WhatsappChatEvent): void {
     this.framing.observe(event)
     this.replies.observe(event)
   }
@@ -212,7 +218,7 @@ export class WhatsappBridge {
       return
     }
     const live = whatsappChatKey(group.jid, state.group(group.id).generation)
-    if (conversations.hasChat(live) && conversations.pendingPrompt(live)) {
+    if (conversations.hasChat(live) && (await conversations.pendingPrompt(live))) {
       // The agent waits on its question; a new message would queue behind it, unread.
       this.remember(message, asked)
       state.enqueue(group.id, WAITING_TEXT)
@@ -224,7 +230,7 @@ export class WhatsappBridge {
       at: sentAtMs(message, this.deps.now()),
       body: messageBody(message, body)
     })
-    const settled = (delivery: Delivery): void => {
+    const settled = (delivery: WhatsappDelivery): void => {
       if (delivery.outcome === 'refused') {
         this.remember(message, asked)
         state.enqueue(group.id, failureText(delivery.reason))
@@ -232,9 +238,9 @@ export class WhatsappBridge {
       }
     }
     const delivering = this.deliver(group, String(message.id), text, place.projectName).catch(
-      (error: unknown): Delivery => {
+      (error: unknown): WhatsappDelivery => {
         this.log(`delivery of message ${message.id} failed`, error)
-        return { outcome: 'refused', reason: 'agent_not_reachable' }
+        return { outcome: 'refused', reason: 'not_delivered' }
       }
     )
     // Why not wait it out: a write can sit behind an approval the group answers in a later
@@ -258,7 +264,7 @@ export class WhatsappBridge {
     deliveryId: string,
     text: string,
     projectName: string
-  ): Promise<Delivery> {
+  ): Promise<WhatsappDelivery> {
     const { state, conversations } = this.deps
     let key = whatsappChatKey(group.jid, state.group(group.id).generation)
     const frame = initialPrompt({ groupName: group.name, projectName })
@@ -288,13 +294,17 @@ export class WhatsappBridge {
 
   /** The chat owes the group an answer from before the write, so a fast turn end is not missed. */
   private async owed(
-    key: ConversationKey,
+    key: WhatsappChatKey,
     groupId: number,
-    write: () => Promise<Delivery>
-  ): Promise<Delivery> {
+    write: () => Promise<WhatsappDelivery>
+  ): Promise<WhatsappDelivery> {
     const { state } = this.deps
     const before = state.chat(key.externalId)
-    state.setChat(key.externalId, { ...before, groupId, awaitingSince: this.deps.now() })
+    state.setChat(key.externalId, {
+      ...before,
+      groupId,
+      awaitingSince: this.deps.now()
+    })
     const delivery = await write()
     if (delivery.outcome === 'refused') {
       state.setChat(key.externalId, before ?? { groupId, awaitingSince: null })

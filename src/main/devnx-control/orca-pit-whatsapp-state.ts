@@ -1,7 +1,7 @@
 // Orca-Pit: what the WhatsApp bridge must remember across restarts, in one 0600 JSON file: the
 // messages already handled (so an unacknowledged one never runs twice), the group talk kept as
 // context for the next turn, each group's chat generation (`@orca nova`), which chats owe the
-// group an answer, and replies the Control has not taken yet.
+// group an answer, the Orca chat each one is, and replies the Control has not taken yet.
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { isRecord } from './devnx-control-http'
@@ -39,12 +39,34 @@ export type WhatsappChatState = {
   framed?: boolean
 }
 
-export type WhatsappOutboxItem = { groupId: number; text: string; attempts: number }
+/** The Orca chat behind a WhatsApp chat. Its ids are minted before the chat is made and kept,
+ *  so a create or a send retried after a crash replays instead of happening twice. */
+export type WhatsappChatLink = {
+  sessionId: string
+  createOperationId: string
+  /** The opening message's id, so the bridge can tell whether the agent took it. */
+  openingMessageId: string
+  /** The chat's workspace, once there is one; a retried start reuses it. */
+  worktreeId?: string
+  /** The agent session of the group's old terminal chat, which this chat resumes. */
+  resumeProviderSessionId?: string
+  /** Set once the chat host made the chat. */
+  created?: true
+  /** Recent sends by delivery id. */
+  sends: { deliveryId: string; operationId: string }[]
+}
+
+export type WhatsappOutboxItem = {
+  groupId: number
+  text: string
+  attempts: number
+}
 
 export type WhatsappStateData = {
   processed: number[]
   groups: Record<string, WhatsappGroupState>
   chats: Record<string, WhatsappChatState>
+  links: Record<string, WhatsappChatLink>
   outbox: WhatsappOutboxItem[]
 }
 
@@ -54,9 +76,41 @@ const MAX_PROCESSED = 5000
 export const MAX_CONTEXT_LINES = 40
 // Why 50: a Control outage of a few hours with an active chat; older replies lose their point.
 const MAX_OUTBOX = 50
+// Why 20: a message is handled again only right after a crash, so only the last few matter.
+export const MAX_LINK_SENDS = 20
 
 function emptyState(): WhatsappStateData {
-  return { processed: [], groups: {}, chats: {}, outbox: [] }
+  return { processed: [], groups: {}, chats: {}, links: {}, outbox: [] }
+}
+
+function parseLink(raw: unknown): WhatsappChatLink | null {
+  if (
+    !isRecord(raw) ||
+    typeof raw.sessionId !== 'string' ||
+    typeof raw.createOperationId !== 'string' ||
+    typeof raw.openingMessageId !== 'string'
+  ) {
+    return null
+  }
+  const sends = Array.isArray(raw.sends)
+    ? raw.sends.filter(
+        (entry): entry is { deliveryId: string; operationId: string } =>
+          isRecord(entry) &&
+          typeof entry.deliveryId === 'string' &&
+          typeof entry.operationId === 'string'
+      )
+    : []
+  return {
+    sessionId: raw.sessionId,
+    createOperationId: raw.createOperationId,
+    openingMessageId: raw.openingMessageId,
+    ...(typeof raw.worktreeId === 'string' && raw.worktreeId ? { worktreeId: raw.worktreeId } : {}),
+    ...(typeof raw.resumeProviderSessionId === 'string' && raw.resumeProviderSessionId
+      ? { resumeProviderSessionId: raw.resumeProviderSessionId }
+      : {}),
+    ...(raw.created === true ? { created: true as const } : {}),
+    sends: sends.slice(-MAX_LINK_SENDS)
+  }
 }
 
 function parseState(value: unknown): WhatsappStateData {
@@ -68,6 +122,7 @@ function parseState(value: unknown): WhatsappStateData {
     : []
   const groups = isRecord(value.groups) ? value.groups : {}
   const chats = isRecord(value.chats) ? value.chats : {}
+  const links = isRecord(value.links) ? value.links : {}
   return {
     processed,
     groups: Object.fromEntries(
@@ -99,7 +154,10 @@ function parseState(value: unknown): WhatsappStateData {
           typeof announced.externalId === 'string' &&
           typeof announced.promptId === 'string'
         ) {
-          group.announced = { externalId: announced.externalId, promptId: announced.promptId }
+          group.announced = {
+            externalId: announced.externalId,
+            promptId: announced.promptId
+          }
         }
         return [[key, group]]
       })
@@ -119,6 +177,12 @@ function parseState(value: unknown): WhatsappStateData {
             ]
           : []
       )
+    ),
+    links: Object.fromEntries(
+      Object.entries(links).flatMap(([key, raw]) => {
+        const link = parseLink(raw)
+        return link ? [[key, link]] : []
+      })
     ),
     outbox: Array.isArray(value.outbox)
       ? value.outbox.filter(
@@ -188,6 +252,32 @@ export class WhatsappBridgeState {
   setChat(externalId: string, chat: WhatsappChatState): void {
     this.data.chats[externalId] = chat
     this.save()
+  }
+
+  link(externalId: string): WhatsappChatLink | null {
+    return this.data.links[externalId] ?? null
+  }
+
+  setLink(externalId: string, link: WhatsappChatLink): void {
+    this.data.links[externalId] = {
+      ...link,
+      sends: link.sends.slice(-MAX_LINK_SENDS)
+    }
+    this.save()
+  }
+
+  /** The WhatsApp chat whose Orca chat is this session, or null. */
+  chatOfSession(sessionId: string): string | null {
+    for (const [externalId, link] of Object.entries(this.data.links)) {
+      if (link.sessionId === sessionId) {
+        return externalId
+      }
+    }
+    return null
+  }
+
+  links(): readonly [string, WhatsappChatLink][] {
+    return Object.entries(this.data.links)
   }
 
   outbox(): readonly WhatsappOutboxItem[] {

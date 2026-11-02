@@ -1,20 +1,22 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { PendingPrompt } from '../../shared/agent-pending-prompt'
-import type {
-  ConversationKey,
-  Delivery
-} from '../external-conversations/external-conversation-types'
+import type { WhatsappChatKey, WhatsappDelivery } from './orca-pit-whatsapp-chat-types'
 import type { OrcaPitWhatsappInboxMessage } from './orca-pit-whatsapp-api'
 import { WhatsappBridge, type WhatsappConversations } from './orca-pit-whatsapp-bridge'
 import { WhatsappBridgeState } from './orca-pit-whatsapp-state'
 
 const GROUP = { id: 7, jid: '1203@g.us', name: 'Loja do Zé', projectId: 42 }
-const ACCEPTED: Delivery = { outcome: 'accepted' }
+const ACCEPTED: WhatsappDelivery = { outcome: 'accepted' }
 
 let nextId = 100
 function message(
   text: string,
-  options: { team?: boolean; mention?: boolean; id?: number; name?: string } = {}
+  options: {
+    team?: boolean
+    mention?: boolean
+    id?: number
+    name?: string
+  } = {}
 ): OrcaPitWhatsappInboxMessage {
   return {
     id: options.id ?? nextId++,
@@ -45,16 +47,18 @@ function setup(wait: () => Promise<'timeout'> = () => new Promise<'timeout'>(() 
   }
   const conversations = {
     place: vi.fn(() => ({ projectName: 'Loja' })),
-    hasChat: vi.fn((key: ConversationKey) => chats.has(key.externalId)),
-    start: vi.fn(async (key: ConversationKey, _id: string, _group: unknown, _prompt: string) => {
+    hasChat: vi.fn((key: WhatsappChatKey) => chats.has(key.externalId)),
+    start: vi.fn(async (key: WhatsappChatKey, _id: string, _group: unknown, _prompt: string) => {
       chats.add(key.externalId)
       return ACCEPTED
     }),
     send: vi.fn(
-      async (_key: ConversationKey, _id: string, _text: string): Promise<Delivery> => ACCEPTED
+      async (_key: WhatsappChatKey, _id: string, _text: string): Promise<WhatsappDelivery> =>
+        ACCEPTED
     ),
-    pendingPrompt: vi.fn(() => pending),
-    answer: vi.fn(async (_key: ConversationKey, _promptId: string, _optionId: string) => ACCEPTED)
+    openingHeld: vi.fn(async (_key: WhatsappChatKey) => false),
+    pendingPrompt: vi.fn(async (_key: WhatsappChatKey) => pending),
+    answer: vi.fn(async (_key: WhatsappChatKey, _promptId: string, _optionId: string) => ACCEPTED)
   } satisfies WhatsappConversations
   const state = new WhatsappBridgeState(null)
   let now = 1_000
@@ -133,7 +137,7 @@ describe('WhatsappBridge', () => {
 
     t.conversations.send.mockResolvedValueOnce({
       outcome: 'refused',
-      reason: 'no_session_to_reopen'
+      reason: 'chat_lost'
     })
     t.setInbox([message('@orca e agora?')])
     await t.bridge.tick()
@@ -172,8 +176,6 @@ describe('WhatsappBridge', () => {
     t.bridge.observe({
       kind: 'prompt',
       conversation: { source: 'whatsapp', externalId: '1203@g.us#0' },
-      worktreeId: 'w',
-      paneKey: 'p',
       prompt
     })
     await t.bridge.flush()
@@ -194,12 +196,8 @@ describe('WhatsappBridge', () => {
       t.bridge.observe({
         kind: 'turn-ended',
         conversation: { source: 'whatsapp', externalId: '1203@g.us#0' },
-        worktreeId: 'w',
-        paneKey: 'p',
         turnId,
-        stopReason: null,
-        lastAssistantMessage: text,
-        at: 0
+        lastAssistantMessage: text
       })
     t.setInbox([message('@orca roda os testes')])
     await t.bridge.tick()
@@ -213,10 +211,30 @@ describe('WhatsappBridge', () => {
     expect(t.calls.send).toHaveBeenCalledTimes(1)
   })
 
+  it('tells the group why when this machine cannot open the chat', async () => {
+    const t = setup()
+    t.conversations.start.mockResolvedValueOnce({
+      outcome: 'refused',
+      reason: 'chat_unavailable'
+    })
+    t.setInbox([message('@orca oi')])
+    await t.bridge.tick()
+    expect(t.calls.send).toHaveBeenCalledWith(
+      GROUP.id,
+      expect.stringContaining('o chat do Orca está indisponível nesta máquina')
+    )
+    expect(t.state.group(GROUP.id).context[0]?.text).toBe('oi')
+  })
+
   it('keeps a call as context while the agent waits on its question', async () => {
     const t = setup()
     t.chats.add('1203@g.us#0')
-    t.setPending({ kind: 'approval', promptId: 'p9', tool: 'Bash', options: [] })
+    t.setPending({
+      kind: 'approval',
+      promptId: 'p9',
+      tool: 'Bash',
+      options: []
+    })
     t.setInbox([message('@orca e o deploy?')])
     await t.bridge.tick()
     expect(t.conversations.send).not.toHaveBeenCalled()
@@ -227,7 +245,7 @@ describe('WhatsappBridge', () => {
   it('moves on when a delivery is held, and it still runs once', async () => {
     const t = setup(async () => 'timeout')
     t.chats.add('1203@g.us#0')
-    t.conversations.send.mockReturnValueOnce(new Promise<Delivery>(() => {}))
+    t.conversations.send.mockReturnValueOnce(new Promise<WhatsappDelivery>(() => {}))
     const held = message('@orca primeiro')
     const next = message('o cliente mandou isto', { team: false })
     t.setInbox([held, next])
@@ -253,10 +271,7 @@ describe('WhatsappBridge', () => {
     }
     const started = (externalId: string) => ({
       kind: 'turn-started' as const,
-      conversation: { source: 'whatsapp' as const, externalId },
-      worktreeId: 'w',
-      paneKey: 'p',
-      at: 0
+      conversation: { source: 'whatsapp' as const, externalId }
     })
 
     it('resends the opening when no turn begins after the start, then tells the group', async () => {
@@ -272,6 +287,38 @@ describe('WhatsappBridge', () => {
 
       await waits.release()
       expect(t.calls.send).toHaveBeenCalledWith(GROUP.id, expect.stringContaining('não respondeu'))
+    })
+
+    it('does not send the opening twice while the chat still holds it for the agent', async () => {
+      const waits = manualWaits()
+      const t = setup(waits.wait)
+      t.conversations.openingHeld.mockResolvedValue(true)
+      t.setInbox([message('@orca oi')])
+      await t.bridge.tick()
+      await waits.release()
+      await waits.release()
+      expect(t.conversations.send).not.toHaveBeenCalled()
+      expect(t.calls.send).toHaveBeenCalledWith(GROUP.id, expect.stringContaining('não respondeu'))
+    })
+
+    it('counts a snapshot of a chat the agent already answered as framed', async () => {
+      const waits = manualWaits()
+      const t = setup(waits.wait)
+      t.setInbox([message('@orca oi')])
+      await t.bridge.tick()
+      t.bridge.observe({
+        kind: 'snapshot',
+        conversations: [
+          {
+            conversation: { source: 'whatsapp', externalId: '1203@g.us#0' },
+            working: false,
+            started: true,
+            prompt: null
+          }
+        ]
+      })
+      await waits.release()
+      expect(t.conversations.send).not.toHaveBeenCalled()
     })
 
     it('leaves a chat alone once its first turn began', async () => {

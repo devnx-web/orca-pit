@@ -61,15 +61,13 @@ export function installOrcaPitWhatsapp(
   const state = new WhatsappBridgeState(
     join(app.getPath('userData'), 'devnx-control', 'orca-pit-whatsapp.json')
   )
-  const conversations = createWhatsappConversations(
-    runtime,
-    store,
-    (groupId) => state.group(groupId).repoId
-  )
+  const log = (text: string, cause?: unknown) => console.warn(`[orca-pit] whatsapp: ${text}`, cause)
+  const conversations = createWhatsappConversations(runtime, store, state, log)
   const current = new WhatsappBridge({
     calls: machineCalls,
     conversations,
     state,
+    log,
     now: Date.now,
     wait: (ms) =>
       new Promise((resolve) => {
