@@ -2,22 +2,19 @@
 // turn the group started, its questions as numbered options (and the team's number as the answer),
 // and the queue that holds what the Control has not taken yet, so a short outage loses nothing.
 import type { PendingPrompt } from '../../shared/agent-pending-prompt'
-import type {
-  ConversationEvent,
-  ConversationSnapshot
-} from '../external-conversations/external-conversation-events'
-import type {
-  ConversationKey,
-  Delivery
-} from '../external-conversations/external-conversation-types'
 import type { OrcaPitWhatsappMachineCalls } from './orca-pit-whatsapp-api'
+import type {
+  WhatsappChatEvent,
+  WhatsappChatKey,
+  WhatsappDelivery
+} from './orca-pit-whatsapp-chat-types'
 import type { WhatsappBridgeState } from './orca-pit-whatsapp-state'
 import { clipReply, promptMessage } from './orca-pit-whatsapp-text'
 
-/** The chat's pending question and its answer, over the external-conversation seam. */
+/** The chat's pending question and its answer. */
 export type WhatsappPromptPort = {
-  pendingPrompt: (key: ConversationKey) => PendingPrompt | null
-  answer: (key: ConversationKey, promptId: string, optionId: string) => Promise<Delivery>
+  pendingPrompt: (key: WhatsappChatKey) => Promise<PendingPrompt | null>
+  answer: (key: WhatsappChatKey, promptId: string, optionId: string) => Promise<WhatsappDelivery>
 }
 
 export type WhatsappRepliesDeps = {
@@ -35,8 +32,8 @@ export class WhatsappReplies {
 
   constructor(private readonly deps: WhatsappRepliesDeps) {}
 
-  /** The seam's watch: questions and finished turns of the WhatsApp chats. */
-  observe(event: ConversationSnapshot | ConversationEvent): void {
+  /** The chats' watch: questions and finished turns of the WhatsApp chats. */
+  observe(event: WhatsappChatEvent): void {
     if (event.kind === 'snapshot') {
       for (const conversation of event.conversations) {
         if (conversation.prompt) {
@@ -58,8 +55,11 @@ export class WhatsappReplies {
     if (!announced) {
       return false
     }
-    const key: ConversationKey = { source: 'whatsapp', externalId: announced.externalId }
-    const pending = conversations.pendingPrompt(key)
+    const key: WhatsappChatKey = {
+      source: 'whatsapp',
+      externalId: announced.externalId
+    }
+    const pending = await conversations.pendingPrompt(key)
     if (!pending || pending.promptId !== announced.promptId || pending.kind === 'unsupported') {
       return false
     }
@@ -82,7 +82,7 @@ export class WhatsappReplies {
     return true
   }
 
-  private announce(conversation: ConversationKey, prompt: PendingPrompt): void {
+  private announce(conversation: WhatsappChatKey, prompt: PendingPrompt): void {
     if (conversation.source !== 'whatsapp') {
       return
     }
@@ -94,12 +94,15 @@ export class WhatsappReplies {
     }
     state.updateGroup(chat.groupId, (group) => ({
       ...group,
-      announced: { externalId: conversation.externalId, promptId: prompt.promptId }
+      announced: {
+        externalId: conversation.externalId,
+        promptId: prompt.promptId
+      }
     }))
     state.enqueue(chat.groupId, promptMessage(prompt))
   }
 
-  private turnEnded(event: Extract<ConversationEvent, { kind: 'turn-ended' }>): void {
+  private turnEnded(event: Extract<WhatsappChatEvent, { kind: 'turn-ended' }>): void {
     if (event.conversation.source !== 'whatsapp') {
       return
     }
@@ -111,7 +114,10 @@ export class WhatsappReplies {
     // A turn that began before the group's message may have left it for the next turn.
     const settled = event.turnId === null || event.turnId >= chat.awaitingSince
     if (settled) {
-      state.setChat(event.conversation.externalId, { ...chat, awaitingSince: null })
+      state.setChat(event.conversation.externalId, {
+        ...chat,
+        awaitingSince: null
+      })
     }
     const reply = event.lastAssistantMessage?.trim()
     if (reply) {
