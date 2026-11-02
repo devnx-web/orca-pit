@@ -6,6 +6,23 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit18 — 02/11/2026
+
+- **WhatsApp da empresa:** conecte o número da empresa (uazapi) em
+  Configurações → Servidores → WhatsApp e escolha, nas configurações de cada
+  projeto, qual grupo ele atende. Quem é da equipe chama o agente escrevendo
+  `@orca` no grupo (ou mencionando o número); a resposta volta no próprio grupo,
+  e as perguntas do agente chegam com opções numeradas: é só responder com o
+  número. Mensagens de clientes servem de contexto, nunca de ordem. `@orca nova`
+  começa uma conversa nova. O chat aparece como uma aba do projeto, com o nome do
+  grupo.
+- **Sem a conta do Orca original:** quem identifica você é só o login do DevNX
+  Control. Saíram das Configurações a "Orca Account", "Artifacts" e "Compartilhar
+  skills", que dependiam dessa conta, e o botão de compartilhar arquivos por link
+  público. O app não envia mais feedback, relatórios de falha nem estatísticas de
+  uso para os servidores do Orca original. O acesso pelo celular continua como
+  antes nas máquinas que já usam o nosso relay.
+
 ## 1.4.214-pit17 — 31/10/2026
 
 - Sincronizado com o Orca de 30/10/2026 (390 mudanças desde a pit10).
