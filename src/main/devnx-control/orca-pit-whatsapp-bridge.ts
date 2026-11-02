@@ -16,6 +16,7 @@ import type {
   OrcaPitWhatsappInboxMessage,
   OrcaPitWhatsappMachineCalls
 } from './orca-pit-whatsapp-api'
+import { WhatsappFraming } from './orca-pit-whatsapp-framing'
 import { WhatsappReplies, type WhatsappPromptPort } from './orca-pit-whatsapp-replies'
 import { MAX_CONTEXT_LINES, type WhatsappBridgeState } from './orca-pit-whatsapp-state'
 import {
@@ -78,15 +79,18 @@ export class WhatsappBridge {
   private running: Promise<void> | null = null
   private again = false
   private readonly replies: WhatsappReplies
+  private readonly framing: WhatsappFraming
   private readonly log: (message: string, error?: unknown) => void
 
   constructor(private readonly deps: WhatsappBridgeDeps) {
     this.log = deps.log ?? ((text, cause) => console.warn(`[orca-pit] whatsapp: ${text}`, cause))
     this.replies = new WhatsappReplies({ ...deps, log: this.log })
+    this.framing = new WhatsappFraming({ ...deps, log: this.log, flush: () => this.flush() })
   }
 
-  /** The seam's watch: questions and finished turns of the WhatsApp chats. */
+  /** The seam's watch: turns beginning, questions and finished turns of the WhatsApp chats. */
   observe(event: ConversationSnapshot | ConversationEvent): void {
+    this.framing.observe(event)
     this.replies.observe(event)
   }
 
@@ -257,8 +261,11 @@ export class WhatsappBridge {
   ): Promise<Delivery> {
     const { state, conversations } = this.deps
     let key = whatsappChatKey(group.jid, state.group(group.id).generation)
+    const frame = initialPrompt({ groupName: group.name, projectName })
     if (conversations.hasChat(key)) {
-      const sent = await this.owed(key, group.id, () => conversations.send(key, deliveryId, text))
+      // A chat whose opening never reached the agent gets it now, before the message.
+      const framed = this.framing.withFrame(key, frame, text)
+      const sent = await this.owed(key, group.id, () => conversations.send(key, deliveryId, framed))
       if (sent.outcome !== 'refused' || !LOST_CHAT.has(sent.reason)) {
         return sent
       }
@@ -268,11 +275,15 @@ export class WhatsappBridge {
       }))
       key = whatsappChatKey(group.jid, state.group(group.id).generation)
     }
-    const prompt = `${initialPrompt({ groupName: group.name, projectName })}\n${text}`
+    const prompt = `${frame}\n${text}`
     const startKey = key
-    return this.owed(startKey, group.id, () =>
+    const started = await this.owed(startKey, group.id, () =>
       conversations.start(startKey, deliveryId, group, prompt)
     )
+    if (started.outcome !== 'refused') {
+      void this.framing.watchStart(startKey, group.id, deliveryId, prompt)
+    }
+    return started
   }
 
   /** The chat owes the group an answer from before the write, so a fast turn end is not missed. */
@@ -283,7 +294,7 @@ export class WhatsappBridge {
   ): Promise<Delivery> {
     const { state } = this.deps
     const before = state.chat(key.externalId)
-    state.setChat(key.externalId, { groupId, awaitingSince: this.deps.now() })
+    state.setChat(key.externalId, { ...before, groupId, awaitingSince: this.deps.now() })
     const delivery = await write()
     if (delivery.outcome === 'refused') {
       state.setChat(key.externalId, before ?? { groupId, awaitingSince: null })

@@ -236,4 +236,67 @@ describe('WhatsappBridge', () => {
     expect(t.conversations.send).toHaveBeenCalledTimes(1)
     expect(t.calls.ack).toHaveBeenLastCalledWith([held.id, next.id])
   })
+
+  describe('the opening rules', () => {
+    // Waits resolve only when the test lets them, so the 45 s check runs on cue.
+    function manualWaits() {
+      const pending: (() => void)[] = []
+      return {
+        wait: () => new Promise<'timeout'>((resolve) => pending.push(() => resolve('timeout'))),
+        release: async () => {
+          for (const resolve of pending.splice(0)) {
+            resolve()
+          }
+          await new Promise((resolve) => setTimeout(resolve, 0))
+        }
+      }
+    }
+    const started = (externalId: string) => ({
+      kind: 'turn-started' as const,
+      conversation: { source: 'whatsapp' as const, externalId },
+      worktreeId: 'w',
+      paneKey: 'p',
+      at: 0
+    })
+
+    it('resends the opening when no turn begins after the start, then tells the group', async () => {
+      const waits = manualWaits()
+      const t = setup(waits.wait)
+      t.setInbox([message('@orca oi')])
+      await t.bridge.tick()
+      const opening = t.conversations.start.mock.calls[0][3]
+
+      await waits.release()
+      expect(t.conversations.send).toHaveBeenCalledTimes(1)
+      expect(t.conversations.send.mock.calls[0][2]).toBe(opening)
+
+      await waits.release()
+      expect(t.calls.send).toHaveBeenCalledWith(GROUP.id, expect.stringContaining('não respondeu'))
+    })
+
+    it('leaves a chat alone once its first turn began', async () => {
+      const waits = manualWaits()
+      const t = setup(waits.wait)
+      t.setInbox([message('@orca oi')])
+      await t.bridge.tick()
+      t.bridge.observe(started('1203@g.us#0'))
+      await waits.release()
+      expect(t.conversations.send).not.toHaveBeenCalled()
+
+      t.setInbox([message('@orca e agora?')])
+      await t.bridge.tick()
+      expect(t.conversations.send.mock.calls[0][2]).not.toContain('Regras deste chat')
+    })
+
+    it('sends the rules ahead of a message to a chat that never got them', async () => {
+      const t = setup()
+      t.chats.add('1203@g.us#0')
+      t.state.setChat('1203@g.us#0', { groupId: GROUP.id, awaitingSince: 5 })
+      t.setInbox([message('@orca qual o status?')])
+      await t.bridge.tick()
+      const text = t.conversations.send.mock.calls[0][2]
+      expect(text.indexOf('Regras deste chat')).toBeGreaterThanOrEqual(0)
+      expect(text.indexOf('Regras deste chat')).toBeLessThan(text.indexOf('qual o status?'))
+    })
+  })
 })
