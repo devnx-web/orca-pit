@@ -6,6 +6,16 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit21 — 03/11/2026
+
+- **Claude parado em terminal encerra:** um Claude aberto numa aba de terminal
+  que fica 2 horas parado (sem trabalhar, sem pergunta esperando, sem tecla nem
+  saída) é encerrado para liberar memória. A aba continua aberta com um aviso, e
+  o comando para retomar a mesma conversa já fica digitado: é só dar Enter. Os
+  chats seguem a regra deles, de 30 minutos.
+- **Chat no Nitro5 sem terminal sobrando:** iniciar um chat numa pasta de outra
+  máquina não abre mais, às vezes, um terminal vazio junto.
+
 ## 1.4.214-pit20 — 02/11/2026
 
 - **WhatsApp:** as conversas dos grupos abrem como chat do Orca, não mais como
