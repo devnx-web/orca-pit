@@ -10,6 +10,7 @@ import type {
   OrcaPitPresenceResult
 } from '../../shared/rpc-contract/orca-pit-presence-params'
 import { trackOrcaPitMultiplex, type OrcaPitMultiplexView } from './orca-pit-presence-registry'
+import { noteOrcaPitTerminalInput } from './orca-pit-idle-terminal-input'
 
 export type OrcaPitRpcContext = { runtime: OrcaRuntimeService; caller?: RpcCallerIdentity }
 
@@ -96,6 +97,8 @@ export function observeOrcaPitStreamInput(
   stream: { ptyId: string; terminal: string },
   text: string
 ): void {
+  // The idle-agent sweep counts typing even while the diary is off.
+  noteOrcaPitTerminalInput(stream.ptyId)
   guarded((active) =>
     active.streamInput(multiplexCallers.get(connection), connection.runtime, stream, text)
   )
@@ -107,6 +110,7 @@ export function observeOrcaPitDesktopInput(
   ptyId: string,
   data: string
 ): void {
+  noteOrcaPitTerminalInput(ptyId)
   if (runtime) {
     guarded((active) => active.desktopInput(runtime, ptyId, data))
   }
