@@ -57,6 +57,7 @@ import { getBrowserIdentityModeStatus } from '../browser/browser-identity-mode-s
 import { installOrcaPitMultiUser } from '../devnx-control/orca-pit-multi-user'
 import { installOrcaPitMachines } from '../devnx-control/orca-pit-machines-runtime'
 import { installOrcaPitWhatsapp } from '../devnx-control/orca-pit-whatsapp-runtime'
+import { installOrcaPitIdleTerminalAgents } from '../devnx-control/orca-pit-idle-terminal-agents'
 
 type RuntimeService = NonNullable<typeof state.runtime>
 
@@ -129,6 +130,8 @@ function installRuntimeRpc(
   if (state.store) {
     installOrcaPitWhatsapp(runtime, state.store)
   }
+  // Orca-Pit: an agent CLI idle for 2 h in one of this machine's terminals is stopped; the tab stays.
+  installOrcaPitIdleTerminalAgents(runtime)
   runtimeRpc.setMobileDesktopRelayHosts(createRuntimeEnvironmentMobileRelayHosts())
   registerMobileHandlers(runtimeRpc, {
     getRelayStatus: getDesktopRelayStatus,
