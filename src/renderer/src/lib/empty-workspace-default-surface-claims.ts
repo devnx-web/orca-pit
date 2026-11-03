@@ -42,6 +42,11 @@ export function releaseEmptyWorkspaceDefaultSurface(
   return intent
 }
 
+// Orca-Pit: só a espera de um chat; a da detecção do agente padrão não segura o terminal remoto.
+export function isEmptyWorkspaceSurfaceHeldForLaunch(workspaceKey: string): boolean {
+  return launchWaitCountByWorkspace.has(workspaceKey)
+}
+
 export function isEmptyWorkspaceDefaultSurfacePending(workspaceKey: string): boolean {
   return pendingIntentByWorkspace.has(workspaceKey) || launchWaitCountByWorkspace.has(workspaceKey)
 }
