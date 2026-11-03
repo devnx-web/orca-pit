@@ -7,6 +7,20 @@ import { shouldApplyRecoveredWebSessionTabsSnapshot } from './tracking'
 import { shouldBootstrapInitialWebRuntimeTerminal } from './tracking-decisions'
 import type { RuntimeMobileSessionTabsResult } from '../../../../shared/runtime-types'
 import type { SessionTabsStreamEvent } from './state'
+// Orca-Pit: o chat que está nascendo nesta worktree é a primeira superfície dela.
+import { hasStructuredAgentLaunchInWorktree } from '@/lib/structured-agent-session-launch-status'
+import { isEmptyWorkspaceSurfaceHeldForLaunch } from '@/lib/empty-workspace-default-surface-claims'
+import { hasUnlistedCreatedChatInWorktree } from '@/lib/structured-agent-session-unlisted-created-chats'
+
+/** Orca-Pit: enquanto este cliente pede, cria ou espera o host listar um chat aqui, a resposta vazia
+ *  do host não prova worktree vazia; semear nela abria um shell puro do host ao lado do chat novo. */
+function chatOwnsFirstSurface(worktreeId: string): boolean {
+  return (
+    isEmptyWorkspaceSurfaceHeldForLaunch(worktreeId) ||
+    hasStructuredAgentLaunchInWorktree(worktreeId) ||
+    hasUnlistedCreatedChatInWorktree(worktreeId)
+  )
+}
 
 type SessionTabsFrame = RuntimeMobileSessionTabsResult & { type: 'snapshot' | 'updated' }
 
@@ -40,6 +54,10 @@ export function createInitialTerminalSeeder(
     // Switch point: ORCA_LAYOUT_OWNER_IS_MAIN && — a frame-drawn workspace's tabs are not the mirror's to create.
     // Interim (ledger L240): seeding stays only for servers without `layout.intents.v1`, until Phase 2.
     if (ORCA_LAYOUT_OWNER_IS_MAIN && isFrameDrawnServerWorkspace(environmentId, worktreeId)) {
+      return false
+    }
+    // Orca-Pit: mesma regra do vigia local (use-terminal-watcher-effects), que já espera o chat.
+    if (chatOwnsFirstSurface(worktreeId)) {
       return false
     }
     const state = useAppStore.getState()

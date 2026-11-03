@@ -38,6 +38,17 @@ export function isUnlistedCreatedChat(worktreeId: string, sessionId: string): bo
   return unlistedCreatedChats.has(chatKey(worktreeId, sessionId))
 }
 
+// Orca-Pit: um chat criado que a lista do host ainda não mostrou já é a superfície da worktree.
+export function hasUnlistedCreatedChatInWorktree(worktreeId: string): boolean {
+  const prefix = chatKey(worktreeId, '')
+  for (const key of unlistedCreatedChats.keys()) {
+    if (key.startsWith(prefix)) {
+      return true
+    }
+  }
+  return false
+}
+
 /** `listedBy` limits the release to a list from the host the chat was created on. */
 export function forgetUnlistedCreatedChat(
   worktreeId: string,
