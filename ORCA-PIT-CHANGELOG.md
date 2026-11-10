@@ -6,6 +6,14 @@ Cada versão é a do Orca em que o fork está + `-pitN`. Instalar a última:
 curl -fsSL https://arquivos.devnx.com.br/orca-pit/install.sh | sudo bash
 ```
 
+## 1.4.214-pit22 — 10/11/2026
+
+- **Codex sem avisos de duplicado:** quando um instalador (como o GSD) declara os
+  agentes e os hooks do Codex em dois lugares, o chat do Codex abria com uma
+  lista de avisos ("duplicate agent role", "loading hooks from both") e o hook
+  rodava duas vezes. O Orca-Pit agora leva para as contas do Codex só uma cópia
+  de cada um.
+
 ## 1.4.214-pit21 — 03/11/2026
 
 - **Claude parado em terminal encerra:** um Claude aberto numa aba de terminal
