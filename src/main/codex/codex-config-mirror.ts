@@ -25,6 +25,8 @@ import { preserveRuntimeConflictValues } from './codex-config-settings-preservat
 import { applyCodexDaemonSocketGuard } from './codex-daemon-socket-path-guard'
 import { stripRuntimeOwnedTomlSections } from './config-toml-runtime-owned-sections'
 import { mergeSystemCodexConfigIntoRuntime } from './codex-config-mirror-merge'
+// Orca-Pit: see orca-pit-codex-duplicate-declarations.ts.
+import { dropDuplicatedCodexDeclarationsFromHome } from './orca-pit-codex-duplicate-declarations'
 
 // Mirrored MCP environment tokens require owner-only writes.
 const RUNTIME_CONFIG_WRITE = { mode: 0o600 } as const
@@ -298,7 +300,11 @@ function prepareSystemConfigForRuntimeMirror(
   runtimeHomePath?: string
 ): string {
   const prepared = rewriteRelativePathConfigValues(
-    normalizeDeprecatedCodexHookFeatureFlag(config),
+    // Orca-Pit: agents/hooks already declared in agents/ and hooks.json are not copied twice.
+    dropDuplicatedCodexDeclarationsFromHome(
+      normalizeDeprecatedCodexHookFeatureFlag(config),
+      systemConfigDir
+    ),
     systemConfigDir
   )
   // WSL guest homes do not receive host resource links.
